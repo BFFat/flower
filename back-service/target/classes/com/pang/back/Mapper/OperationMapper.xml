@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.pang.back.Mapper.OperationMapper">
+    <insert id="addOperation" parameterType="com.pang.back.Model.Operation">
+        INSERT INTO operation(operatorID, operationUrl, operationMethod, operationType, operationIP)
+        VALUES (#{operatorID}, #{operationUrl}, #{operationMethod}, #{operationType}, #{operationIP})
+    </insert>
+
+    <select id="selectOperatorInfo" resultType="com.pang.back.Model.Operation">
+        SELECT * FROM operation
+        WHERE
+        <choose>
+            <when test="operatorID == null and startTime == '' and endTime == ''">
+                1=1
+            </when>
+            <when test="operatorID == null and startTime == '' and endTime != ''">
+                operationUpdateTime &lt;= #{endTime}
+            </when>
+            <when test="operatorID == null and endTime == '' and startTime != ''">
+                operationUpdateTime &gt;= #{startTime}
+            </when>
+            <when test="operatorID == null and startTime != '' and endTime != ''">
+                operationUpdateTime BETWEEN #{startTime} AND #{endTime}
+            </when>
+            <when test="operatorID != null and startTime == '' and endTime != ''">
+                operatorID = #{operatorID}
+                AND operationUpdateTime &lt;= #{endTime}
+            </when>
+            <when test="operatorID != null and endTime == '' and startTime != ''">
+                operatorID = #{operatorID}
+                AND operationUpdateTime &gt;= #{startTime}
+            </when>
+            <when test="operatorID != null and startTime == '' and endTime == ''">
+                operatorID = #{operatorID}
+            </when>
+            <when test="operatorID != null and startTime != '' and endTime != ''">
+                operatorID = #{operatorID}
+                AND operationUpdateTime BETWEEN #{startTime} AND #{endTime}
+            </when>
+        </choose>
+        ORDER BY operationUpdateTime DESC
+    </select>
+</mapper>

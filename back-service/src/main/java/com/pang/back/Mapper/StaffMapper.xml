@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.pang.back.Mapper.StaffMapper">
+    <select id="fuzzySelectStaff" resultType="com.pang.back.Model.Staff">
+        SELECT * FROM staff WHERE
+        staffID LIKE CONCAT('%',#{fuzzyData},'%')
+        OR
+        staffRole LIKE CONCAT('%',#{fuzzyData},'%')
+        OR
+        staffStatus LIKE CONCAT('%',#{fuzzyData},'%')
+        OR
+        staffUpdateTime LIKE CONCAT('%',#{fuzzyData},'%')
+    </select>
+    <update id="updateStaff" parameterType="com.pang.back.Model.Staff">
+        UPDATE staff
+        <set>
+            staffPassword = #{staffPassword},
+            staffRole = #{staffRole},
+            staffStatus = #{staffStatus},
+        </set>
+        WHERE staffID = #{staffID}
+    </update>
+    <insert id="addStaff" parameterType="com.pang.back.Model.Staff">
+        INSERT INTO staff(staffPassword, staffRole, staffStatus)
+        VALUES
+        (#{staffPassword}, #{staffRole}, #{staffStatus})
+    </insert>
+    <delete id="batchDelete" parameterType="int[]">
+        DELETE FROM staff WHERE staffID IN
+        <foreach collection="array" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+    <select id="batchSelect" resultType="com.pang.back.Model.Staff">
+        SELECT * FROM staff WHERE staffID IN
+        <foreach collection="array" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+</mapper>

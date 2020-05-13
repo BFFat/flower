@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.pang.back.Mapper.UserInfoMapper">
+        <select id="fuzzySelectUserInfo" resultType="com.pang.back.Model.UserInfo">
+            SELECT * FROM userInfo WHERE
+            userID LIKE CONCAT('%',#{fuzzyData},'%')
+            OR
+            userName LIKE CONCAT('%',#{fuzzyData},'%')
+            OR
+            userSex LIKE CONCAT('%',#{fuzzyData},'%')
+            OR
+            userBirthday LIKE CONCAT('%',#{fuzzyData},'%')
+            OR
+            userAddress LIKE CONCAT('%',#{fuzzyData},'%')
+            OR
+            userInfoUpdateTime LIKE CONCAT('%',#{fuzzyData},'%')
+        </select>
+
+    <insert id="addUserInfo" parameterType="com.pang.back.Model.UserInfo">
+        INSERT INTO userInfo(userID, userName, userSex, userBirthday, userHeadPortrait, userAddress)
+        VALUES
+        (#{userID}, #{userName}, #{userSex}, #{userBirthday}, #{userHeadPortrait}, #{userAddress})
+    </insert>
+
+    <update id="updateUserInfo" parameterType="com.pang.back.Model.UserInfo">
+        UPDATE userInfo
+        <set>
+            userName = #{userName},
+            userSex = #{userSex},
+            userBirthday = #{userBirthday},
+            userHeadPortrait = #{userHeadPortrait},
+            userAddress = #{userAddress},
+        </set>
+        WHERE userID = #{userID}
+    </update>
+
+    <delete id="batchDelete" parameterType="int[]">
+        DELETE FROM userInfo WHERE userID IN
+        <foreach collection="array" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+    <select id="batchSelect" resultType="com.pang.back.Model.UserInfo">
+        SELECT * FROM userInfo WHERE userID IN
+        <foreach collection="array" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+    <update id="updateFrontUserInfo" parameterType="com.pang.back.Model.UserInfo">
+        update userInfo set userName=#{userName}, userSex = #{userSex} ,userBirthday = #{userBirthday} ,userAddress = #{userAddress}
+<!--        <if test="userSex != null and userSex != ''">-->
+<!--            userSex = #{userSex}-->
+<!--        </if>-->
+<!--        <if test="userBirthday != null and userBirthday != ''">-->
+<!--            ,userBirthday = #{userBirthday}-->
+<!--        </if>-->
+<!--        <if test="userAddress != null and userAddress != ''">-->
+<!--            ,userAddress = #{userAddress}-->
+<!--        </if>-->
+        where userID = #{userID}
+    </update>
+</mapper>

@@ -1,0 +1,1381 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>test</title>
+    <meta charset="utf-8">
+
+    <link rel="stylesheet" href="../css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="../css/toastr.min.css">
+    <link rel="stylesheet" type="text/css" href="../css/houtai.css">
+    <link rel="stylesheet" href="../css/bootstrap-datepicker3.min.css">
+    <script type="text/javascript" src="../js/jquery-3.4.1.min.js"></script>
+    <script type="text/javascript" src="../js/bootstrap.js"></script>
+    <!-- <script type="text/javascript" src="../js/user.js"></script> -->
+    <script type="text/javascript" src="../js/vue.js"></script>
+    <script src="../js/bootstrap-datepicker.min.js"></script>
+    <script src="../js/bootstrap-datepicker.zh-CN.min.js" charset="UTF-8"></script>
+    <script src="../js/axios.min.js"></script>
+    <script src="../js/toastr.min.js"></script>
+    <link rel="shortcut icon" href="../img/pang.ico" type="image/x-icon" />
+    <!--制作的图标，使用href关联，仅仅需要更改href的内容  -->
+
+</head>
+<body>
+
+<div v-cloak class="all" id="app">
+    <canvas ref="headCanvas" style="display:none"></canvas>
+    <!--    <div class="top-left" align="center" :class="{'top-left-close': leftClose}">-->
+    <!--        &lt;!&ndash; width:701;height:286; &ndash;&gt;-->
+    <!--        <img src="../img/ff.png" class="top-left-img">-->
+    <!--    </div>-->
+
+
+    <!--详细页面-->
+    <div v-show="!navigationBar" class="leftUl">
+        <!--        <ul class="nav nav-pills nav-stacked leftUl-color" ref="leftUlRef">-->
+        <!--            <li role="presentation">-->
+        <!--                <a href="#" @click="personActive">-->
+        <!--                    人员管理-->
+        <!--                    <span>-->
+        <!--                        <img src="../img/sanjiao.png" class="Static"-->
+        <!--                             :class="{'infoImgChange': personOnActive, 'infoImgReturn': personDownActive }">-->
+        <!--                    </span>-->
+        <!--                </a>-->
+        <!--            </li>-->
+        <!--            <transition name="personbox">-->
+        <!--                <ul v-if="orderShow" class="nav nav-pills nav-stacked leftUl-color box">-->
+        <!--                    <li role="presentation">-->
+        <!--                        <a href="#">-->
+        <!--                            用户管理-->
+        <!--                            <span>-->
+        <!--                                <img src="../img/sanjiao.png" class="Static"-->
+        <!--                                     :class="{'infoImgChange': personOnActive, 'infoImgReturn': personDownActive }">-->
+        <!--                            </span>-->
+        <!--                        </a>-->
+        <!--                    </li>-->
+        <!--                    <li role="presentation"><a href="#">管理员管理</a></li>-->
+        <!--                </ul>-->
+        <!--            </transition>-->
+        <!--            <li role="presentation">-->
+        <!--                <a href="#" @click="goodsActive">-->
+        <!--                    商品管理-->
+        <!--                    <span>-->
+        <!--                    <img src="../img/sanjiao.png" class="Static"-->
+        <!--                         :class="{'infoImgChange': goodsOnActive, 'infoImgReturn': goodsDownActive }">-->
+        <!--                </span>-->
+        <!--                </a>-->
+        <!--            </li>-->
+        <!--            <transition name="goodsbox">-->
+        <!--                <ul v-if="orderShow" class="nav nav-pills nav-stacked leftUl-color box">-->
+        <!--                    <li role="presentation"><a href="#">商品列表</a></li>-->
+        <!--                    <li role="presentation"><a href="#">商品分类</a></li>-->
+        <!--                    <li role="presentation"><a href="#">商品评价</a></li>-->
+        <!--                </ul>-->
+        <!--            </transition>-->
+        <!--            <li class="presentation">-->
+        <!--                <a @click="orderActive" href="#">-->
+        <!--                    订单管理-->
+        <!--                    <span>-->
+        <!--                    <img src="../img/sanjiao.png" class="Static"-->
+        <!--                         :class="{'infoImgChange': orderOnActive, 'infoImgReturn':orderDownActive }">-->
+        <!--                </span>-->
+        <!--                </a>-->
+        <!--            </li>-->
+        <!--            <transition name="orderbox">-->
+        <!--                <ul v-if="orderShow" class="nav nav-pills nav-stacked leftUl-color box">-->
+        <!--                    <li role="presentation"><a href="#">订单列表</a></li>-->
+        <!--                    <li role="presentation"><a href="#">待付款</a></li>-->
+        <!--                    <li role="presentation"><a href="#">待发货</a></li>-->
+        <!--                    <li role="presentation"><a href="#">待收货</a></li>-->
+        <!--                    <li role="presentation"><a href="#">评价</a></li>-->
+        <!--                    <li role="presentation"><a href="#">退款/售后</a></li>-->
+        <!--                    <li role="presentation"><a href="#">已完成</a></li>-->
+        <!--                </ul>-->
+        <!--            </transition>-->
+
+        <!--            <li role="presentation">-->
+        <!--                <a href="#" @click="logActive">-->
+        <!--                    操作日志-->
+        <!--                    <span>-->
+        <!--                    <img src="../img/sanjiao.png" class="Static"-->
+        <!--                         :class="{'infoImgChange':logOnActive, 'infoImgReturn':logDownActive }">-->
+        <!--                </span>-->
+        <!--                </a>-->
+        <!--            </li>-->
+        <!--            <transition name="logbox">-->
+        <!--                <ul v-if="logShow" class="nav nav-pills nav-stacked leftUl-color box">-->
+        <!--                    <li role="presentation"><a href="#">操作日志</a></li>-->
+        <!--                </ul>-->
+        <!--            </transition>-->
+        <!--        </ul >-->
+        <div class="top-left-img">
+            <a href="user">
+                <img src="../img/ff.png" >
+            </a>
+        </div>
+        <ul class="nav nav-pills nav-stacked leftUl-color">
+            <li role="presentation" v-for="item in items" @click="selectTest(item)">
+                <a href="#">
+                    <img :src="item.icon">
+                    &nbsp;
+                    {{item.value}}
+                    <img src="../img/sanjiao.png" class="Static"
+                         :class="{'infoImgChange': item.open, 'infoImgReturn': item.close}">
+                </a>
+                <transition name="unitfybox">
+                    <ul class="nav nav-pills nav-stacked leftUl-color box" v-if="item.open" >
+                        <li role="presentation" v-for="twoItem in item.ul" >
+                            <a :href="twoItem.url" >
+                                {{twoItem.value}}
+                            </a>
+                        </li>
+                    </ul>
+                </transition>
+            </li>
+        </ul>
+    </div>
+
+
+    <!--缩小Ul-->
+    <div v-show="navigationBar" class="leftUl-shrink">
+        <div class="top-left-newImg">
+            <a href="user">
+                <img src="../img/S.png" >
+            </a>
+        </div>
+        <ul class="nav nav-pills nav-stacked leftUl-color">
+            <li role="presentation" v-for="item in items" @click="selectTest(item)">
+                <a href="#" @click="menu">
+                    <img :src="item.icon">
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!--右上角部分-->
+    <div class="top-right" :class="{'top-right-open': rightOpen}">
+
+        <!-- TOP的menu按钮 -->
+        <div class="top-menu">
+            <button class="btn top-menuBtn " type="button" @click="menu">
+                <img src="../img/menu.png">
+            </button>
+        </div>
+        <!-- 接上↑ -->
+        <div class="noticeMsg">
+            <a href="/messageCenter">
+                <img src="../img/message.png">
+                <span class="badge">
+                    {{ unreadMessageNum }}
+                </span>
+            </a>
+        </div>
+
+        <!-- TOP的个人信息 -->
+        <div class="top-peopleInfo">
+            <!-- Large button group -->
+            <div class="btn-group">
+                <button class="btn btn-default btn-lg dropdown-toggle top-peopleInfoBtn" type="button"
+                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <div class="top-peopleInfo-img">
+                        <!-- 如果未登陆头像为默认头像，font为登录 -->
+                        <img class="top-peopleInfo-round-icon" :src=personInfo.staffHeadPortrait>
+                    </div>
+                    <span class="top-peopleInfo-name">
+						<span>
+                            {{ personInfo.staffName }}
+                        </span>
+					</span>
+                    &ensp;
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu">
+
+                    <li><a href="/personInfo">个人资料</a></li>
+                    <li><a href="/changePassword">修改密码</a></li>
+                    <li role="separator" class="divider"></li>
+                    <li><a href="/logout">退出登录</a></li>
+
+                </ul>
+            </div>
+        </div>
+
+
+
+        <!-- 接上↑ -->
+
+
+        <!-- TOP的Sign out -->
+
+        <!-- <div class="top-signOut">
+            <a href="#">退出</a>
+        </div> -->
+
+        <!-- 接上↑ -->
+    </div>
+
+    <!--table部分-->
+    <div class="right" :class="{'right-open': rightOpen}">
+        <div class="right-top">
+            <!-- Stack the columns on mobile by making one full-width and the other half-width -->
+            <!--        <div class="row">-->
+            <!--                <ol class="breadcrumb right-top-ol">-->
+            <!--                    <li><a href="#">主页</a></li>-->
+            <!--                    <li><a href="#">路径</a></li>-->
+            <!--                    <li class="active">路径</li>-->
+            <!--                </ol>-->
+            <!--        </div>-->
+        </div>
+        <div class="right-second">
+            <div class="right-second-top">
+                <button type="button" class="btn btn-success right-second-top-btn" @click="batchDelete">批量删除({{checksIdArrayLen}})</button>
+                <button type="button" class="btn btn-success right-second-top-btn" data-toggle="modal"
+                        data-target="#addUserModal" data-whatever="@getbootstrap">添加
+                </button>
+                <div class="selectBox-parent right-second-top-select">
+                    <div>
+                        <input class="selectBox-input" type="text" name="select" placeholder="Search..."
+                               v-model="fuzzySelectData" @keyup.enter="fuzzySelect(firstPage)">
+                        <button class="selectBtn" @click="fuzzySelect(firstPage)">
+                            <img src="../img/select.png" class="right-second-topImg">
+                        </button>
+                    </div>
+                </div>
+                <div class="path">
+                    <ul class="breadcrumb">
+                        <li><a href="user">首页</a></li>
+                        <li class="active">用户管理</li>
+                        <li class="active">用户列表</li>
+                    </ul>
+                </div>
+            </div>
+            <table class="table table-hover right-table">
+                <thead>
+                <tr>
+                    <th>
+                        <input class="blue" type="checkbox" v-model="checkActive" @click="checkAll">
+                    </th>
+                    <th>ID</th>
+                    <th>昵称</th>
+                    <th>性别</th>
+                    <th>生日</th>
+                    <th>头像</th>
+                    <th>地址</th>
+                    <th>最后更新时间</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for="user in userList ">
+                    <td>
+
+                        <input type="checkbox" v-model="checks[user.userID]" @click="checkOne(user.userID)">
+                    </td>
+                    <td>{{ user.userID }}</td>
+                    <td>{{ user.userName }}</td>
+                    <td>{{ user.userSex }}</td>
+                    <td>{{ user.userBirthday }}</td>
+                    <td>
+                        <img :src="user.userHeadPortrait" style="height: 65px; width: 90px">
+                    </td>
+                    <td>{{ user.userAddress }}</td>
+                    <td>{{ user.userInfoUpdateTime }}</td>
+                    <td>
+                        <button type="button" class="btn btn-info" data-toggle="modal" data-target="#changeModal"
+                                data-whatever="@getbootstrap" @click="getMsg(user)">修改
+                        </button>
+                        <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal"
+                                data-whatever="@getbootstrap" @click="getUserID(user)">删除
+                        </button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content deleteModal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                    aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title">提示</h4>
+                        </div>
+                        <div class="modal-footer">
+                            <h4 class="modal-title" style="float: left;margin-top: 4px;">确认删除吗？</h4>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                            <button type="button" class="btn btn-primary" @click="deleteUser(deleteUserID)"
+                                    data-dismiss="modal">确认
+                            </button>
+                        </div>
+                    </div><!-- /.modal-content -->
+                </div><!-- /.modal-dialog -->
+            </div><!-- /.modal -->
+
+
+            <!--        增加用户模态框-->
+            <div class="modal fade" id="addUserModal" tabindex="-1" role="dialog" aria-labelledby="addUserModalLabel"
+                 aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title modal-one" id="addUserModalLabel">添加用户信息</h5>
+                            <button type="button" class="close modal-close" data-dismiss="modal" aria-label="Close" @click="addModalClose">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <form>
+                                <div class="form-group">
+                                    <label for="recipient-addUserID" class="col-form-label">ID:</label><span
+                                        v-html="addUserIDMsg"></span>
+                                    <input type="text" class="form-control" id="recipient-addUserID" v-model="addUserID"
+                                           @blur="addUserIDBlur" @focus="addUserIDFocus" @input="addUserIDLimit">
+                                </div>
+                                <div class="form-group">
+                                    <label for="recipient-addUserName" class="col-form-label">昵称:</label><span
+                                        v-html="addUserNameMsg"></span>
+                                    <input type="text" class="form-control" id="recipient-addUserName" v-model="addUserName"
+                                           @blur="addBlur" @focus="addFocus" @input="addUserNameLimit">
+                                </div>
+                                <div class="form-group">
+                                    <label for="recipient-addUserSex" class="col-form-label">性别:</label>
+                                    <select class="form-control" id="recipient-addUserSex" v-model="addUserSex" autocomplete="off">
+                                        <option value="男">男</option>
+                                        <option value="女">女</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" id="datepicker" >
+                                    <label for="recipient-addUserBirthday" class="col-form-label">生日:</label>
+                                    <div class='input-group date' >
+                                        <input type='text' class="form-control" id="recipient-addUserBirthday" v-model="addUserBirthday" placeholder="请选择出生年月日" readonly="true"/>
+                                        <span class="input-group-addon">
+                                            <span class="glyphicon glyphicon-calendar"></span>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="recipient-addUserHeadPortrait" class="col-form-label">头像:</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" placeholder="请上传文件" id="recipient-addUserHeadPortrait"
+                                               v-model="addUserHeadPortrait" readonly="true">
+                                        <input style="display: none" type="file" name="file" ref="getAddFile" @change="clickAddFile" accept="image/*">
+                                        <span class="input-group-btn">
+                                            <button class="btn btn-default" type="button" @click="getAddFile">
+                                                <span>
+                                                    <img src="../img/file.png" style="width: 16px; height: 16px;">
+                                                    本地上传
+                                                </span>
+                                            </button>
+                                         </span>
+                                    </div><!-- /input-group -->
+                                </div>
+                                <div class="form-group">
+                                    <label for="recipient-addUserAddress" class="col-form-label">地址:</label>
+                                    <input type="text" class="form-control" id="recipient-addUserAddress"
+                                           v-model="addUserAddress">
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal" @click="addModalClose">取消</button>
+                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#successaddUser"
+                                    data-dismiss="modal" @click="addUser">提交
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--        增加用户模态框-->
+
+
+            <!--        修改用户信息模态框-->
+            <div class="modal fade" id="changeModal" tabindex="-1" role="dialog" aria-labelledby="changeModalLabel"
+                 aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title modal-one" id="changeModalLabel">修改用户信息</h5>
+                            <button type="button" class="close modal-close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <form>
+                                <div class="form-group">
+                                    <label for="recipient-changeUserID" class="col-form-label">ID:</label>
+                                    <input type="text" class="form-control" id="recipient-changeUserID" readonly="true"
+                                           v-model="userData.userID" >
+                                </div>
+                                <div class="form-group">
+                                    <label for="recipient-name1" class="col-form-label">昵称:</label><span
+                                        v-html="changeUserNameMsg"></span>
+                                    <!--                                readonly="true"   设置为不可修改-->
+                                    <input type="text" class="form-control" id="recipient-name1" v-model="userData.userName"
+                                           @blur="changeBlur" @focus="changeFocus" @input="changeUserNameLimit">
+                                </div>
+                                <div class="form-group">
+                                    <label for="recipient-changeUserSex" class="col-form-label">性别:</label>
+                                    <select class="form-control" id="recipient-changeUserSex" v-model="userData.userSex" >
+                                        <option value="男">男</option>
+                                        <option value="女">女</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" id="changeDatepicker">
+                                    <label for="recipient-changeUserBirthday" class="col-form-label">生日:</label>
+                                    <div class='input-group date' >
+                                        <input type='text' class="form-control" id="recipient-changeUserBirthday" v-model="userData.userBirthday" placeholder="请选择出生年月日" readonly="true"/>
+                                        <span class="input-group-addon">
+                                            <span class="glyphicon glyphicon-calendar"></span>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="recipient-changeUserHeadPortrait" class="col-form-label">头像:</label>
+
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" placeholder="请上传文件" id="recipient-changeUserHeadPortrait"
+                                               v-model="userData.userHeadPortrait" readonly="true">
+                                        <input style="display: none" type="file" name="file" ref="getChangeFile" @change="clickChangeFile" accept="image/*">
+                                        <span class="input-group-btn">
+                                            <button class="btn btn-default" type="button" @click="getChangeFile">
+                                                <span>
+                                                    <img src="../img/file.png" style="width: 16px; height: 16px;">
+                                                    本地上传
+                                                </span>
+                                            </button>
+                                         </span>
+                                    </div><!-- /input-group -->
+                                </div>
+                                <div class="form-group">
+                                    <label for="recipient-changeUserAddress" class="col-form-label">地址:</label>
+                                    <input type="text" class="form-control" id="recipient-changeUserAddress"
+                                           v-model="userData.userAddress" >
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal" @click="changeModalClose">取消</button>
+                            <button type="button" class="btn btn-primary" data-toggle="modal"
+                                    @click="set(userData)" data-dismiss="modal">提交
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--        修改用户信息模态框-->
+
+            <!--        分页部分-->
+            <div class="right-Page">
+                <div class="right-Page-left">
+                    <div style="width: 87%; height: 20%; float: left;">
+                        <p>当前 <span v-text="pageNum"></span> 页,总 <span v-text="pages"></span> 页,共 <span
+                                v-text="total"></span> 条记录</p>
+                    </div>
+                </div>
+                <div class="right-Page-middle">
+                    <select class="form-control right-Page-middleSelect" v-model="selectOptionVal" @click="changeOptionVal">
+                        <option value="8">8条/页</option>
+                        <option value="10">10条/页</option>
+                        <option value="12">12条/页</option>
+                    </select>
+                    &nbsp;
+                    <ul class="pagination">
+
+                        <li><a href="#" @click="checkPage(firstPage)">首页</a></li>
+                        <li v-if="isFirstPage === false"><a href="#" @click="checkPage(prePage)">上一页</a></li>
+                        <li v-if="isFirstPage === true" class="disabled"><span aria-hidden="true">上一页</span></li>
+                        <li v-for="index in indexs" :class="{ 'active': pageNum === index}">
+                            <a href="#" @click="btnClick(index)">{{ index }}</a>
+                        </li>
+                        <li v-if="isLastPage === false"><a href="#" @click="checkPage(nextPage)">下一页</a></li>
+                        <li v-if="isLastPage === true" class="disabled"><span aria-hidden="true">下一页</span></li>
+                        <li><a href="#" @click="checkPage(pages)">尾页</a></li>
+
+                    </ul>
+
+                </div>
+                <div class="right-Page-right">
+                    跳转到：<input type="text" class="form-control right-Page-rightInput" v-model="jumpPage">&nbsp;
+                    <button class="btn btn-primary" @click="checkPage(jumpPage)">GO</button>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    var today = new Date();
+    var year = today.getFullYear();
+    var minYear = year - 100;
+    var month = today.getMonth() + 1;
+    var day = today.getDate();
+    var todayStr = year + "-" + month+  "-" + day;
+    var start = minYear + "-" + month+  "-" + day;
+
+
+
+    axios.defaults.headers.post['Content-Type'] = 'application/json';
+    window.onload = function() {
+        vm.checkPage(vm.firstPage)
+        // axios.post('/userInfo/getAllUserInfo', {
+        //     pageNum: vm.firstPage,
+        //     pageSize: vm.selectOptionVal,
+        // }).then(function (dat) {
+        //     console.info(dat.data);
+        //     vm.userList = dat.data.list;
+        //     console.info(vm.userList);
+        //     vm.checkActive = false;
+        //     vm.checksIdArray = [];
+        //     vm.checks = [];
+        //     vm.userList.forEach( ele => {
+        //         vm.checks[ele.userID] = false
+        //     });
+        //     vm.pageNum = dat.data.pageNum;
+        //     vm.pages = dat.data.pages;
+        //     vm.total = dat.data.total;
+        //     vm.nextPage = dat.data.nextPage;
+        //     vm.prePage = dat.data.prePage;
+        //     vm.isFirstPage = dat.data.isFirstPage;
+        //     vm.isLastPage = dat.data.isLastPage;
+        //     vm.jumpPage = "";
+        // })
+    };
+
+
+    var vm = new Vue({
+        el: '#app',
+        data: {
+            /**
+             * top部分
+             *
+             * */
+            unreadMessageNum: "",
+            loginStaffID: "",
+            personInfo: "",
+
+            navigationBar: false,
+            rightOpen: false,
+            /**
+             * top部分
+             *
+             * */
+
+            /**
+             * table部分↓
+             *
+             * */
+            userID: "",
+            userName: "",
+            userSex: "",
+            userBirthday: "",
+            userHeadPortrait: "",
+            userAddress: "",
+            userInfoUpdateTime: "",
+
+            addUserID: "",
+            addUserName: '',
+            addUserSex: '男',
+            addUserBirthday: todayStr,
+            addUserHeadPortrait: '',
+            addUserAddress: '',
+            addUserInfoUpdateTime: '',
+
+            fuzzySelectData: "",
+            addUserNameMsg: "",
+            addUserIDMsg: "",
+            changeUserNameMsg: "",
+            userList: [],
+            //单项数据
+            userData: [],
+            //转化为json后数据
+            jsonItemData: [],
+            deleteUserID: '',
+
+
+            pageNum: "",     //当前页
+            pages: "",       //总页数
+            total: "",       //总记录
+            nextPage: "",    //下一页
+            prePage: "",     //上一页
+            firstPage: 1,    //第一页
+            isFirstPage: false,     //是否为首页
+            isLastPage: false,      //是否为尾页
+            jumpPage: "",            //跳转页数
+            selectOptionVal: "8",    //每页的记录数
+
+            checkActive: false,
+            checks: [],
+            checksIdArray: [],
+            checksIdArrayLen: 0,
+            /**
+             * table部分↑
+             *
+             * */
+
+            /**
+             * left部分↓
+             *
+             * */
+
+            //ul展开状态
+            orderShow: false,
+            personShow: false,
+            goodsShow: false,
+            logShow: false,
+
+            //小三角样式状态
+            personOnActive: false,
+            personDownActive: false,
+            orderOnActive: false,
+            orderDownActive: false,
+            goodsOnActive: false,
+            goodsDownActive: false,
+            logOnActive: false,
+            logDownActive: false,
+
+
+            items:[
+                {
+                    id: "0",
+                    value: "用户管理",
+                    icon: "../img/user.png",
+                    open: false,
+                    close: false,
+                    ul:[
+                        {
+                            id: "0",
+                            value: "用户列表",
+                            url: "/userInfo"
+                        },
+                        {
+                            id: "1",
+                            value: "用户账号",
+                            url: "/user"
+                        }
+                    ]
+                },
+                {
+                    id: "1",
+                    value: "员工管理",
+                    icon: "../img/staff.png",
+                    open: false,
+                    close: false,
+                    ul:[
+                        {
+                            id: "0",
+                            value: "员工列表",
+                            url: "/staffInfo"
+                        },
+                        {
+                            id: "1",
+                            value: "员工账号",
+                            url: "/staff"
+                        }
+                    ]
+                },
+                {
+                    id: "2",
+                    value: "商品管理",
+                    icon: "../img/goods.png",
+                    open: false,
+                    close: false,
+                    ul:[
+                        {
+                            id: "0",
+                            value: "商品列表",
+                            url: "/goodsInfo"
+                        },
+                        {
+                            id: "1",
+                            value: "商品分类",
+                            url: "/goodsClass"
+                        },
+                        {
+                            id: "2",
+                            value: "商品评价",
+                            url: "/evaluate"
+                        }
+                    ]
+                },
+                {
+                    id: "3",
+                    value: "订单管理",
+                    icon: "../img/order.png",
+                    open: false,
+                    close: false,
+                    ul:[
+                        {
+                            id: "0",
+                            value: "订单列表",
+                            url: "/order"
+                        },
+                    ]
+                },
+                {
+                    id: "4",
+                    value: "操作日志",
+                    icon: "../img/log.png",
+                    open: false,
+                    close: false,
+                    ul:[
+                        {
+                            id: "0",
+                            value: "操作日志",
+                            url: "/operation"
+                        },
+                    ]
+                },
+                {
+                    id: "5",
+                    value: "通知管理",
+                    icon: "../img/notify.png",
+                    open: false,
+                    close: false,
+                    ul:[
+                        {
+                            id: "0",
+                            value: "发送通知",
+                            url: "/notifyMessage"
+                        }
+                    ]
+                }
+            ],
+            nowLiNum: "",
+
+            /**
+             * left部分↑
+             *
+             * */
+
+        },
+        methods: {
+            changeOptionVal() {
+                vm.checkPage(vm.firstPage);
+            },
+            getPersonInfo() {
+                axios.post('/staffInfo/getPersonInfo', {
+                }).then(function (data) {
+                    vm.personInfo = data.data.detail;
+                    vm.loginStaffID = vm.personInfo.staffID
+                    setTimeout(() => {
+                        vm.getUnreadMessageNum();
+                        vm.checkPage(vm.pageNum);
+                    }, 500)
+                })
+            },
+            getUnreadMessageNum() {
+                axios.post('/notify/getUnreadMessageNum', {
+                    staffID: vm.loginStaffID,
+                }).then(function (data) {
+                    console.info(data.data)
+                    vm.unreadMessageNum = data.data;
+                })
+            },
+            test() {
+                $('#datepicker .input-group.date').datepicker({
+                    format: 'yyyy-mm-dd',
+                    language: 'zh-CN',
+                    todayHighlight: true,
+                    startDate: start,
+                    endDate: todayStr,
+                    autoClose: true,
+                    clearBtn: true
+                });
+                $('#changeDatepicker .input-group.date').datepicker({
+                    format: 'yyyy-mm-dd',
+                    language: 'zh-CN',
+                    todayHighlight: true,
+                    startDate: start,
+                    endDate: todayStr,
+                    autoClose:true,
+                    clearBtn: true
+                });
+
+            },
+            getAddFile() {
+                this.$refs.getAddFile.click()
+            },
+            clickAddFile() {
+                console.log(this.$refs.getAddFile.files);
+                var filename = this.$refs.getAddFile.files[0].name;
+                vm.addUserHeadPortrait = filename;
+            },
+            getChangeFile() {
+                this.$refs.getChangeFile.click()
+            },
+            clickChangeFile() {
+                console.log(this.$refs.getChangeFile.files);
+                var filename = this.$refs.getChangeFile.files[0].name;
+                vm.userData.userHeadPortrait = filename;
+            },
+
+
+
+            selectTest(item) {
+                for (let i=0 ; i<vm.items.length; i++) {
+                    if (vm.items[i].id != item.id && vm.items[i].open === true) {
+                        vm.items[i].open = false;
+                        vm.items[i].close = true;
+                    }
+                }
+                // vm.nowLiNum = item;
+                if (item.open === false) {
+                    item.open = true;
+                    item.close = false;
+                } else if(item.open === true) {
+                    item.open = false;
+                    item.close = true;
+                }
+
+            },
+            /**
+             * top部分
+             *
+             * */
+            menu() {
+                vm.navigationBar = !vm.navigationBar;
+                vm.rightOpen = !vm.rightOpen;
+            },
+            /**
+             * top部分
+             *
+             * */
+
+
+            /**
+             * left部分
+             *
+             * */
+            personActive() {
+                vm.personShow = !vm.personShow;
+                if (vm.personOnActive === false) {
+                    vm.personOnActive = true;
+                    vm.personDownActive = !vm.personOnActive;
+                } else if (vm.personOnActive === true) {
+                    vm.personOnActive = false;
+                    vm.personDownActive = vm.personOnActive;
+                }
+            },
+            orderActive() {
+                vm.orderShow = !vm.orderShow;
+                if (vm.orderOnActive === false) {
+                    vm.orderOnActive = true;
+                    vm.orderDownActive = !vm.orderOnActive;
+                } else if (vm.orderOnActive === true) {
+                    vm.orderOnActive = false;
+                    vm.orderDownActive = !vm.orderOnActive;
+                }
+            },
+            goodsActive() {
+                vm.goodsShow = !vm.goodsShow;
+                if (vm.goodsOnActive === false) {
+                    vm.goodsOnActive = true;
+                    vm.goodsDownActive = !vm.goodsOnActive;
+                } else if (vm.goodsOnActive === true) {
+                    vm.goodsOnActive = false;
+                    vm.goodsDownActive = !vm.goodsOnActive;
+                }
+            },
+            logActive() {
+                vm.logShow = !vm.logShow;
+                if (vm.logOnActive === false) {
+                    vm.logOnActive = true;
+                    vm.logDownActive = !vm.logOnActive;
+                } else if (vm.logOnActive === true) {
+                    vm.logOnActive = false;
+                    vm.logDownActive = !vm.logOnActive;
+                }
+            },
+            /**
+             * left部分
+             *
+             * */
+
+
+            /**
+             * 模态框关闭和取消按钮清空原本的输入*/
+            addModalClose() {
+                /**
+                 *校验需要清空
+                 *
+                 * */
+                vm.addUserID = ""
+                vm.addUserName = "";
+                vm.addUserSex = "男";
+                vm.addUserBirthday = todayStr;
+                vm.addUserHeadPortrait = "";
+                vm.addUserAddress = "";
+                vm.addUserInfoUpdateTime = "";
+                vm.addUserIDMsg = "";
+                vm.addUserNameMsg = "";
+            },
+
+            changeModalClose() {
+                vm.changeUserNameMsg = "";
+
+            },
+            checkAll(){
+                vm.checksIdArray = [];
+                if(this.checkActive){
+                    this.checkActive = false;
+                    // for(let i = 0; i < vm.total; i++) {
+                    //     vm.checks[i] = false
+                    // }
+                    vm.userList.forEach( ele => {
+                        vm.checks[ele.userID] = false;
+                        vm.checksIdArray.pop(ele.userID);
+                    });
+                }
+                else{
+                    this.checkActive = true;
+                    // for(let i = 0; i < vm.total; i++) {
+                    //     vm.checks[i] = true
+                    // }
+                    vm.userList.forEach( ele => {
+                        vm.checks[ele.userID] = true;
+                        vm.checksIdArray.push(ele.userID);
+                    });
+                }
+                console.info(vm.checks)
+                vm.checksIdArrayLen = vm.checksIdArray.length;
+            },
+            batchDelete() {
+                if (vm.checksIdArrayLen > 0 ) {
+                    axios.post("/userInfo/batchDelete", {
+                        checksIdArray: vm.checksIdArray,
+                    }).then(function (dat) {
+                        console.info(dat.data)
+                        if (dat.data.success === true)
+                            vm.checkPage(vm.pageNum);
+                    })
+                } else {
+                    toastr.options = {
+                        timeOut: 1000,
+                        positionClass: "toast-top-center",
+                    };
+                    toastr.error("请至少选择一项")
+                }
+            },
+
+            checkOne(userID) {
+                if (!vm.checks[userID]) { //入栈
+                    vm.checks[userID] = true;
+                    vm.checksIdArray.push(userID);
+                }else {
+                    vm.checks[userID] = false;
+                    vm.checksIdArray.pop(userID);
+                }
+                vm.checksIdArrayLen = vm.checksIdArray.length;
+                // if (vm.checksIdArrayLen === 8) {
+                //     vm.checkActive = true;
+                // } else {
+                //     vm.checkActive = false;
+                // }
+
+            },
+
+
+            pageClick() {
+                console.log('现在在' + this.pageNum + '页');
+            },
+            btnClick(data) {
+                if (data != vm.pageNum) {
+                    vm.pageNum = data;
+                    vm.checkPage(vm.pageNum);
+                }
+            },
+            checkPage(wantPageNum) {
+                if (vm.fuzzySelectData === "") {
+                    axios.post('/userInfo/getAllUserInfo', {
+                        pageNum: wantPageNum,
+                        pageSize: vm.selectOptionVal,
+                    }).then(function (dat) {
+                        console.info(dat.data);
+                        vm.userList = dat.data.list;
+                        console.info(vm.userList);
+                        vm.checkActive = false;
+                        vm.checksIdArray = [];
+                        vm.checks = [];
+                        vm.userList.forEach( ele => {
+                            vm.checks[ele.userID] = false
+                        });
+                        vm.pageNum = dat.data.pageNum;
+                        vm.pages = dat.data.pages;
+                        vm.total = dat.data.total;
+                        vm.nextPage = dat.data.nextPage;
+                        vm.prePage = dat.data.prePage;
+                        vm.isFirstPage = dat.data.isFirstPage;
+                        vm.isLastPage = dat.data.isLastPage;
+                        vm.jumpPage = "";
+                        vm.checksIdArrayLen = 0;
+                    })
+                } else if (vm.fuzzySelectData != "") {
+                    vm.fuzzySelect(wantPageNum)
+                }
+            },
+            getUserID(user) {
+                console.info(user)
+
+                console.info(user.userID)
+                // var deleteUserArr = JSON.parse(JSON.stringify(user));
+                vm.deleteUserID = user.userID;
+            },
+
+            /**
+             * 模糊查询
+             *
+             * */
+            fuzzySelect(wantPageNum) {
+                axios.post('/userInfo/fuzzySelectUserInfo', {
+                    pageNum: wantPageNum,
+                    pageSize: vm.selectOptionVal,
+                    fuzzyData: vm.fuzzySelectData,
+                }).then(function (dat) {
+                    console.info(dat.data);
+                    vm.userList = dat.data.list;
+                    console.info(vm.userList);
+                    vm.checkActive = false;
+                    vm.checksIdArray = [];
+                    vm.checks = [];
+                    vm.userList.forEach( ele => {
+                        vm.checks[ele.userID] = false
+                    });
+                    vm.pageNum = dat.data.pageNum;
+                    vm.pages = dat.data.pages;
+                    vm.total = dat.data.total;
+                    vm.nextPage = dat.data.nextPage;
+                    vm.prePage = dat.data.prePage;
+                    vm.isFirstPage = dat.data.isFirstPage;
+                    vm.isLastPage = dat.data.isLastPage;
+                    vm.jumpPage = "";
+                    vm.checksIdArrayLen = 0;
+                })
+            },
+            deleteUser(userID) {
+                axios.post('/userInfo/deleteUserInfo', {
+                    userID: userID,
+                }).then(function (dat) {
+                    // 操作成功弹出框
+                    toastr.options = {
+                        timeOut: 1000,
+                        positionClass: "toast-top-center",
+                    };
+                    toastr.success('删除数据成功');
+                    console.info(dat.data);
+                    vm.checkPage(vm.pageNum);
+
+                })
+            },
+
+
+            addUser() {
+                var addDatepicker = $('#datepicker .input-group.date').datepicker('getDate');
+                var addDate = addDatepicker.getFullYear() + "-" + addDatepicker.getMonth() + "-" + addDatepicker.getDate();
+                vm.addUserBirthday = addDate;
+                var formData = new window.FormData();
+                var file = this.$refs.getAddFile.files[0];
+                var myreg=/^[1][3,4,5,7,8][0-9]{9}$/;
+                if (file != undefined) {
+                    formData.append("file", file);
+                } else if (file === undefined) {
+                    var fileName = vm.addUserName + ".jpg";    //vm.addUserName
+                    var firstName = fileName.charAt(0);
+                    var fontSize = 60;
+                    var fontWeight = 'bold';
+                    var canvas =  this.$refs.headCanvas;
+                    //var canvas = document.getElementById('headImg');
+                    canvas.width = 120;
+                    canvas.height = 120;
+                    var context = canvas.getContext('2d');
+                    context.fillStyle = '#F7F7F9';
+                    context.fillRect(0, 0, canvas.width, canvas.height);
+                    context.fillStyle = '#605CA8';
+                    context.font = fontWeight + ' ' + fontSize + 'px sans-serif';
+                    context.textAlign = 'center';
+                    context.textBaseline="middle";
+                    context.fillText(firstName, fontSize, fontSize);
+                    var dataurl = canvas.toDataURL("image/png");
+                    var arr = dataurl.split(','),
+                        mime = arr[0].match(/:(.*?);/)[1],
+                        bstr = atob(arr[1]),
+                        n = bstr.length,
+                        u8arr = new Uint8Array(n);
+                    while (n--) {
+                        u8arr[n] = bstr.charCodeAt(n);
+                    }
+                    var file = new File([u8arr], fileName, {type: mime});
+
+                    file.lastModifiedDate = new Date();
+                    console.info(file);
+                    formData.append("file", file)
+                }
+                if (vm.addUserName.length > 0 && vm.addUserIDMsg === "") {
+                    formData.append("userID", vm.addUserID);
+                    formData.append("userName", vm.addUserName);
+                    formData.append("userSex", vm.addUserSex);
+                    formData.append("userBirthday", vm.addUserBirthday);
+                    formData.append("userHeadPortrait", vm.addUserHeadPortrait);
+                    formData.append("userAddress", vm.addUserAddress);
+                    axios.post('/userInfo/addUserInfo', formData, {
+                    }).then(function (dat) {
+                        console.info(dat.data)
+                        vm.checkPage(vm.pageNum);
+                        // 操作成功弹出框
+                        toastr.options = {
+                            timeOut: 1000,
+                            positionClass: "toast-top-center",
+                        };
+                        toastr.success('添加用户成功')
+                    });
+                } else if (this.addUserName.length <= 0) {
+                    // 操作成功弹出框
+                    toastr.options = {
+                        timeOut: 1000,
+                        positionClass: "toast-top-center",
+                    };
+                    toastr.error("昵称不能为空")
+                } else if (this.addUserIDMsg != "") {
+                    // 操作成功弹出框
+                    toastr.options = {
+                        timeOut: 1000,
+                        positionClass: "toast-top-center",
+                    };
+                    toastr.error("用户ID存在问题")
+                }
+                vm.addModalClose();
+                $('#datepicker .input-group.date').datepicker('update', todayStr);
+            },
+
+            //点击修改按钮，深拷贝
+            getMsg(user) {
+                // var newArray = $.extend(true,{},item);
+                var newArray = JSON.parse(JSON.stringify(user));
+                vm.userData = newArray;
+            },
+            //点击提交按钮，显示修改后内容
+            submit(userData) {
+                //转化为json格式
+                this.jsonItemData = JSON.stringify(userData)
+            },
+            //点击确定，修改成功渲染
+            set(userData) {
+                var changeDatepicker = $('#changeDatepicker .input-group.date').datepicker('getDate');
+                console.info(changeDatepicker)
+                if (changeDatepicker != null) {
+                    var changeDate = changeDatepicker.getFullYear() + "-" + changeDatepicker.getMonth() + "-" + changeDatepicker.getDate();
+                    userData.userBirthday = changeDate;
+                    console.info("userData的值")
+                    console.info(userData.userBirthday)
+                }
+                var formData = new window.FormData();
+                var file = this.$refs.getChangeFile.files[0];
+                var myreg=/^[1][3,4,5,7,8][0-9]{9}$/;
+                if (file != undefined) {
+                    formData.append("file", file);
+                }
+                if (userData.userName.length > 0) {
+                    formData.append("userID", userData.userID);
+                    formData.append("userName", userData.userName);
+                    formData.append("userSex", userData.userSex);
+                    formData.append("userBirthday", userData.userBirthday);
+                    formData.append("userHeadPortrait", userData.userHeadPortrait);
+                    formData.append("userAddress", userData.userAddress);
+                    axios.post('/userInfo/updateUserInfo', formData, {
+                    }).then(function (dat) {
+                        console.info(dat.data);
+                        vm.checkPage(vm.pageNum);
+                        // 操作成功弹出框
+                        toastr.options = {
+                            timeOut: 1000,
+                            positionClass: "toast-top-center",
+                        };
+                        toastr.success('修改成功')
+                    })
+                } else if (userData.userName.length <= 0) {
+                    // 操作成功弹出框
+                    toastr.options = {
+                        timeOut: 1000,
+                        positionClass: "toast-top-center",
+                    };
+                    toastr.error("昵称不能为空")
+                }
+                vm.changeModalClose();
+                $('#changeDatepicker .input-group.date').datepicker('update', '')
+                changeDatepicker = $('#changeDatepicker .input-group.date').datepicker('getDate')
+                console.info(changeDatepicker)
+            },
+
+            addUserIDLimit() {
+                this.addUserID = this.addUserID.replace(/[^\d]/g,'')
+            },
+            //只能输入汉字、英文、数字
+            addUserNameLimit() {
+                this.addUserName = this.addUserName.replace(/[^\a-\z\A-\Z0-9\u4E00-\u9FA5]/g, '')
+            },
+
+            changeUserNameLimit() {
+                this.userData.userName = this.userData.userName.replace(/[^\a-\z\A-\Z0-9\u4E00-\u9FA5]/g, '')
+            },
+            //不能输入中文
+            //.replace(/[\u4E00-\u9FA5]/g,'')
+            addUserPasswordLimit() {
+                this.addUserPassword = this.addUserPassword.replace(/[\u4E00-\u9FA5]/g,'')
+            },
+            changUserPasswordLimit() {
+                this.userData.userPassword = this.userData.userPassword.replace(/[\u4E00-\u9FA5]/g,'')
+            },
+            //只能输入英文、数字
+            // userPasswordLimit() {
+            //     this.userPassword = this.userPassword.replace(/[^\a-\z\A-\Z0-9]/g, '')
+            // },
+            // 限制输入特殊字符
+            // userNameLimit() {
+            //     this.addUserName = this.addUserName.replace(/[ `~!@#$%^&*()_\-+=<>?:"{}|,.\/;'\\[\]·~！@#￥%……&*（）——\-+={}|《》？：“”【】、；‘’，。、]/g, '')
+            // },
+
+            /**
+             * 添加用户模态框失去焦点
+             * */
+            addBlur() {
+                if (this.addUserName.length <= 0) {
+                    vm.addUserNameMsg = '<span style="color:red;float:right;">昵称不能为空</span>'
+                }
+            },
+            addUserIDBlur() {
+                if (this.addUserID != "") {
+                    axios.post('/user/selectUserByID', {
+                        userID: this.addUserID,
+                    }).then(function (data) {
+                        if (data.data.success === false) {
+                            vm.addUserIDMsg = '<span style="color:red;float:right;">用户ID不存在</span>'
+                        }
+                    })
+                } else if (this.addUserID === "") {
+                    vm.addUserIDMsg = '<span style="color:red;float:right;">用户ID不能为空</span>'
+                }
+                if (vm.addUserIDMsg === "") {
+                    axios.post('/userInfo/selectUserInfoByID', {
+                        userID: this.addUserID,
+                    }).then(function (data) {
+                        if (data.data.success === true) {
+                            vm.addUserIDMsg = '<span style="color:red;float:right;">用户ID记录已存在，不要重复添加</span>'
+                        }
+                    })
+                }
+            },
+
+
+            /**
+             * 添加用户模态框获取焦点
+             * */
+            addFocus() {
+                vm.addUserNameMsg = ""
+            },
+
+            addUserIDFocus() {
+                vm.addUserIDMsg = ""
+            },
+
+            /**
+             * 修改用户模态框失去焦点
+             * */
+            changeBlur() {
+                if (this.userData.userName.length <= 0) {
+                    vm.changeUserNameMsg = '<span style="color:red;float:right;">昵称不能为空</span>'
+                }
+            },
+
+            /**
+             * 修改用户模态框获取焦点
+             * */
+            changeFocus() {
+                vm.changeUserNameMsg = ""
+            },
+
+
+        },
+        mounted() {
+            this.test();
+            this.getPersonInfo();
+        },
+        watch: {
+
+            checksIdArrayLen(nowStuts) {
+                if (vm.checksIdArrayLen === vm.userList.length) {
+                    vm.checkActive = true;
+                } else {
+                    vm.checkActive =false;
+                }
+            },
+            pageNum: function (oldValue, newValue) {
+                console.log(arguments);
+            },
+            selectOptionVal() {
+                console.log(vm.selectOptionVal);
+                vm.checkPage(vm.firstPage);
+            }
+        },
+        computed: {
+
+            getIcon(item) {
+                return item.icon;
+            },
+            indexs: function () {
+                // 定义开始的数字
+                var left = 1;
+                // 定义结束的数字
+                var right = this.pages;
+
+                // 存储返回值
+                var ar = [];
+
+                // 前提条件：每次都显示condition条页码
+                // 最好是个单数
+                var condition = 5;
+
+                // 向上取整->就能获取到中间的数字
+                var middle = Math.ceil(condition / 2);
+
+                // 要分清情况
+                //1、在最左边或者在middle的前面
+                //2、在中间
+                //3、最右边的情况
+
+                // 当总页数超过condition时，需要判断分页情况
+                if (this.pages >= condition) {
+                    // 中间的时候
+                    // 左右都加上（middle-1)
+                    if (this.pageNum > middle && this.pageNum < this.pages - (middle - 1)) {
+                        left = this.pageNum - (middle - 1);
+                        right = this.pageNum + (middle - 1);
+                    } else {
+                        //最左边或者在condition的中间
+                        if (this.pageNum <= middle) {
+                            left = 1;
+                            right = condition;
+                            // 最右边的情况
+                            // 结束是总条数，开始是condition减去1
+                        } else {
+                            right = this.pages;
+                            left = this.pages - (condition - 1);
+                        }
+                    }
+                }
+                while (left <= right) {
+                    ar.push(left);
+                    left++;
+                }
+                return ar
+
+            }
+        },
+
+
+    })
+
+
+</script>
+</body>
+</html>

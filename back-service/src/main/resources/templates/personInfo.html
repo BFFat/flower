@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>test</title>
+    <meta charset="utf-8">
+
+    <link rel="stylesheet" href="../css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="../css/toastr.min.css">
+    <link rel="stylesheet" type="text/css" href="../css/houtai.css">
+    <link rel="stylesheet" href="../css/bootstrap-datepicker3.min.css">
+    <script type="text/javascript" src="../js/jquery-3.4.1.min.js"></script>
+    <script type="text/javascript" src="../js/bootstrap.js"></script>
+    <!-- <script type="text/javascript" src="../js/houtai.js"></script> -->
+    <script type="text/javascript" src="../js/vue.js"></script>
+    <script src="../js/bootstrap-datepicker.min.js"></script>
+    <script src="../js/bootstrap-datepicker.zh-CN.min.js" charset="UTF-8"></script>
+    <script src="../js/axios.min.js"></script>
+    <script src="../js/toastr.min.js"></script>
+    <link rel="shortcut icon" href="../img/pang.ico" type="image/x-icon" />
+    <!--制作的图标，使用href关联，仅仅需要更改href的内容  -->
+
+</head>
+<body>
+
+<div v-cloak class="all" id="app">
+    <canvas ref="headCanvas" style="display:none"></canvas>
+    <!--详细页面-->
+    <div v-show="!navigationBar" class="leftUl">
+        <div class="top-left-img">
+            <a href="./user">
+                <img src="../img/ff.png" >
+            </a>
+        </div>
+        <ul class="nav nav-pills nav-stacked leftUl-color">
+            <li role="presentation" v-for="item in items" @click="selectTest(item)">
+                <a href="#">
+                    <img :src="item.icon">
+                    &nbsp;
+                    {{item.value}}
+                    <img src="../img/sanjiao.png" class="Static"
+                         :class="{'infoImgChange': item.open, 'infoImgReturn': item.close}">
+                </a>
+                <transition name="unitfybox">
+                    <ul class="nav nav-pills nav-stacked leftUl-color box" v-if="item.open" >
+                        <li role="presentation" v-for="twoItem in item.ul" >
+                            <a :href="twoItem.url" >
+                                {{twoItem.value}}
+                            </a>
+                        </li>
+                    </ul>
+                </transition>
+            </li>
+        </ul>
+    </div>
+
+
+    <!--缩小Ul-->
+    <div v-show="navigationBar" class="leftUl-shrink">
+        <div class="top-left-newImg">
+            <a href="./user">
+                <img src="../img/S.png" >
+            </a>
+        </div>
+        <ul class="nav nav-pills nav-stacked leftUl-color">
+            <li role="presentation" v-for="item in items" @click="selectTest(item)">
+                <a href="#" @click="menu">
+                    <img :src="item.icon">
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!--右上角部分-->
+    <div class="top-right" :class="{'top-right-open': rightOpen}">
+
+        <!-- TOP的menu按钮 -->
+        <div class="top-menu">
+            <button class="btn top-menuBtn " type="button" @click="menu">
+                <img src="../img/menu.png">
+            </button>
+        </div>
+        <!-- 接上↑ -->
+
+        <div class="noticeMsg">
+            <a href="/messageCenter">
+                <img src="../img/message.png">
+                <span class="badge">
+                    {{ unreadMessageNum }}
+                </span>
+            </a>
+        </div>
+
+        <!-- TOP的个人信息 -->
+        <div class="top-peopleInfo">
+            <!-- Large button group -->
+            <div class="btn-group">
+                <button class="btn btn-default btn-lg dropdown-toggle top-peopleInfoBtn" type="button"
+                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <div class="top-peopleInfo-img">
+                        <!-- 如果未登陆头像为默认头像，font为登录 -->
+                        <img class="top-peopleInfo-round-icon" :src=personInfo.staffHeadPortrait>
+                    </div>
+                    <span class="top-peopleInfo-name">
+						<span>
+                            {{ personInfo.staffName }}
+                        </span>
+					</span>
+                    &ensp;
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu">
+
+                    <li><a href="/personInfo">个人资料</a></li>
+                    <li><a href="/changePassword">修改密码</a></li>
+                    <li role="separator" class="divider"></li>
+                    <li><a href="/logout">退出登录</a></li>
+
+                </ul>
+            </div>
+        </div>
+
+
+
+        <!-- 接上↑ -->
+
+
+        <!-- TOP的Sign out -->
+
+        <!-- <div class="top-signOut">
+            <a href="#">退出</a>
+        </div> -->
+
+        <!-- 接上↑ -->
+    </div>
+
+    <!--table部分-->
+    <div class="right" :class="{'right-open': rightOpen}">
+        <div class="right-top">
+        </div>
+
+        <div class="right-second">
+            <div class="right-second-top">
+                <h4 style="margin-left:4%">个人资料</h4>
+            </div>
+            <HR style="margin-left:4%; width:55%;color:#987cb9; size:1px">
+            <div style="width: 7%;float: left;margin-left: 5%; margin-top: 2%;">
+                <img :src="personInfo.staffHeadPortrait" class="img-circle" style="width: 120px; height: 120px">
+                <div align="center" style="margin-top: 15px;">
+                    <input type="file" style="display: none" ref="changeHeadPortrait" @change="changeHeadPortrait">
+                    <a href="#" @click="getChangeHeadPortrait">修改头像</a>
+                </div>
+            </div>
+            <form class="form-horizontal" style="width: 70%;float: left;margin-top: 3%">
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">ID：</label>
+                    <div class="col-sm-10">
+                        <p class="form-control-static" style="width: 50%; float: left;">
+                            {{ personInfo.staffID }}
+                        </p>
+                        <p style="width: 10%;float: left;margin-top: 10px;">
+                            <a href="#" data-toggle="modal" data-target="#changeModal" @click="getMsg(personInfo)">
+                                修改资料
+                            </a>
+                        </p>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">姓名：</label>
+                    <div class="col-sm-10">
+                        <p class="form-control-static">
+                            {{ personInfo.staffName }}
+                        </p>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">性别：</label>
+                    <div class="col-sm-10">
+                        <p class="form-control-static">
+                            {{ personInfo.staffSex }}
+                        </p>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">生日：</label>
+                    <div class="col-sm-10">
+                        <p class="form-control-static">
+                            {{ personInfo.staffBirthday }}
+                        </p>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">手机号码：</label>
+                    <div class="col-sm-10">
+                        <p class="form-control-static">
+                            {{ personInfo.staffPhone }}
+                        </p>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">地址：</label>
+                    <div class="col-sm-10">
+                        <p class="form-control-static">
+                            {{ personInfo.staffAddress }}
+                        </p>
+                    </div>
+                </div>
+            </form>
+
+            <!--        修改用户信息模态框-->
+            <div class="modal fade" id="changeModal" tabindex="-1" role="dialog" aria-labelledby="changeModalLabel"
+                 aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title modal-one" id="changeModalLabel">修改用户信息</h5>
+                            <button type="button" class="close modal-close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <form>
+                                <div class="form-group">
+                                    <label for="recipient-changeStaffID" class="col-form-label">ID:</label>
+                                    <input type="text" class="form-control" id="recipient-changeStaffID" readonly="true"
+                                           v-model="staffData.staffID" >
+                                </div>
+                                <div class="form-group">
+                                    <label for="recipient-name1" class="col-form-label">姓名:</label><span
+                                        v-html="changeStaffNameMsg"></span>
+                                    <input type="text" class="form-control" id="recipient-name1" v-model="staffData.staffName"
+                                           @blur="changeBlur" @focus="changeFocus" @input="changeStaffNameLimit">
+                                </div>
+                                <div class="form-group">
+                                    <label for="recipient-changeStaffSex" class="col-form-label">性别:</label>
+                                    <select class="form-control" id="recipient-changeStaffSex" v-model="staffData.staffSex" >
+                                        <option value="男">男</option>
+                                        <option value="女">女</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" id="changeDatepicker">
+                                    <label for="recipient-changeStaffBirthday" class="col-form-label">生日:</label>
+                                    <div class='input-group date' >
+                                        <input type='text' class="form-control" id="recipient-changeStaffBirthday" v-model="staffData.staffBirthday" placeholder="请选择出生年月日" readonly="true"/>
+                                        <span class="input-group-addon">
+                                            <span class="glyphicon glyphicon-calendar"></span>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="recipient-changeStaffPhone" class="col-form-label">手机号码:</label><span
+                                        v-html="changeStaffPhoneMsg"></span>
+                                    <input type="text" class="form-control" id="recipient-changeStaffPhone" maxlength="11"
+                                           v-model="staffData.staffPhone" @blur="changeStaffPhoneBlur" @focus="changeStaffPhoneFocus" @input="changeStaffPhoneLimit">
+                                </div>
+                                <div class="form-group">
+                                    <label for="recipient-changeStaffHeadPortrait" class="col-form-label">头像:</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" placeholder="请上传文件" id="recipient-changeStaffHeadPortrait"
+                                               v-model="staffData.staffHeadPortrait" readonly="true">
+                                        <input style="display: none" type="file" name="file" ref="getChangeFile" @change="clickChangeFile">
+                                        <span class="input-group-btn">
+                                            <button class="btn btn-default" type="button" @click="getChangeFile">
+                                                <span>
+                                                    <img src="../img/file.png" style="width: 16px; height: 16px;">
+                                                    本地上传
+                                                </span>
+                                            </button>
+                                         </span>
+                                    </div><!-- /input-group -->
+                                </div>
+                                <div class="form-group">
+                                    <label for="recipient-changeStaffAddress" class="col-form-label">地址:</label>
+                                    <input type="text" class="form-control" id="recipient-changeStaffAddress"
+                                           v-model="staffData.staffAddress" >
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal" @click="changeModalClose">取消</button>
+                            <button type="button" class="btn btn-primary" data-toggle="modal"
+                                    @click="set(staffData)" data-dismiss="modal">提交
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--        修改用户信息模态框-->
+
+
+        </div>
+
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    var today = new Date();
+    var year = today.getFullYear();
+    var minYear = year - 100;
+    var month = today.getMonth() + 1;
+    var day = today.getDate();
+    var todayStr = year + "-" + month+  "-" + day;
+    var start = minYear + "-" + month+  "-" + day;
+
+    axios.defaults.headers.post['Content-Type'] = 'application/json';
+
+
+
+    var vm = new Vue({
+        el: '#app',
+        data: {
+            /**
+             * top部分
+             *
+             * */
+            unreadMessageNum: "",
+            loginStaffID: "",
+            personInfo: "",
+
+            navigationBar: false,
+            rightOpen: false,
+
+            /**
+             * top部分
+             *
+             * */
+
+            /**
+             * table部分↓
+             *
+             * */
+            staffID: "",
+            staffName: "",
+            staffSex: "",
+            staffBirthday: "",
+            staffPhone: "",
+            staffHeadPortrait: "",
+            staffAddress: "",
+            staffInfoUpdateTime: "",
+
+            addStaffID: "",
+            addStaffName: '',
+            addStaffSex: '男',
+            addStaffBirthday: todayStr,
+            addStaffPhone: '',
+            addStaffHeadPortrait: '',
+            addStaffAddress: '',
+            addStaffInfoUpdateTime: '',
+
+            fuzzySelectData: "",
+            addStaffNameMsg: "",
+            addStaffIDMsg: "",
+            addStaffPhoneMsg: "",
+            changeStaffNameMsg: "",
+            changeStaffPhoneMsg: "",
+            staffList: [],
+            //单项数据
+            staffData: [],
+            //转化为json后数据
+            jsonItemData: [],
+            deleteStaffID: '',
+
+
+            pageNum: "",     //当前页
+            pages: "",       //总页数
+            total: "",       //总记录
+            nextPage: "",    //下一页
+            prePage: "",     //上一页
+            firstPage: 1,    //第一页
+            isFirstPage: false,     //是否为首页
+            isLastPage: false,      //是否为尾页
+            jumpPage: "",            //跳转页数
+            selectOptionVal: "8",    //每页的记录数
+
+            /**
+             * table部分↑
+             *
+             * */
+
+            /**
+             * left部分↓
+             *
+             * */
+
+            //ul展开状态
+            orderShow: false,
+            personShow: false,
+            goodsShow: false,
+            logShow: false,
+
+            //小三角样式状态
+            personOnActive: false,
+            personDownActive: false,
+            orderOnActive: false,
+            orderDownActive: false,
+            goodsOnActive: false,
+            goodsDownActive: false,
+            logOnActive: false,
+            logDownActive: false,
+
+
+            items:[
+                {
+                    id: "0",
+                    value: "用户管理",
+                    icon: "../img/user.png",
+                    open: false,
+                    close: false,
+                    ul:[
+                        {
+                            id: "0",
+                            value: "用户列表",
+                            url: "/userInfo"
+                        },
+                        {
+                            id: "1",
+                            value: "用户账号",
+                            url: "/user"
+                        }
+                    ]
+                },
+                {
+                    id: "1",
+                    value: "员工管理",
+                    icon: "../img/staff.png",
+                    open: false,
+                    close: false,
+                    ul:[
+                        {
+                            id: "0",
+                            value: "员工列表",
+                            url: "/staffInfo"
+                        },
+                        {
+                            id: "1",
+                            value: "员工账号",
+                            url: "/staff"
+                        }
+                    ]
+                },
+                {
+                    id: "2",
+                    value: "商品管理",
+                    icon: "../img/goods.png",
+                    open: false,
+                    close: false,
+                    ul:[
+                        {
+                            id: "0",
+                            value: "商品列表",
+                            url: "/goodsInfo"
+                        },
+                        {
+                            id: "1",
+                            value: "商品分类",
+                            url: "/goodsClass"
+                        },
+                        {
+                            id: "2",
+                            value: "商品评价",
+                            url: "/evaluate"
+                        }
+                    ]
+                },
+                {
+                    id: "3",
+                    value: "订单管理",
+                    icon: "../img/order.png",
+                    open: false,
+                    close: false,
+                    ul:[
+                        {
+                            id: "0",
+                            value: "订单列表",
+                            url: "/order"
+                        },
+                    ]
+                },
+                {
+                    id: "4",
+                    value: "操作日志",
+                    icon: "../img/log.png",
+                    open: false,
+                    close: false,
+                    ul:[
+                        {
+                            id: "0",
+                            value: "操作日志",
+                            url: "/operation"
+                        },
+                    ]
+                },
+                {
+                    id: "5",
+                    value: "通知管理",
+                    icon: "../img/notify.png",
+                    open: false,
+                    close: false,
+                    ul:[
+                        {
+                            id: "0",
+                            value: "发送通知",
+                            url: "/notifyMessage"
+                        }
+                    ]
+                }
+            ],
+            nowLiNum: "",
+
+            /**
+             * left部分↑
+             *
+             * */
+
+        },
+        methods: {
+            getPersonInfo() {
+                axios.post('/staffInfo/getPersonInfo', {
+                }).then(function (data) {
+                    vm.personInfo = data.data.detail;
+                    vm.loginStaffID = vm.personInfo.staffID
+                    setTimeout(() => {
+                        vm.getUnreadMessageNum();
+                        vm.checkPage(vm.pageNum);
+                    }, 500)
+                })
+            },
+            getUnreadMessageNum() {
+                axios.post('/notify/getUnreadMessageNum', {
+                    staffID: vm.loginStaffID,
+                }).then(function (data) {
+                    console.info(data.data)
+                    vm.unreadMessageNum = data.data;
+                })
+            },
+            test() {
+                /**
+                 * 日期选择框↓
+                 */
+                $('#datepicker .input-group.date').datepicker({
+                    format: 'yyyy-mm-dd',
+                    language: 'zh-CN',
+                    todayHighlight: true,
+                    startDate: start,
+                    endDate: todayStr,
+                    autoclose: true,
+                });
+                $('#changeDatepicker .input-group.date').datepicker({
+                    format: 'yyyy-mm-dd',
+                    language: 'zh-CN',
+                    todayHighlight: true,
+                    startDate: start,
+                    endDate: todayStr,
+                    autoclose:true,
+                });
+                /**
+                 * 日期选择框↑
+                 */
+            },
+
+
+            /**
+             * 文件上传↓
+             */
+            getChangeHeadPortrait() {
+                this.$refs.changeHeadPortrait.click()
+            },
+            changeHeadPortrait() {
+                var formData = new window.FormData();
+                var file = this.$refs.changeHeadPortrait.files[0];
+                formData.append("file", file);
+                formData.append("staffID", vm.personInfo.staffID);
+                axios.post('/staffInfo/changeHeadPortrait', formData, {
+                }).then(function (data) {
+                    // 操作成功弹出框
+                    toastr.options = {
+                        timeOut: 1000,
+                        positionClass: "toast-top-center",
+                    };
+                    toastr.success('修改成功')
+                    vm.getPersonInfo()
+                })
+            },
+
+            getChangeFile() {
+                this.$refs.getChangeFile.click()
+            },
+            clickChangeFile() {
+                console.log(this.$refs.getChangeFile.files);
+                var filename = this.$refs.getChangeFile.files[0].name;
+                vm.staffData.staffHeadPortrait = filename;
+            },
+            /**
+             * 文件上传↑
+             */
+
+            /**
+             * 导航栏只展开一个二级↓
+             */
+            selectTest(item) {
+                for (let i=0 ; i<vm.items.length; i++) {
+                    if (vm.items[i].id != item.id && vm.items[i].open == true) {
+                        vm.items[i].open = false;
+                        vm.items[i].close = true;
+                    }
+                }
+                if (item.open == false) {
+                    item.open = true;
+                    item.close = false;
+                } else if(item.open == true) {
+                    item.open = false;
+                    item.close = true;
+                }
+            },
+            /**
+             * 导航栏只展开一个二级↑
+             */
+
+            /**
+             * top部分
+             */
+            menu() {
+                vm.navigationBar = !vm.navigationBar;
+                vm.rightOpen = !vm.rightOpen;
+            },
+
+            /**
+             * top部分
+             */
+
+
+            /**
+             * left部分
+             *
+             * */
+            personActive() {
+                vm.personShow = !vm.personShow;
+                if (vm.personOnActive == false) {
+                    vm.personOnActive = true;
+                    vm.personDownActive = !vm.personOnActive;
+                } else if (vm.personOnActive == true) {
+                    vm.personOnActive = false;
+                    vm.personDownActive = vm.personOnActive;
+                }
+            },
+            orderActive() {
+                vm.orderShow = !vm.orderShow;
+                if (vm.orderOnActive == false) {
+                    vm.orderOnActive = true;
+                    vm.orderDownActive = !vm.orderOnActive;
+                } else if (vm.orderOnActive == true) {
+                    vm.orderOnActive = false;
+                    vm.orderDownActive = !vm.orderOnActive;
+                }
+            },
+            goodsActive() {
+                vm.goodsShow = !vm.goodsShow;
+                if (vm.goodsOnActive == false) {
+                    vm.goodsOnActive = true;
+                    vm.goodsDownActive = !vm.goodsOnActive;
+                } else if (vm.goodsOnActive == true) {
+                    vm.goodsOnActive = false;
+                    vm.goodsDownActive = !vm.goodsOnActive;
+                }
+            },
+            logActive() {
+                vm.logShow = !vm.logShow;
+                if (vm.logOnActive == false) {
+                    vm.logOnActive = true;
+                    vm.logDownActive = !vm.logOnActive;
+                } else if (vm.logOnActive == true) {
+                    vm.logOnActive = false;
+                    vm.logDownActive = !vm.logOnActive;
+                }
+            },
+            /**
+             * left部分
+             *
+             * */
+
+
+            changeModalClose() {
+                vm.changeStaffNameMsg = "";
+                vm.changeStaffPhoneMsg = "";
+            },
+
+            //点击修改按钮，深拷贝
+            getMsg(staff) {
+                var newArray = JSON.parse(JSON.stringify(staff));
+                vm.staffData = newArray;
+            },
+
+            //点击确定，修改成功渲染
+            set(staffData) {
+                var changeDatepicker = $('#changeDatepicker .input-group.date').datepicker('getDate');
+                console.info(changeDatepicker)
+                if (changeDatepicker != null) {
+                    var changeDate = changeDatepicker.getFullYear() + "-" + changeDatepicker.getMonth() + "-" + changeDatepicker.getDate();
+                    staffData.staffBirthday = changeDate;
+                }
+                var formData = new window.FormData();
+                var file = this.$refs.getChangeFile.files[0];
+                var myreg=/^[1][3,4,5,7,8][0-9]{9}$/;
+                if (file != undefined) {
+                    formData.append("file", file);
+                }
+                if (staffData.staffName.length > 0 && myreg.test(staffData.staffPhone) ) {
+                    formData.append("staffID", staffData.staffID);
+                    formData.append("staffName", staffData.staffName);
+                    formData.append("staffSex", staffData.staffSex);
+                    formData.append("staffBirthday", staffData.staffBirthday);
+                    formData.append("staffPhone", staffData.staffPhone);
+                    formData.append("staffHeadPortrait", staffData.staffHeadPortrait);
+                    formData.append("staffAddress", staffData.staffAddress);
+                    axios.post('/staffInfo/updateStaffInfo', formData, {
+                    }).then(function (dat) {
+                        // 操作成功弹出框
+                        toastr.options = {
+                            timeOut: 1000,
+                            positionClass: "toast-top-center",
+                        };
+                        toastr.success('修改成功')
+                        vm.getPersonInfo()
+                    })
+                } else if (staffData.staffName === "") {
+                    // 操作成功弹出框
+                    toastr.options = {
+                        timeOut: 1000,
+                        positionClass: "toast-top-center",
+                    };
+                    toastr.error("昵称不能为空")
+                } else if (!myreg.test(staffData.staffPhone)) {
+                    // 操作成功弹出框
+                    toastr.options = {
+                        timeOut: 1000,
+                        positionClass: "toast-top-center",
+                    };
+                    toastr.error("手机号码格式不对")
+                }
+                vm.changeModalClose();
+                $('#changeDatepicker .input-group.date').datepicker('update', '')
+                changeDatepicker = $('#changeDatepicker .input-group.date').datepicker('getDate')
+                console.info(changeDatepicker)
+
+            },
+
+
+            changeStaffPhoneLimit() {
+                this.staffData.staffPhone = this.staffData.staffPhone.replace(/[^\d]/g,'')
+            },
+
+            changeStaffNameLimit() {
+                this.staffData.staffName = this.staffData.staffName.replace(/[^\a-\z\A-\Z0-9\u4E00-\u9FA5]/g, '')
+            },
+
+
+            /**
+             * 修改用户模态框失去焦点
+             * */
+            changeBlur() {
+                if (this.staffData.staffName === "") {
+                    vm.changeStaffNameMsg = '<span style="color:red;float:right;">昵称不能为空</span>'
+                }
+            },
+
+            /**
+             * 修改用户模态框获取焦点
+             * */
+            changeFocus() {
+                vm.changeStaffNameMsg = ""
+            },
+
+            changeStaffPhoneBlur() {
+                if (this.staffData.staffPhone.length != 11) {
+                    vm.changeStaffPhoneMsg = '<span style="color:red;float:right;">手机号码格式不对</span>'
+                }
+            },
+
+            changeStaffPhoneFocus() {
+                vm.changeStaffPhoneMsg = ""
+            },
+
+        },
+        mounted() {
+            this.getPersonInfo();
+            this.test();
+        },
+
+    })
+
+
+</script>
+</body>
+</html>

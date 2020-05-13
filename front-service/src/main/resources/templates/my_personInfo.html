@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>我的信息</title>
+    <link rel="stylesheet" href="../css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="../css/toastr.min.css">
+    <link rel="stylesheet" type="text/css" href="../css/front.css">
+    <link rel="stylesheet" href="../css/bootstrap-datepicker3.min.css">
+    <script type="text/javascript" src="../js/jquery-3.4.1.min.js"></script>
+    <script type="text/javascript" src="../js/bootstrap.js"></script>
+    <!-- <script type="text/javascript" src="../js/houtai.js"></script> -->
+    <script type="text/javascript" src="../js/vue.js"></script>
+    <script src="../js/bootstrap-datepicker.min.js"></script>
+    <script src="../js/bootstrap-datepicker.zh-CN.min.js" charset="UTF-8"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="../js/toastr.min.js"></script>
+    <script src="../js/moment.js"></script>
+    <link rel="shortcut icon" href="../img/pang.ico" type="image/x-icon" />
+    <!--制作的图标，使用href关联，仅仅需要更改href的内容  -->
+</head>
+<body>
+<div class="all" id="app">
+    <!--顶部-->
+    <div class="top-head">
+        <div class="top-head-collect">
+            <a href="javascript:" @click="collectWeb">
+                ❤收藏Rosette(Ctrl + D)
+            </a>
+        </div>
+        <div class="top-head-right">
+            <a v-show="!LoginStatus" href="/front_Login">你好，请登录</a>
+            <a v-show="LoginStatus" href="javascript:">你好，{{ userName }}</a>
+            <a href="/front_Register">注册</a>
+            <a href="/my_order">我的订单</a>
+            <a href="/shopping">购物车</a>
+            <a href="/updatePassword">修改密码</a>
+            <a href="/myPersonInfo/selectPersonInfo">我的信息</a>
+        </div>
+    </div>
+    <!--分割线-->
+    <HR style="width:100%;color:#987cb9; size:1px;position: relative;float: left">
+    <!--导航栏-->
+    <div class="top-navigation">
+        <div class="top-navigation-icon">
+            <a href="/front_Home">
+                <img src="/img/flowerlove1.png">
+            </a>
+        </div>
+        <div class="top-navigation-gif">
+            <span><img src="/img/0.gif"></span>
+        </div>
+        <div class="top-navigation-nav">
+            <a href="javascript:void(0)" @click="selectAllClassSub('鲜花')">鲜花</a>
+            <a href="javascript:void(0)" @click="selectAllClassSub('永生花')">永生花</a>
+            <a href="javascript:void(0)" @click="selectAllClassSub('礼品')">礼品</a>
+        </div>
+        <div class="top-navigation-select">
+            <!--v-model="fuzzySelectData" @keyup.enter="fuzzySelect(firstPage)"-->
+            <input class="selectBox-input" type="text" name="select" placeholder="更多优惠商品等你来选购" maxlength="40" @input="selectInputLimit" v-model="keywordData">
+            <button class="selectBtn">
+                <img src="../img/select.png" class="selectBtn-icon" @click="keywordSearch">
+            </button>
+        </div>
+    </div>
+
+    <div class="all-result">
+        <p>个人信息</p>
+    </div>
+    <!--分割线-->
+    <HR>
+    <div v-show="!LoginStatus" class="none-Login">
+        <div>
+            <img src="/img/sorry.png">
+            <p>暂无个人信息，</p>
+            <a href="/front_Login">请先登录</a>
+        </div>
+    </div>
+    <div v-show="LoginStatus && isShow" class="my-personInfo-parent">
+        <div class="my-personInfo-parentLeft">
+            <div>
+                <img :src="userInfoList.userHeadPortrait">
+            </div>
+            <input type="file" style="display: none" ref="changeHeadPortrait" @change="changeHeadPortrait">
+            <a href="javascript:void(0);" @click="getChangeHeadPortrait">更换头像</a>
+        </div>
+        <div class="my-personInfo-parentRight">
+            <form>
+                <div class="form-group row">
+                    <label for="staticEmail" class="col-sm-2 col-form-label">姓名：</label>
+                    <div class="col-sm-6" style="padding-left: 0; margin-left: -80px;">
+                        <input type="text" class="form-control-plaintext" id="staticEmail" v-model="userInfoList.userName" maxlength="10">
+                    </div>
+                </div>
+                <div class="form-group row" @change="changeRadioStatus">
+                    <label class="col-sm-2 col-form-label">性别：</label>
+                    <div class="form-check form-check-inline" style="margin-left: -80px;">
+                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" value="0" v-model="radioStatus">
+                        <label class="form-check-label" for="inlineRadio1">男</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="1" v-model="radioStatus">
+                        <label class="form-check-label" for="inlineRadio2">女</label>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">生日：</label>
+                    <div class="col-sm-6" id="datepicker" style="padding-left: 0; margin-left: -80px;">
+                        <div class='input-group date' >
+                        <input type='text' class="form-control" v-model="userInfoList.userBirthday" placeholder="请选择出生年月日" readonly="true"/>
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="address" class="col-sm-2 col-form-label">地址：</label>
+                    <div class="col-sm-6" style="padding-left: 0; margin-left: -80px;">
+                        <input type="text" class="form-control-plaintext" id="address" v-model="userInfoList.userAddress" maxlength="40">
+                    </div>
+                </div>
+                <button type="button" class="btn btn-primary mb-2" @click="confirmChange">确认修改</button>
+            </form>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    /* 请求拦截 */
+    axios.interceptors.request.use(
+        config => {
+            if (localStorage.getItem("token") != null) {
+                config.headers["token"] = localStorage.getItem("token");
+            }
+            return config;
+        },
+        err => Promise.reject(err)
+    );
+    axios.defaults.headers.post['Content-Type'] = 'application/json';
+    window.onload = function () {
+        if (localStorage.getItem("token") != null) {
+            vm.getUserIDByToken();
+        }
+    };
+    var today = new Date();
+    var year = today.getFullYear();
+    var minYear = year - 100;
+    var month = today.getMonth() + 1;
+    var day = today.getDate();
+    var todayStr = year + "-" + month+  "-" + day;
+    var start = minYear + "-" + month+  "-" + day;
+
+    var vm = new Vue({
+        el: "#app",
+        data: {
+            LoginStatus: false,
+            goodsImageList: [],
+            goodsDetailedImageList: [],
+            goodsDetailedInfo: [],
+            goodsID: "",
+            goodsName: "",
+            goodsSubTitle: "",
+            goodsMarketPrice: "",
+            goodsPrice: "",
+            goodsBigImage: "",
+            productsSelectedList: [],
+            evaluateList: [],
+            paySum: 1,
+            userName: "",
+            evaluateContent: "",
+            evaluateUpdateTime: "",
+            evaluateImageList: [],
+            isShow: true,
+            userID: "",
+            userInfoList: [],
+            userHeadPortrait: "",
+            radioStatus: "",
+            userBirthday: "",
+            userAddress: "",
+            userSex: "",
+            keywordData: "",
+        },
+        methods: {
+            keywordSearch() {
+                window.open("/goodsBySelectData?selectData=" + vm.keywordData);
+            },
+            /**
+             * 文件上传↓
+             */
+            getChangeHeadPortrait() {
+                this.$refs.changeHeadPortrait.click()
+            },
+            changeHeadPortrait() {
+                var formData = new window.FormData();
+                var file = this.$refs.changeHeadPortrait.files[0];
+                formData.append("file", file);
+                formData.append("userID", vm.userID);
+                axios.post('/myPersonInfo/changeHeadPortrait', formData, {
+                }).then(function (data) {
+                    if (data.data.success === true) {
+                        // 操作成功弹出框
+                        toastr.options = {
+                            timeOut: 1000,
+                            positionClass: "toast-top-center",
+                        };
+                        toastr.success("修改成功");
+                        // vm.isShow = false;
+                        // vm.$nextTick(function () {
+                        //     vm.isShow = true;
+                        // })
+                        window.location.href = "/myPersonInfo/selectPersonInfo"
+                    } else {
+                        // 操作成功弹出框
+                        toastr.options = {
+                            timeOut: 1000,
+                            positionClass: "toast-top-center",
+                        };
+                        toastr.error('修改失败，请联系管理员')
+                    }
+                })
+            },
+            confirmChange() {
+                if (vm.radioStatus === "0") {
+                    vm.userInfoList.userSex = "男"
+                } else if (vm.radioStatus === "1") {
+                    vm.userInfoList.userSex = "女"
+                }
+                var datepickerInput = $("#datepicker").find("input").val();
+                console.info(datepickerInput)
+                if (vm.userInfoList.userName !== "") {
+                    axios.post('/myPersonInfo/addUserInfo', {
+                        userID: vm.userID,
+                        userName: vm.userInfoList.userName,
+                        userSex: vm.userInfoList.userSex,
+                        userBirthday: datepickerInput,
+                        userAddress: vm.userInfoList.userAddress,
+                    }).then(function (data) {
+                        console.info("已经进来了哦")
+                        console.info(data.data)
+                        if (data.data.success === true) {
+                            // 操作成功弹出框
+                            toastr.options = {
+                                timeOut: 1000,
+                                positionClass: "toast-top-center",
+                            };
+                            toastr.success('修改成功')
+                            // vm.isShow = false;
+                            // vm.$nextTick(function () {
+                            //     vm.isShow = true;
+                            // })
+                            window.location.href = "/myPersonInfo/selectPersonInfo"
+                        } else {
+                            // 操作成功弹出框
+                            toastr.options = {
+                                timeOut: 1000,
+                                positionClass: "toast-top-center",
+                            };
+                            toastr.error('修改失败，请联系管理员')
+                        }
+                    })
+                } else if(vm.userInfoList.userName === "") {
+                    toastr.options = {
+                        timeOut: 1000,
+                        positionClass: "toast-top-center",
+                    };
+                    toastr.error('姓名不能为空')
+                }
+            },
+            changeRadioStatus() {
+                console.info("性别选择：" + vm.radioStatus);
+            },
+            getUserAllInfo() {
+                axios.post('/myPersonInfo/getUserAllInfo', {
+                    userID: vm.userID,
+                }).then(function (data) {
+                    vm.userInfoList = data.data;
+                    console.info(vm.userInfoList);
+                    if (vm.userInfoList.userSex === "男") {
+                        vm.radioStatus = 0;
+                    } else if (vm.userInfoList.userSex === "女") {
+                        vm.radioStatus = 1;
+                    }
+                })
+            },
+            getUserIDByToken() {
+                axios.post('/getUserIDByToken', {
+                }).then(function (data) {
+                    vm.userID = data.data;
+                    console.info(vm.userID)
+                    if (vm.userID !== "") {
+                        vm.LoginStatus = true;
+                    }
+                    vm.getUserInfo();
+                    vm.getUserAllInfo();
+                })
+            },
+            getUserInfo() {
+                axios.post('/front/getUserInfo', {
+                    userID: vm.userID
+                }).then(function (data) {
+                    vm.userName = data.data.userName;
+                    console.info("userName:" + vm.userName)
+                })
+            },
+            selectAllClassSub(selectAllClassData) {
+                window.location.href = "/goodsClassify?selectAllClassData=" + selectAllClassData;
+            },
+            collectWeb() {
+                alert("快捷键Ctrl + D收藏Rosette")
+            },
+            selectInputLimit() {
+                vm.selectKeywords = vm.selectKeywords.replace(/\s+/g,'')
+            },
+            test() {
+                $('#datepicker .input-group.date').datepicker({
+                    format: 'yyyy-mm-dd',
+                    language: 'zh-CN',
+                    todayHighlight: true,
+                    startDate: start,
+                    endDate: todayStr,
+                    minuteStep: 1,
+                    autoClose: true,
+                    clearBtn: true,
+                    orientation: 'bottom',
+                });
+            },
+
+
+        },
+        mounted() {
+            this.test();
+        }
+
+    })
+</script>
+</body>
+</html>

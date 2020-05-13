@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>订单信息</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="../css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="../css/toastr.min.css">
+    <link rel="stylesheet" type="text/css" href="../css/houtai.css">
+    <script type="text/javascript" src="../js/jquery-3.4.1.min.js"></script>
+    <script type="text/javascript" src="../js/bootstrap.js"></script>
+    <!-- <script type="text/javascript" src="../js/user.js"></script> -->
+    <script type="text/javascript" src="../js/vue.js"></script>
+    <script src="../js/axios.min.js"></script>
+    <script src="../js/toastr.min.js"></script>
+    <link rel="shortcut icon" href="/img/pang.ico" type="image/x-icon" />
+    <!--制作的图标，使用href关联，仅仅需要更改href的内容  -->
+
+</head>
+<body>
+
+<div v-cloak class="all" id="app">
+    <!--详细页面-->
+    <div v-show="!navigationBar" class="leftUl">
+        <div class="top-left-img">
+            <a href="user">
+                <img src="../img/ff.png" >
+            </a>
+        </div>
+        <ul class="nav nav-pills nav-stacked leftUl-color">
+            <li role="presentation" v-for="item in items" @click="selectTest(item)">
+                <a href="#">
+                    <img :src="item.icon">
+                    &nbsp;
+                    {{item.value}}
+                    <img src="../img/sanjiao.png" class="Static"
+                         :class="{'infoImgChange': item.open, 'infoImgReturn': item.close}">
+                </a>
+                <transition name="unitfybox">
+                    <ul class="nav nav-pills nav-stacked leftUl-color box" v-if="item.open" >
+                        <li role="presentation" v-for="twoItem in item.ul" >
+                            <a :href="twoItem.url" >{{twoItem.value}}</a>
+                        </li>
+                    </ul>
+                </transition>
+            </li>
+        </ul>
+    </div>
+
+
+    <!--缩小Ul-->
+    <div v-show="navigationBar" class="leftUl-shrink">
+        <div class="top-left-newImg">
+            <a href="user">
+                <img src="../img/S.png" >
+            </a>
+        </div>
+        <ul class="nav nav-pills nav-stacked leftUl-color">
+            <li role="presentation" v-for="item in items" @click="selectTest(item)">
+                <a href="#" @click="menu">
+                    <img :src="item.icon">
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!--右上角部分-->
+    <div class="top-right" :class="{'top-right-open': rightOpen}">
+
+        <!-- TOP的menu按钮 -->
+        <div class="top-menu">
+            <button class="btn top-menuBtn " type="button" @click="menu">
+                <img src="../img/menu.png">
+            </button>
+        </div>
+        <!-- 接上↑ -->
+
+        <div class="noticeMsg">
+            <a href="/messageCenter">
+                <img src="../img/message.png">
+                <span class="badge">
+                    {{ unreadMessageNum }}
+                </span>
+            </a>
+        </div>
+
+        <!-- TOP的个人信息 -->
+        <div class="top-peopleInfo">
+            <!-- Large button group -->
+            <div class="btn-group">
+                <button class="btn btn-default btn-lg dropdown-toggle top-peopleInfoBtn" type="button"
+                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <div class="top-peopleInfo-img">
+                        <!-- 如果未登陆头像为默认头像，font为登录 -->
+                        <img class="top-peopleInfo-round-icon" :src=personInfo.staffHeadPortrait>
+                    </div>
+                    <span class="top-peopleInfo-name">
+						<span>
+                            {{ personInfo.staffName }}
+                        </span>
+					</span>
+                    &ensp;
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu">
+
+                    <li><a href="/personInfo">个人资料</a></li>
+                    <li><a href="/changePassword">修改密码</a></li>
+                    <li role="separator" class="divider"></li>
+                    <li><a href="/logout">退出登录</a></li>
+
+                </ul>
+            </div>
+        </div>
+
+        <!-- 接上↑ -->
+
+        <!-- TOP的Sign out -->
+
+        <!-- 接上↑ -->
+    </div>
+
+    <!--table部分-->
+    <div class="right" :class="{'right-open': rightOpen}">
+        <div class="right-top">
+        </div>
+        <div class="right-second">
+            <div class="right-second-top">
+<!--                <button type="button" class="btn btn-success right-second-top-btn" @click="batchDelete">批量删除({{checksIdArrayLen}})</button>-->
+                <div class="selectBox-parent right-second-top-select">
+                    <div>
+                        <input class="selectBox-input" type="text" name="select" placeholder="Search..."
+                               v-model="fuzzySelectData" @keyup.enter="fuzzySelect(firstPage)">
+                        <button class="selectBtn" @click="checkPage(firstPage)">
+                            <img src="../img/select.png" class="right-second-topImg">
+                        </button>
+                    </div>
+                </div>
+                <div class="path">
+                    <ul class="breadcrumb">
+                        <li><a href="user">首页</a></li>
+                        <li class="active">用户管理</li>
+                        <li class="active">用户账号</li>
+                    </ul>
+                </div>
+            </div>
+            <table class="table table-hover right-table">
+                <thead>
+                <tr>
+<!--                    <th>-->
+<!--                        <input class="blue" type="checkbox" v-model="checkActive" @click="checkAll">-->
+<!--                    </th>-->
+                    <th>订单编号</th>
+                    <th>用户账号</th>
+                    <th>订单金额</th>
+                    <th>订单状态</th>
+                    <th>提交时间</th>
+                    <th>操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for="order in orderList ">
+<!--                    <td>-->
+<!--                        <input type="checkbox" v-model="checks[order.orderID]" @click="checkOne(order.orderID)">-->
+<!--                    </td>-->
+                    <td>{{ order.orderID }}</td>
+                    <td>{{ order.userID }}</td>
+                    <td>￥{{ order.orderPriceSum }}</td>
+                    <td>{{ order.orderStatus}}</td>
+                    <td>{{ order.orderUpdateTime}}</td>
+                    <td>
+                        <button type="button" class="btn btn-info" data-toggle="modal" data-target="#changeModal"
+                                data-whatever="@getbootstrap" @click="getMsg(order.orderID)">查看订单
+                        </button>
+<!--                        <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal"-->
+<!--                                data-whatever="@getbootstrap" @click="getOrderID(order)">删除订单-->
+<!--                        </button>-->
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content deleteModal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                    aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title">提示</h4>
+                        </div>
+                        <div class="modal-footer">
+                            <h4 class="modal-title" style="float: left;margin-top: 4px;">确认删除吗？</h4>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                            <button type="button" class="btn btn-primary" @click="deleteOrder(deleteOrderID)"
+                                    data-dismiss="modal">确认
+                            </button>
+                        </div>
+                    </div><!-- /.modal-content -->
+                </div><!-- /.modal-dialog -->
+            </div><!-- /.modal -->
+
+            <!--        分页部分-->
+            <div class="right-Page">
+                <div class="right-Page-left">
+                    <div style="width: 87%; height: 20%; float: left;">
+                        <p>当前 <span v-text="pageNum"></span> 页,总 <span v-text="pages"></span> 页,共 <span
+                                v-text="total"></span> 条记录</p>
+                    </div>
+                </div>
+                <div class="right-Page-middle">
+                    <select class="form-control right-Page-middleSelect" v-model="selectOptionVal" @click="changeOptionVal">
+                        <option value="8">8条/页</option>
+                        <option value="10">10条/页</option>
+                        <option value="12">12条/页</option>
+                    </select>
+                    &nbsp;
+                    <ul class="pagination">
+
+                        <li><a href="#" @click="checkPage(firstPage)">首页</a></li>
+                        <li v-if="isFirstPage === false"><a href="#" @click="checkPage(prePage)">上一页</a></li>
+                        <li v-if="isFirstPage === true" class="disabled"><span aria-hidden="true">上一页</span></li>
+                        <li v-for="index in indexs" :class="{ 'active': pageNum === index}">
+                            <a href="#" @click="btnClick(index)">{{ index }}</a>
+                        </li>
+                        <li v-if="isLastPage === false"><a href="#" @click="checkPage(nextPage)">下一页</a></li>
+                        <li v-if="isLastPage === true" class="disabled"><span aria-hidden="true">下一页</span></li>
+                        <li><a href="#" @click="checkPage(pages)">尾页</a></li>
+
+                    </ul>
+
+
+                </div>
+                <div class="right-Page-right">
+                    跳转到：<input type="text" class="form-control right-Page-rightInput" v-model="jumpPage">&nbsp;
+                    <button class="btn btn-primary" @click="checkPage(jumpPage)">GO</button>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    axios.defaults.headers.post['Content-Type'] = 'application/json';
+    window.onload = function() {
+        axios.post('/order/selectAllOrder', {
+            pageNum: vm.firstPage,
+            pageSize: vm.selectOptionVal,
+        }).then(function (dat) {
+            console.info(dat.data);
+            vm.orderList = dat.data.list;
+            console.info(vm.orderList.length)
+            console.info(vm.orderList);
+            vm.checkActive = false;
+            vm.checksIdArray = [];
+            vm.checks = [];
+            if (vm.orderList) {
+                vm.orderList.forEach( ele => {
+                    vm.checks[ele.orderID] = false
+                });
+            }
+            vm.pageNum = dat.data.pageNum;
+            vm.pages = dat.data.pages;
+            vm.total = dat.data.total;
+            vm.nextPage = dat.data.nextPage;
+            vm.prePage = dat.data.prePage;
+            vm.isFirstPage = dat.data.isFirstPage;
+            vm.isLastPage = dat.data.isLastPage;
+            vm.jumpPage = "";
+            vm.checksIdArrayLen = 0;
+        })
+    }
+    var myreg=/^[1][3,4,5,7,8][0-9]{9}$/;
+    var vm = new Vue({
+        el: '#app',
+        data: {
+            /**
+             * top部分
+             *
+             * */
+            unreadMessageNum: "",
+            loginStaffID: "",
+            personInfo: "",
+
+            navigationBar: false,
+            rightOpen: false,
+            /**
+             * top部分
+             *
+             * */
+
+            /**
+             *导航路径↓
+             *
+             * */
+            pathOne: "首页",
+            pathTwo: "首页",
+
+            /**
+             *导航路径↑
+             *
+             * */
+
+            /**
+             * table部分
+             *
+             * */
+            userID: '',
+            userPhone: '',
+            userPassword: '',
+            userStatus: '',
+            userUpdateTime: '',
+            addUserPhone: '',
+            addUserPassword: "",
+            addUserStatus: '正常',
+            fuzzySelectData: "",
+            //假数据
+            userList: [],
+            //单项数据
+            userData: [],
+            //转化为json后数据
+            jsonItemData: [],
+            deleteUserID: '',
+            addUserPasswordMsg: "",
+            changeUserPasswordMsg: "",
+            orderID: "",
+            orderPriceSum: "",
+            orderStatus: "",
+            orderUpdateTime: "",
+            orderList: [],
+
+            pageNum: 1,     //当前页
+            pages: "",       //总页数
+            total: "",       //总记录
+            nextPage: "",    //下一页
+            prePage: "",     //上一页
+            firstPage: 1,    //第一页
+            isFirstPage: false,     //是否为首页
+            isLastPage: false,      //是否为尾页
+            jumpPage: "",            //跳转页数
+            selectOptionVal: "8",    //每页的记录数
+
+            checkActive: false,
+            checks: [],
+            checksIdArray: [],
+            checksIdArrayLen: 0,
+            /**
+             * table部分
+             *
+             * */
+
+            /**
+             * left部分
+             *
+             * */
+
+            //ul展开状态
+            orderShow: false,
+            personShow: false,
+            goodsShow: false,
+            logShow: false,
+
+            //小三角样式状态
+            personOnActive: false,
+            personDownActive: false,
+            orderOnActive: false,
+            orderDownActive: false,
+            goodsOnActive: false,
+            goodsDownActive: false,
+            logOnActive: false,
+            logDownActive: false,
+
+
+            items:[
+                {
+                    id: "0",
+                    value: "用户管理",
+                    icon: "../img/user.png",
+                    open: false,
+                    close: false,
+                    ul:[
+                        {
+                            id: "0",
+                            value: "用户列表",
+                            url: "/userInfo"
+                        },
+                        {
+                            id: "1",
+                            value: "用户账号",
+                            url: "/user"
+                        }
+                    ]
+                },
+                {
+                    id: "1",
+                    value: "员工管理",
+                    icon: "../img/staff.png",
+                    open: false,
+                    close: false,
+                    ul:[
+                        {
+                            id: "0",
+                            value: "员工列表",
+                            url: "/staffInfo"
+                        },
+                        {
+                            id: "1",
+                            value: "员工账号",
+                            url: "/staff"
+                        }
+                    ]
+                },
+                {
+                    id: "2",
+                    value: "商品管理",
+                    icon: "../img/goods.png",
+                    open: false,
+                    close: false,
+                    ul:[
+                        {
+                            id: "0",
+                            value: "商品列表",
+                            url: "/goodsInfo"
+                        },
+                        {
+                            id: "1",
+                            value: "商品分类",
+                            url: "/goodsClass"
+                        },
+                        {
+                            id: "2",
+                            value: "商品评价",
+                            url: "/evaluate"
+                        }
+                    ]
+                },
+                {
+                    id: "3",
+                    value: "订单管理",
+                    icon: "../img/order.png",
+                    open: false,
+                    close: false,
+                    ul:[
+                        {
+                            id: "0",
+                            value: "订单列表",
+                            url: "/order"
+                        },
+                    ]
+                },
+                {
+                    id: "4",
+                    value: "操作日志",
+                    icon: "../img/log.png",
+                    open: false,
+                    close: false,
+                    ul:[
+                        {
+                            id: "0",
+                            value: "操作日志",
+                            url: "/operation"
+                        },
+                    ]
+                },
+                {
+                    id: "5",
+                    value: "通知管理",
+                    icon: "../img/notify.png",
+                    open: false,
+                    close: false,
+                    ul:[
+                        {
+                            id: "0",
+                            value: "发送通知",
+                            url: "/notifyMessage"
+                        }
+                    ]
+                }
+            ],
+            nowLiNum:"",
+            /**
+             * left部分
+             *
+             * */
+
+        },
+        methods: {
+            changeOptionVal() {
+                vm.checkPage(vm.firstPage);
+            },
+            getPersonInfo() {
+                axios.post('/staffInfo/getPersonInfo', {
+                }).then(function (data) {
+                    vm.personInfo = data.data.detail;
+                    vm.loginStaffID = vm.personInfo.staffID
+                    setTimeout(() => {
+                        vm.getUnreadMessageNum();
+                        vm.checkPage(vm.pageNum);
+                    }, 500)
+                })
+            },
+            getUnreadMessageNum() {
+                axios.post('/notify/getUnreadMessageNum', {
+                    staffID: vm.loginStaffID,
+                }).then(function (data) {
+                    console.info(data.data)
+                    vm.unreadMessageNum = data.data;
+                })
+            },
+            selectTest(item) {
+                if (vm.items) {
+                    for (let i=0 ; i<vm.items.length; i++) {
+                        if (vm.items[i].id != item.id && vm.items[i].open === true) {
+                            vm.items[i].open = false;
+                            vm.items[i].close = true;
+                        }
+                    }
+                    console.info("vm.items.length:" + vm.items.length)
+                }
+                // vm.nowLiNum = item;
+                if (item.open === false) {
+                    item.open = true;
+                    item.close = false;
+                } else if(item.open === true) {
+                    item.open = false;
+                    item.close = true;
+                }
+
+            },
+            /**
+             * top部分
+             *
+             * */
+            menu() {
+                vm.navigationBar = !vm.navigationBar;
+                vm.rightOpen = !vm.rightOpen;
+            },
+            /**
+             * top部分
+             *
+             * */
+
+
+            /**
+             * left部分
+             *
+             * */
+            personActive() {
+                vm.personShow = !vm.personShow;
+                if (vm.personOnActive === false) {
+                    vm.personOnActive = true;
+                    vm.personDownActive = !vm.personOnActive;
+                } else if (vm.personOnActive === true) {
+                    vm.personOnActive = false;
+                    vm.personDownActive = vm.personOnActive;
+                }
+            },
+            orderActive() {
+                vm.orderShow = !vm.orderShow;
+                if (vm.orderOnActive === false) {
+                    vm.orderOnActive = true;
+                    vm.orderDownActive = !vm.orderOnActive;
+                } else if (vm.orderOnActive === true) {
+                    vm.orderOnActive = false;
+                    vm.orderDownActive = !vm.orderOnActive;
+                }
+            },
+            goodsActive() {
+                vm.goodsShow = !vm.goodsShow;
+                if (vm.goodsOnActive === false) {
+                    vm.goodsOnActive = true;
+                    vm.goodsDownActive = !vm.goodsOnActive;
+                } else if (vm.goodsOnActive === true) {
+                    vm.goodsOnActive = false;
+                    vm.goodsDownActive = !vm.goodsOnActive;
+                }
+            },
+            logActive() {
+                vm.logShow = !vm.logShow;
+                if (vm.logOnActive === false) {
+                    vm.logOnActive = true;
+                    vm.logDownActive = !vm.logOnActive;
+                } else if (vm.logOnActive === true) {
+                    vm.logOnActive = false;
+                    vm.logDownActive = !vm.logOnActive;
+                }
+            },
+            /**
+             * left部分
+             *
+             * */
+
+
+            checkAll(){
+                vm.checksIdArray = [];
+                if(this.checkActive){
+                    this.checkActive = false;
+                    // for(let i = 0; i < vm.total; i++) {
+                    //     vm.checks[i] = false
+                    // }
+                    if (vm.orderList) {
+                        vm.orderList.forEach( ele => {
+                            vm.checks[ele.orderID] = false;
+                            vm.checksIdArray.pop(ele.orderID);
+                        });
+                    }
+                }
+                else{
+                    this.checkActive = true;
+                    // for(let i = 0; i < vm.total; i++) {
+                    //     vm.checks[i] = true
+                    // }
+                    if (vm.orderList) {
+                        vm.orderList.forEach( ele => {
+                            vm.checks[ele.orderID] = true;
+                            vm.checksIdArray.push(ele.orderID);
+                        });
+                    }
+                }
+                console.info("Look....")
+                console.info(vm.checks)
+                if (vm.checksIdArray) {
+                    vm.checksIdArrayLen = vm.checksIdArray.length;
+                    console.info("vm.checksIdArray.length:" + vm.checksIdArray.length)
+                }
+            },
+            batchDelete() {
+                if (vm.checksIdArrayLen > 0 ) {
+                    axios.post("/order/batchDelete", {
+                        checksIdArray: vm.checksIdArray,
+                    }).then(function (dat) {
+                        console.info(dat.data)
+                        if (dat.data.success === true)
+                            vm.checkPage(vm.pageNum);
+                    })
+                } else {
+                    toastr.options = {
+                        timeOut: 1000,
+                        positionClass: "toast-top-center",
+                    };
+                    toastr.error("请至少选择一项")
+                }
+            },
+
+            checkOne(orderID) {
+                console.info(orderID)
+                console.info("vm.checks[orderID]:" + vm.checks[orderID])
+                console.info(vm.checks[orderID])
+                if (!vm.checks[orderID]) { //入栈
+                    vm.checks[orderID] = true;
+                    vm.checksIdArray.push(orderID);
+                }else {
+                    vm.checks[orderID] = false;
+                    vm.checksIdArray.pop(orderID);
+                }
+                if (vm.checksIdArray) {
+                    vm.checksIdArrayLen = vm.checksIdArray.length;
+                    console.info("vm.checksIdArray.length:" + vm.checksIdArray.length)
+                    console.info(vm.checksIdArray)
+                }
+                console.info("Look....")
+                console.info(vm.checks)
+            },
+
+
+            pageClick() {
+                console.log('现在在' + this.pageNum + '页');
+            },
+            btnClick(data) {
+                if (data !== vm.pageNum) {
+                    vm.pageNum = data;
+                    vm.checkPage(vm.pageNum);
+                }
+            },
+            checkPage(wantPageNum) {
+                if (vm.fuzzySelectData === "") {
+                    axios.post('/order/selectAllOrder', {
+                        pageNum: wantPageNum,
+                        pageSize: vm.selectOptionVal,
+                    }).then(function (dat) {
+                        vm.orderList = dat.data.list;
+                        vm.checkActive = false;
+                        vm.checksIdArray = [];
+                        vm.checks = [];
+                        vm.orderList.forEach( ele => {
+                            vm.checks[ele.orderID] = false
+                        });
+                        vm.pageNum = dat.data.pageNum;
+                        vm.pages = dat.data.pages;
+                        vm.total = dat.data.total;
+                        vm.nextPage = dat.data.nextPage;
+                        vm.prePage = dat.data.prePage;
+                        vm.isFirstPage = dat.data.isFirstPage;
+                        vm.isLastPage = dat.data.isLastPage;
+                        vm.jumpPage = "";
+                        vm.checksIdArrayLen = 0;
+                    })
+                } else if (vm.fuzzySelectData !== "") {
+                    vm.fuzzySelect(wantPageNum)
+                }
+            },
+            getOrderID(order) {
+                vm.deleteOrderID = order.orderID;
+            },
+
+            /**
+             * 模糊查询
+             *
+             * */
+            fuzzySelect(wantPageNum) {
+                axios.post('/order/fuzzySelectOrder', {
+                    pageNum: wantPageNum,
+                    pageSize: vm.selectOptionVal,
+                    fuzzyData: vm.fuzzySelectData,
+                }).then(function (dat) {
+                    console.info(dat.data);
+                    vm.orderList = dat.data.list;
+                    console.info(vm.orderList);
+                    vm.checkActive = false;
+                    vm.checksIdArray = [];
+                    vm.checksIdArrayLen = 0;
+                    vm.checks = [];
+                    if (vm.orderList) {
+                        vm.orderList.forEach( ele => {
+                            vm.checks[ele.orderID] = false
+                        });
+                    }
+                    vm.pageNum = dat.data.pageNum;
+                    vm.pages = dat.data.pages;
+                    vm.total = dat.data.total;
+                    vm.nextPage = dat.data.nextPage;
+                    vm.prePage = dat.data.prePage;
+                    vm.isFirstPage = dat.data.isFirstPage;
+                    vm.isLastPage = dat.data.isLastPage;
+                    vm.jumpPage = "";
+
+                })
+            },
+            deleteOrder(orderID) {
+                axios.post('/order/deleteOrderByOrderID', {
+                    orderID: orderID,
+                }).then(function (dat) {
+                    // 操作成功弹出框
+                    toastr.options = {
+                        timeOut: 1000,
+                        positionClass: "toast-top-center",
+                    };
+                    toastr.success('删除数据成功');
+                    console.info(dat.data);
+                    vm.checkPage(vm.pageNum);
+                })
+            },
+            getMsg(orderID) {
+                window.location.href = "/orderDetailed?orderID=" + orderID;
+            }
+
+
+        },
+        watch: {
+            checksIdArrayLen(nowStatus) {
+                if (vm.checksIdArrayLen === vm.orderList.length) {
+                    vm.checkActive = true;
+                } else {
+                    vm.checkActive =false;
+                }
+                console.info("vm.orderList.length:" + vm.orderList.length)
+            },
+            pageNum: function (oldValue, newValue) {
+                console.log(arguments);
+            },
+            selectOptionVal() {
+                console.log(vm.selectOptionVal);
+                vm.checkPage(vm.firstPage);
+
+            }
+        },
+        computed: {
+
+            getIcon(item) {
+                return item.icon;
+            },
+            indexs: function () {
+                // 定义开始的数字
+                var left = 1;
+                // 定义结束的数字
+                var right = this.pages;
+
+                // 存储返回值
+                var ar = [];
+
+                // 前提条件：每次都显示condition条页码
+                // 最好是个单数
+                var condition = 5;
+
+                // 向上取整->就能获取到中间的数字
+                var middle = Math.ceil(condition / 2);
+
+                // 要分清情况
+                //1、在最左边或者在middle的前面
+                //2、在中间
+                //3、最右边的情况
+
+                // 当总页数超过condition时，需要判断分页情况
+                if (this.pages >= condition) {
+                    // 中间的时候
+                    // 左右都加上（middle-1)
+                    if (this.pageNum > middle && this.pageNum < this.pages - (middle - 1)) {
+                        left = this.pageNum - (middle - 1);
+                        right = this.pageNum + (middle - 1);
+                    } else {
+                        //最左边或者在condition的中间
+                        if (this.pageNum <= middle) {
+                            left = 1;
+                            right = condition;
+                            // 最右边的情况
+                            // 结束是总条数，开始是condition减去1
+                        } else {
+                            right = this.pages;
+                            left = this.pages - (condition - 1);
+                        }
+                    }
+                }
+                while (left <= right) {
+                    ar.push(left);
+                    left++;
+                }
+                return ar
+
+            }
+        },
+        mounted() {
+            this.getPersonInfo();
+        },
+
+    })
+</script>
+</body>
+</html>

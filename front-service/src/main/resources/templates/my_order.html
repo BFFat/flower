@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>我的订单</title>
+    <link rel="stylesheet" href="../css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="../css/toastr.min.css">
+    <link rel="stylesheet" type="text/css" href="../css/front.css">
+    <link rel="stylesheet" href="../css/bootstrap-datepicker3.min.css">
+    <script type="text/javascript" src="../js/jquery-3.4.1.min.js"></script>
+    <script type="text/javascript" src="../js/bootstrap.js"></script>
+    <!-- <script type="text/javascript" src="../js/houtai.js"></script> -->
+    <script type="text/javascript" src="../js/vue.js"></script>
+    <script src="../js/bootstrap-datepicker.min.js"></script>
+    <script src="../js/bootstrap-datepicker.zh-CN.min.js" charset="UTF-8"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="../js/toastr.min.js"></script>
+    <script src="../js/moment.js"></script>
+    <link rel="shortcut icon" href="../img/pang.ico" type="image/x-icon" />
+    <!--制作的图标，使用href关联，仅仅需要更改href的内容  -->
+</head>
+<body>
+<div class="all" id="app" v-cloak>
+    <!--顶部-->
+    <div class="top-head">
+        <div class="top-head-collect">
+            <a href="javascript:" @click="collectWeb">
+                ❤收藏Rosette(Ctrl + D)
+            </a>
+        </div>
+        <div class="top-head-right">
+            <a v-show="!LoginStatus" href="/front_Login">你好，请登录</a>
+            <a v-show="LoginStatus" href="javascript:">你好，{{ userName }}</a>
+            <a href="/front_Register">注册</a>
+            <a href="/my_order">我的订单</a>
+            <a href="/shopping">购物车</a>
+            <a href="/updatePassword">修改密码</a>
+            <a href="/myPersonInfo/selectPersonInfo">我的信息</a>
+        </div>
+    </div>
+    <!--分割线-->
+    <HR style="width:100%;color:#987cb9; size:1px;position: relative;float: left">
+    <!--导航栏-->
+    <div class="top-navigation">
+        <div class="top-navigation-icon">
+            <a href="/front_Home">
+                <img src="/img/flowerlove1.png">
+            </a>
+        </div>
+        <div class="top-navigation-gif">
+            <span><img src="/img/0.gif"></span>
+        </div>
+        <div class="top-navigation-nav">
+            <a href="javascript:void(0)" @click="selectAllClassSub('鲜花')">鲜花</a>
+            <a href="javascript:void(0)" @click="selectAllClassSub('永生花')">永生花</a>
+            <a href="javascript:void(0)" @click="selectAllClassSub('礼品')">礼品</a>
+        </div>
+        <div class="top-navigation-select">
+            <!--v-model="fuzzySelectData" @keyup.enter="fuzzySelect(firstPage)"-->
+            <input class="selectBox-input" type="text" name="select" placeholder="更多优惠商品等你来选购" maxlength="40" @input="selectInputLimit" v-model="keywordData">
+            <button class="selectBtn">
+                <img src="../img/select.png" class="selectBtn-icon" @click="keywordSearch">
+            </button>
+        </div>
+    </div>
+
+    <div class="all-result">
+        <p>我的订单</p>
+    </div>
+    <!--分割线-->
+    <HR style="margin-top: -3px;">
+    <div v-if="!LoginStatus" class="none-Login">
+        <div>
+            <img src="/img/sorry.png">
+            <p>暂无订单信息，</p>
+            <a href="/front_Login">请先登录</a>
+        </div>
+    </div>
+
+    <div v-if="LoginStatus && emptyShow" class="none-Login">
+        <div>
+            <img src="/img/sorry.png">
+            <p>暂无订单信息，</p>
+            <a href="/front_Home">前往购物</a>
+        </div>
+    </div>
+
+    <div v-if="LoginStatus && !emptyShow" class="table-modal">
+        <table class="table change-table">
+            <thead>
+            <tr>
+                <th style="width: 100px"></th>
+                <th>订单编号</th>
+                <th>收货人</th>
+                <th>订单总额</th>
+                <th>状态</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="order in orderList">
+                <td style="width: 10%;">
+                    <img :src="order.goodsImageList" style="width: 96px; height: 96px;">
+                </td>
+                <td style="width: 20%;">
+                    {{ order.orderID }}
+                </td>
+                <td style="width: 15%">
+                    {{ order.consigneeName }}
+                </td>
+                <td style="width: 15%">
+                    ￥{{ order.orderPriceSum }}
+                </td>
+                <td style="width: 15%">
+                    {{ order.orderStatus }}
+                </td>
+                <td style="width: 20%" class="order-operation">
+                    <a href="javascript:void(0);" @click="selectOrderID(order.orderID)">查看</a>
+                    <a v-if="order.orderStatus !== '已取消' && order.orderStatus !== '待评价' && order.orderStatus !== '已评价' && order.orderStatus !== '待配送'" href="javascript:void(0);" @click="cancelOrderID(order.orderID)">取消</a>
+                    <a v-if="order.orderStatus === '待付款'" href="javascript:void(0);" @click="paymentOrderID(order.orderID, order.orderPriceSum)">付款</a>
+                    <a v-if="order.orderStatus === '已取消'" href="javascript:void(0);" data-toggle="modal" data-target="#deleteModal"
+                       data-whatever="@getbootstrap" @click="getOrderID(order.orderID)">删除</a>
+                    <a v-if="order.orderStatus === '待配送'" href="javascript:void(0);" @click="confirmOrderID(order.orderID)">确定收货</a>
+<!--                    <a v-if="order.orderStatus === '已取消'" href="javascript:void(0);" @click="recoverOrderID(order.orderID)">恢复</a>-->
+                    <a v-if="order.orderStatus === '待评价'" href="javascript:void(0);" @click="goToEvaluate(order.orderID)">评价</a>
+                    <a v-if="order.orderStatus === '已评价'" href="javascript:void(0);" @click="changeEvaluate(order.orderID)">修改评价</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+        <!-- Modal -->
+        <div class="modal fade" style="width: 300px; top: 50%;left:50%;position: absolute;transform: translate(-50%, -50%)" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalCenterTitle">提示</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        确认删除吗？
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                        <button type="button" class="btn btn-primary" @click="deleteOrder(deleteOrderID)" data-dismiss="modal">确认</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!--分割线-->
+    <HR v-if="LoginStatus">
+
+    <!--结算-->
+
+
+
+
+</div>
+<script type="text/javascript">
+    /* 请求拦截 */
+    axios.interceptors.request.use(
+        config => {
+            if (localStorage.getItem("token") != null) {
+                config.headers["token"] = localStorage.getItem("token");
+            }
+
+            return config;
+        },
+        err => Promise.reject(err)
+    );
+    axios.defaults.headers.post['Content-Type'] = 'application/json';
+    window.onload = function () {
+        if (localStorage.getItem("token") != null) {
+            console.info(localStorage.getItem("token"));
+            vm.getUserIDByToken();
+
+        }
+    }
+    var vm = new Vue({
+        el: "#app",
+        data: {
+            userName: "",
+            LoginStatus: false,
+            userID: "",
+            selectAllClassData: "",
+            goodsImageList: [],
+            goodsName: "",
+            goodsPrice: "",
+            goodsSum: 0,
+            deleteOrderID: "",
+            shoppingCartPriceSum: 0,
+            goodsInventory: 0,
+            ifCancel: false,
+            ifComplete: false,
+            orderList: [],
+            orderPriceSum: 0,
+            emptyShow: false,
+            keywordData: "",
+        },
+        methods: {
+            getUserIDByToken() {
+                axios.post('/getUserIDByToken', {
+                }).then(function (data) {
+                    vm.userID = data.data;
+                    if (vm.userID !== "") {
+                        vm.LoginStatus = true;
+                        vm.getUserInfo();
+                        vm.getAllOrder();
+                    }
+                    console.info("ID:" + vm.userID)
+
+                })
+            },
+            getUserInfo() {
+                axios.post('/front/getUserInfo', {
+                    userID: vm.userID
+                }).then(function (data) {
+                    vm.userName = data.data.userName;
+                    console.info("userName:" + vm.userName)
+                })
+            },
+            keywordSearch() {
+                window.open("/goodsBySelectData?selectData=" + vm.keywordData);
+            },
+            confirmOrderID(orderID) {
+                axios.post('/order/confirmOrderID', {
+                    orderID: orderID,
+                }).then(function (data) {
+                    if (data.data.success === true) {
+                        vm.ifComplete = true;
+                        vm.getAllOrder();
+                    }
+                })
+            },
+            paymentOrderID(orderID, orderPriceSum) {
+                window.location.href = "/goAlipay?price=" + orderPriceSum + "&orderID=" + orderID;
+                axios.post('/order/paymentOrderID', {
+                    orderID: orderID,
+                    orderPriceSum: orderPriceSum,
+                }).then(function (data) {
+                    console.info(data.data);
+                })
+            },
+            cancelOrderID(orderID){
+                axios.post('/order/cancelOrderID', {
+                    orderID: orderID
+                }).then(function (data) {
+                    if (data.data.success === true) {
+                        vm.ifCancel = true;
+                        vm.getAllOrder();
+                    }
+                })
+            },
+            selectOrderID(orderID) {
+                window.location.href = "/select_order?orderID=" + orderID;
+            },
+            deleteOrder(deleteOrderID) {
+                axios.post('/order/deleteOrder', {
+                    orderID: deleteOrderID,
+                }).then(function (data) {
+                    // 操作成功弹出框
+                    if (data.data.success === true) {
+                        toastr.options = {
+                            timeOut: 1000,
+                            positionClass: "toast-top-center",
+                        };
+                        toastr.success('删除数据成功');
+                        vm.getAllOrder();
+                    } else {
+                        toastr.options = {
+                            timeOut: 1000,
+                            positionClass: "toast-top-center",
+                        };
+                        toastr.success('删除数据失败');
+                    }
+                })
+            },
+            getOrderID(orderID) {
+                vm.deleteOrderID = orderID;
+            },
+
+            getAllOrder() {
+                axios.post('/order/getAllOrder', {
+                    userID: vm.userID,
+                }).then(function (data) {
+                    vm.orderList = data.data;
+                    console.info(vm.orderList)
+                    if (vm.orderList.length === 0) {
+                        vm.emptyShow = true;
+                    } else {
+                        vm.emptyShow = false;
+                        for (var i = 0; i < vm.orderList.length; i++) {
+                            vm.orderList[i].goodsImageList = vm.orderList[i].goodsImageList.split(",")[0];
+                        }
+                    }
+                })
+            },
+
+            goToEvaluate(orderID) {
+                window.location.href = "/evaluate?orderID=" + orderID;
+            },
+
+            changeEvaluate(orderID) {
+                window.location.href = "/updateEvaluate?orderID=" + orderID;
+            },
+            collectWeb() {
+                alert("快捷键Ctrl + D收藏Rosette")
+            },
+
+            selectInputLimit() {
+                vm.selectKeywords = vm.selectKeywords.replace(/\s+/g,'')
+            }
+        },
+
+
+    })
+</script>
+</body>
+</html>

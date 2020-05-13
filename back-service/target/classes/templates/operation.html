@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>test</title>
+    <meta charset="utf-8">
+
+    <link rel="stylesheet" href="../css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="../css/toastr.min.css">
+    <link rel="stylesheet" type="text/css" href="../css/houtai.css">
+    <link rel="stylesheet" href="../css/bootstrap-datetimepicker.min.css">
+    <script type="text/javascript" src="../js/jquery-3.4.1.min.js"></script>
+    <script type="text/javascript" src="../js/bootstrap.js"></script>
+    <!-- <script type="text/javascript" src="../js/user.js"></script> -->
+    <script type="text/javascript" src="../js/vue.js"></script>
+    <script src="../js/bootstrap-datetimepicker.js"></script>
+    <script src="../js/bootstrap-datetimepicker.zh-CN.js" charset="UTF-8"></script>
+    <script src="../js/axios.min.js"></script>
+    <script src="../js/toastr.min.js"></script>
+    <link rel="shortcut icon" href="../img/pang.ico" type="image/x-icon" />
+    <!--制作的图标，使用href关联，仅仅需要更改href的内容  -->
+
+</head>
+<body>
+
+<div v-cloak class="all" id="app">
+    <canvas ref="headCanvas" style="display:none"></canvas>
+    <!--详细页面-->
+    <div v-show="!navigationBar" class="leftUl">
+        <div class="top-left-img">
+            <a href="./user">
+                <img src="../img/ff.png" >
+            </a>
+        </div>
+        <ul class="nav nav-pills nav-stacked leftUl-color">
+            <li role="presentation" v-for="item in items" @click="selectTest(item)">
+                <a href="#">
+                    <img :src="item.icon">
+                    &nbsp;
+                    {{item.value}}
+                    <img src="../img/sanjiao.png" class="Static"
+                         :class="{'infoImgChange': item.open, 'infoImgReturn': item.close}">
+                </a>
+                <transition name="unitfybox">
+                    <ul class="nav nav-pills nav-stacked leftUl-color box" v-if="item.open" >
+                        <li role="presentation" v-for="twoItem in item.ul" >
+                            <a :href="twoItem.url" >
+                                {{twoItem.value}}
+                            </a>
+                        </li>
+                    </ul>
+                </transition>
+            </li>
+        </ul>
+    </div>
+
+
+    <!--缩小Ul-->
+    <div v-show="navigationBar" class="leftUl-shrink">
+        <div class="top-left-newImg">
+            <a href="./user">
+                <img src="../img/S.png" >
+            </a>
+        </div>
+        <ul class="nav nav-pills nav-stacked leftUl-color">
+            <li role="presentation" v-for="item in items" @click="selectTest(item)">
+                <a href="#" @click="menu">
+                    <img :src="item.icon">
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!--右上角部分-->
+    <div class="top-right" :class="{'top-right-open': rightOpen}">
+
+        <!-- TOP的menu按钮 -->
+        <div class="top-menu">
+            <button class="btn top-menuBtn " type="button" @click="menu">
+                <img src="../img/menu.png">
+            </button>
+        </div>
+        <!-- 接上↑ -->
+
+        <div class="noticeMsg">
+            <a href="/messageCenter">
+                <img src="../img/message.png">
+                <span class="badge">
+                    {{ unreadMessageNum }}
+                </span>
+            </a>
+        </div>
+
+        <!-- TOP的个人信息 -->
+        <div class="top-peopleInfo">
+            <!-- Large button group -->
+            <div class="btn-group">
+                <button class="btn btn-default btn-lg dropdown-toggle top-peopleInfoBtn" type="button"
+                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <div class="top-peopleInfo-img">
+                        <!-- 如果未登陆头像为默认头像，font为登录 -->
+                        <img class="top-peopleInfo-round-icon" :src=personInfo.staffHeadPortrait>
+                    </div>
+                    <span class="top-peopleInfo-name">
+						<span>
+                            {{ personInfo.staffName }}
+                        </span>
+					</span>
+                    &ensp;
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu">
+
+                    <li><a href="/personInfo">个人资料</a></li>
+                    <li><a href="/changePassword">修改密码</a></li>
+                    <li role="separator" class="divider"></li>
+                    <li><a href="/logout">退出登录</a></li>
+
+                </ul>
+            </div>
+        </div>
+
+
+        <!-- 接上↑ -->
+
+
+        <!-- TOP的Sign out -->
+
+        <!-- <div class="top-signOut">
+            <a href="#">退出</a>
+        </div> -->
+
+        <!-- 接上↑ -->
+    </div>
+
+    <!--table部分-->
+    <div class="right" :class="{'right-open': rightOpen}">
+        <div class="right-top">
+        </div>
+        <div class="right-second">
+            <div class="right-second-top">
+                <form class="form-inline" style="margin-left: 2%; width: 38%;">
+                    <label>开始时间：</label>
+                    <div class="form-group" id="startDatepicker" >
+                        <div class='input-group date' >
+                            <input type='text' class="form-control" v-model="startTime" placeholder="开始时间" readonly="true"/>
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                        </div>
+                    </div>
+                    <label style="margin-left: 2%;">结束时间：</label>
+                    <div class="form-group" id="endDatepicker" >
+                        <div class='input-group date' >
+                            <input type='text' class="form-control" v-model="endTime" placeholder="结束时间" readonly="true" />
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                        </div>
+                    </div>
+                </form>
+                <form class="form-inline" style="width:38%;">
+                    <label>员工号：</label>
+                    <div class="form-group" >
+                        <div class='input-group'>
+                            <input type='text' class="form-control" v-model="selectData" placeholder="员工号" @input="selectOperatorIDLimit" @focus="changeTest"/>
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-user"></span>
+                            </span>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-success" style="margin-left: 2%;"
+                            @keyup.enter="selectOperatorID(firstPage)" @click="selectOperatorID(firstPage)">&emsp;查找&emsp;
+                    </button>
+                </form>
+                <div class="path" style="margin-left: 5%;">
+                    <ul class="breadcrumb">
+                        <li><a href="user">首页</a></li>
+                        <li class="active">日志管理</li>
+                        <li class="active">操作日志</li>
+                    </ul>
+                </div>
+
+            </div>
+            <table class="table table-hover right-table">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>员工号</th>
+                    <th>请求Url</th>
+                    <th>请求方法</th>
+                    <th>操作类型</th>
+                    <th>IP</th>
+                    <th>最后更新时间</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for="operation in operationList ">
+                    <td>{{ operation.operationID }}</td>
+                    <td>{{ operation.operatorID }}</td>
+                    <td>{{ operation.operationUrl }}</td>
+                    <td>{{ operation.operationMethod }}</td>
+                    <td>{{ operation.operationType }}</td>
+                    <td>{{ operation.operationIP }}</td>
+                    <td>{{ operation.operationUpdateTime }}</td>
+                </tr>
+                </tbody>
+            </table>
+
+
+            <!--        分页部分-->
+            <div class="right-Page">
+                <div class="right-Page-left">
+                    <div style="width: 87%; height: 20%; float: left;">
+                        <p>当前 <span v-text="pageNum"></span> 页,总 <span v-text="pages"></span> 页,共 <span
+                                v-text="total"></span> 条记录</p>
+                    </div>
+                </div>
+                <div class="right-Page-middle">
+                    <select class="form-control right-Page-middleSelect" v-model="selectOptionVal" @click="changeOptionVal">
+                        <option value="8">8条/页</option>
+                        <option value="10">10条/页</option>
+                        <option value="12">12条/页</option>
+                    </select>
+                    &nbsp;
+                    <ul class="pagination">
+
+                        <li><a href="#" @click="checkPage(firstPage)">首页</a></li>
+                        <li v-if="isFirstPage == false"><a href="#" @click="checkPage(prePage)">上一页</a></li>
+                        <li v-if="isFirstPage == true" class="disabled"><span aria-hidden="true">上一页</span></li>
+                        <li v-for="index in indexs" :class="{ 'active': pageNum == index}">
+                            <a href="#" @click="btnClick(index)">{{ index }}</a>
+                        </li>
+                        <li v-if="isLastPage == false"><a href="#" @click="checkPage(nextPage)">下一页</a></li>
+                        <li v-if="isLastPage == true" class="disabled"><span aria-hidden="true">下一页</span></li>
+                        <li><a href="#" @click="checkPage(pages)">尾页</a></li>
+
+                    </ul>
+
+                </div>
+                <div class="right-Page-right">
+                    跳转到：<input type="text" class="form-control right-Page-rightInput" v-model="jumpPage" @keyup.enter="checkPage(jumpPage)">&nbsp;
+                    <button class="btn btn-primary" @click="checkPage(jumpPage)">GO</button>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+
+<script type="text/javascript">
+
+
+    axios.defaults.headers.post['Content-Type'] = 'application/json';
+    window.onload = function() {
+        vm.checkPage(vm.firstPage)
+    };
+
+
+    var vm = new Vue({
+        el: '#app',
+        data: {
+            /**
+             * top部分
+             *
+             * */
+            unreadMessageNum: "",
+            loginStaffID: "",
+            personInfo: "",
+
+            navigationBar: false,
+            rightOpen: false,
+
+            /**
+             * top部分
+             *
+             * */
+
+            /**
+             * table部分↓
+             *
+             * */
+            operationID: "",
+            operatorID: null,
+            operationUrl: "",
+            operationMethod: "",
+            operationType: "",
+            operationIP: "",
+            operationUpdateTime: "",
+            selectData: "",
+
+            startTime: "",
+            endTime: "",
+
+            operationList: [],
+
+
+            pageNum: "",     //当前页
+            pages: "",       //总页数
+            total: "",       //总记录
+            nextPage: "",    //下一页
+            prePage: "",     //上一页
+            firstPage: 1,    //第一页
+            isFirstPage: false,     //是否为首页
+            isLastPage: false,      //是否为尾页
+            jumpPage: "",            //跳转页数
+            selectOptionVal: "8",    //每页的记录数
+
+            /**
+             * table部分↑
+             *
+             * */
+
+            /**
+             * left部分↓
+             *
+             * */
+
+            //ul展开状态
+            orderShow: false,
+            personShow: false,
+            goodsShow: false,
+            logShow: false,
+
+            //小三角样式状态
+            personOnActive: false,
+            personDownActive: false,
+            orderOnActive: false,
+            orderDownActive: false,
+            goodsOnActive: false,
+            goodsDownActive: false,
+            logOnActive: false,
+            logDownActive: false,
+
+
+            items:[
+                {
+                    id: "0",
+                    value: "用户管理",
+                    icon: "../img/user.png",
+                    open: false,
+                    close: false,
+                    ul:[
+                        {
+                            id: "0",
+                            value: "用户列表",
+                            url: "/userInfo"
+                        },
+                        {
+                            id: "1",
+                            value: "用户账号",
+                            url: "/user"
+                        }
+                    ]
+                },
+                {
+                    id: "1",
+                    value: "员工管理",
+                    icon: "../img/staff.png",
+                    open: false,
+                    close: false,
+                    ul:[
+                        {
+                            id: "0",
+                            value: "员工列表",
+                            url: "/staffInfo"
+                        },
+                        {
+                            id: "1",
+                            value: "员工账号",
+                            url: "/staff"
+                        }
+                    ]
+                },
+                {
+                    id: "2",
+                    value: "商品管理",
+                    icon: "../img/goods.png",
+                    open: false,
+                    close: false,
+                    ul:[
+                        {
+                            id: "0",
+                            value: "商品列表",
+                            url: "/goodsInfo"
+                        },
+                        {
+                            id: "1",
+                            value: "商品分类",
+                            url: "/goodsClass"
+                        },
+                        {
+                            id: "2",
+                            value: "商品评价",
+                            url: "/evaluate"
+                        }
+                    ]
+                },
+                {
+                    id: "3",
+                    value: "订单管理",
+                    icon: "../img/order.png",
+                    open: false,
+                    close: false,
+                    ul:[
+                        {
+                            id: "0",
+                            value: "订单列表",
+                            url: "/order"
+                        },
+                    ]
+                },
+                {
+                    id: "4",
+                    value: "操作日志",
+                    icon: "../img/log.png",
+                    open: false,
+                    close: false,
+                    ul:[
+                        {
+                            id: "0",
+                            value: "操作日志",
+                            url: "/operation"
+                        },
+                    ]
+                },
+                {
+                    id: "5",
+                    value: "通知管理",
+                    icon: "../img/notify.png",
+                    open: false,
+                    close: false,
+                    ul:[
+                        {
+                            id: "0",
+                            value: "发送通知",
+                            url: "/notifyMessage"
+                        }
+                    ]
+                }
+            ],
+
+            /**
+             * left部分↑
+             *
+             * */
+
+        },
+        methods: {
+            changeOptionVal() {
+                vm.checkPage(vm.firstPage);
+            },
+            changeTest() {
+                vm.startTime = $("#startDatepicker").find("input").val();
+                vm.endTime = $("#endDatepicker").find("input").val();
+            },
+            getPersonInfo() {
+                axios.post('/staffInfo/getPersonInfo', {
+                }).then(function (data) {
+                    vm.personInfo = data.data.detail;
+                    vm.loginStaffID = vm.personInfo.staffID
+                    setTimeout(() => {
+                        vm.getUnreadMessageNum();
+                        vm.checkPage(vm.pageNum);
+                    }, 500)
+                })
+            },
+            getUnreadMessageNum() {
+                axios.post('/notify/getUnreadMessageNum', {
+                    staffID: vm.loginStaffID,
+                }).then(function (data) {
+                    console.info(data.data)
+                    vm.unreadMessageNum = data.data;
+                })
+            },
+            test() {
+                /**
+                 * 日期选择框↓
+                 */
+                $('#startDatepicker .input-group.date').datetimepicker({
+                    language: 'zh-CN',
+                    todayHighlight: true,
+                    autoClose: true,
+                    minuteStep: 1,
+                    clearBtn: true,
+                });
+                $('#endDatepicker .input-group.date').datetimepicker({
+                    language: 'zh-CN',
+                    todayHighlight: true,
+                    autoClose:true,
+                    minuteStep: 1,
+                    clearBtn: true,
+                });
+                /**
+                 * 日期选择框↑
+                 */
+
+            },
+
+
+
+            /**
+             * 导航栏只展开一个二级↓
+             */
+            selectTest(item) {
+                for (let i=0 ; i<vm.items.length; i++) {
+                    if (vm.items[i].id != item.id && vm.items[i].open == true) {
+                        vm.items[i].open = false;
+                        vm.items[i].close = true;
+                    }
+                }
+                if (item.open == false) {
+                    item.open = true;
+                    item.close = false;
+                } else if(item.open == true) {
+                    item.open = false;
+                    item.close = true;
+                }
+            },
+            /**
+             * 导航栏只展开一个二级↑
+             */
+
+            /**
+             * top部分
+             */
+            menu() {
+                vm.navigationBar = !vm.navigationBar;
+                vm.rightOpen = !vm.rightOpen;
+            },
+
+            /**
+             * top部分
+             */
+
+
+            /**
+             * left部分
+             *
+             * */
+            personActive() {
+                vm.personShow = !vm.personShow;
+                if (vm.personOnActive == false) {
+                    vm.personOnActive = true;
+                    vm.personDownActive = !vm.personOnActive;
+                } else if (vm.personOnActive == true) {
+                    vm.personOnActive = false;
+                    vm.personDownActive = vm.personOnActive;
+                }
+            },
+            orderActive() {
+                vm.orderShow = !vm.orderShow;
+                if (vm.orderOnActive == false) {
+                    vm.orderOnActive = true;
+                    vm.orderDownActive = !vm.orderOnActive;
+                } else if (vm.orderOnActive == true) {
+                    vm.orderOnActive = false;
+                    vm.orderDownActive = !vm.orderOnActive;
+                }
+            },
+            goodsActive() {
+                vm.goodsShow = !vm.goodsShow;
+                if (vm.goodsOnActive == false) {
+                    vm.goodsOnActive = true;
+                    vm.goodsDownActive = !vm.goodsOnActive;
+                } else if (vm.goodsOnActive == true) {
+                    vm.goodsOnActive = false;
+                    vm.goodsDownActive = !vm.goodsOnActive;
+                }
+            },
+            logActive() {
+                vm.logShow = !vm.logShow;
+                if (vm.logOnActive == false) {
+                    vm.logOnActive = true;
+                    vm.logDownActive = !vm.logOnActive;
+                } else if (vm.logOnActive == true) {
+                    vm.logOnActive = false;
+                    vm.logDownActive = !vm.logOnActive;
+                }
+            },
+            /**
+             * left部分
+             *
+             * */
+
+
+
+            btnClick(data) {
+                if (data != vm.pageNum) {
+                    vm.pageNum = data;
+                    vm.checkPage(vm.pageNum);
+                }
+            },
+            checkPage(wantPageNum) {
+
+                if (vm.selectData === "" && vm.startTime === "" && vm.endTime === "") {
+                    axios.post('/operation/getAllOperation', {
+                        pageNum: wantPageNum,
+                        pageSize: vm.selectOptionVal,
+                    }).then(function (dat) {
+                        console.info(dat.data);
+                        vm.operationList = dat.data.list;
+                        vm.pageNum = dat.data.pageNum;
+                        vm.pages = dat.data.pages;
+                        vm.total = dat.data.total;
+                        vm.nextPage = dat.data.nextPage;
+                        vm.prePage = dat.data.prePage;
+                        vm.isFirstPage = dat.data.isFirstPage;
+                        vm.isLastPage = dat.data.isLastPage;
+                        vm.jumpPage = "";
+                    })
+                } else {
+                    vm.selectOperatorID(wantPageNum)
+                }
+            },
+            /**
+             * 模糊查询
+             *
+             * */
+            selectOperatorID(wantPageNum) {
+                vm.startTime = $("#startDatepicker").find("input").val();
+                vm.endTime = $("#endDatepicker").find("input").val();
+                axios.post('/operation/selectOperatorInfo', {
+                    pageNum: wantPageNum,
+                    pageSize: vm.selectOptionVal,
+                    operatorID: vm.selectData,
+                    startTime: vm.startTime,
+                    endTime: vm.endTime,
+                }).then(function (dat) {
+                    console.info(dat.data);
+                    vm.operationList = dat.data.list;
+                    vm.pageNum = dat.data.pageNum;
+                    vm.pages = dat.data.pages;
+                    vm.total = dat.data.total;
+                    vm.nextPage = dat.data.nextPage;
+                    vm.prePage = dat.data.prePage;
+                    vm.isFirstPage = dat.data.isFirstPage;
+                    vm.isLastPage = dat.data.isLastPage;
+                    vm.jumpPage = "";
+                })
+            },
+
+
+            selectOperatorIDLimit() {
+                this.selectData = this.selectData.replace(/[^\d]/g,'')
+            },
+
+
+
+        },
+        mounted() {
+            this.getPersonInfo();
+            this.test();
+        },
+        watch: {
+
+            pageNum: function (oldValue, newValue) {
+                console.log(arguments);
+            },
+        },
+        computed: {
+            indexs: function () {
+                // 定义开始的数字
+                var left = 1;
+                // 定义结束的数字
+                var right = this.pages;
+
+                // 存储返回值
+                var ar = [];
+
+                // 前提条件：每次都显示condition条页码
+                // 最好是个单数
+                var condition = 5;
+
+                // 向上取整->就能获取到中间的数字
+                var middle = Math.ceil(condition / 2);
+
+                // 要分清情况
+                //1、在最左边或者在middle的前面
+                //2、在中间
+                //3、最右边的情况
+
+                // 当总页数超过condition时，需要判断分页情况
+                if (this.pages >= condition) {
+                    // 中间的时候
+                    // 左右都加上（middle-1)
+                    if (this.pageNum > middle && this.pageNum < this.pages - (middle - 1)) {
+                        left = this.pageNum - (middle - 1);
+                        right = this.pageNum + (middle - 1);
+                    } else {
+                        //最左边或者在condition的中间
+                        if (this.pageNum <= middle) {
+                            left = 1;
+                            right = condition;
+                            // 最右边的情况
+                            // 结束是总条数，开始是condition减去1
+                        } else {
+                            right = this.pages;
+                            left = this.pages - (condition - 1);
+                        }
+                    }
+                }
+                while (left <= right) {
+                    ar.push(left);
+                    left++;
+                }
+                return ar
+
+            }
+        }
+    })
+
+
+</script>
+</body>
+</html>

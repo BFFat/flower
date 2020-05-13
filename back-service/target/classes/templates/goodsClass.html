@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>test</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="../css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="../css/toastr.min.css">
+    <link rel="stylesheet" type="text/css" href="../css/houtai.css">
+    <link rel="stylesheet" href="../css/bootstrap-datepicker3.min.css">
+    <script type="text/javascript" src="../js/jquery-3.4.1.min.js"></script>
+    <script type="text/javascript" src="../js/bootstrap.js"></script>
+    <!-- <script type="text/javascript" src="../js/houtai.js"></script> -->
+    <script type="text/javascript" src="../js/vue.js"></script>
+    <script src="../js/bootstrap-datepicker.min.js"></script>
+    <script src="../js/bootstrap-datepicker.zh-CN.min.js" charset="UTF-8"></script>
+    <script src="../js/axios.min.js"></script>
+    <script src="../js/toastr.min.js"></script>
+    <link rel="shortcut icon" href="../img/pang.ico" type="image/x-icon" />
+    <!--制作的图标，使用href关联，仅仅需要更改href的内容  -->
+
+</head>
+<body>
+
+<div v-cloak class="all" id="app">
+    <canvas ref="headCanvas" style="display:none"></canvas>
+    <!--详细页面-->
+    <div v-show="!navigationBar" class="leftUl">
+        <div class="top-left-img">
+            <a href="../static/user">
+                <img src="../img/ff.png" >
+            </a>
+        </div>
+        <ul class="nav nav-pills nav-stacked leftUl-color">
+            <li role="presentation" v-for="item in items" @click="selectTest(item)">
+                <a href="#">
+                    <img :src="item.icon">
+                    &nbsp;
+                    {{item.value}}
+                    <img src="../img/sanjiao.png" class="Static"
+                         :class="{'infoImgChange': item.open, 'infoImgReturn': item.close}">
+                </a>
+                <transition name="unitfybox">
+                    <ul class="nav nav-pills nav-stacked leftUl-color box" v-if="item.open" >
+                        <li role="presentation" v-for="twoItem in item.ul" >
+                            <a :href="twoItem.url" >
+                                {{twoItem.value}}
+                            </a>
+                        </li>
+                    </ul>
+                </transition>
+            </li>
+        </ul>
+    </div>
+
+
+    <!--缩小Ul-->
+    <div v-show="navigationBar" class="leftUl-shrink">
+        <div class="top-left-newImg">
+            <a href="../static/user">
+                <img src="../img/S.png" >
+            </a>
+        </div>
+        <ul class="nav nav-pills nav-stacked leftUl-color">
+            <li role="presentation" v-for="item in items" @click="selectTest(item)">
+                <a href="#" @click="menu">
+                    <img :src="item.icon">
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!--右上角部分-->
+    <div class="top-right" :class="{'top-right-open': rightOpen}">
+
+        <!-- TOP的menu按钮 -->
+        <div class="top-menu">
+            <button class="btn top-menuBtn " type="button" @click="menu">
+                <img src="../img/menu.png">
+            </button>
+        </div>
+        <!-- 接上↑ -->
+
+        <div class="noticeMsg">
+            <a href="/messageCenter">
+                <img src="../img/message.png">
+                <span class="badge">
+                    {{ unreadMessageNum }}
+                </span>
+            </a>
+        </div>
+
+        <!-- TOP的个人信息 -->
+        <div class="top-peopleInfo">
+            <!-- Large button group -->
+            <div class="btn-group">
+                <button class="btn btn-default btn-lg dropdown-toggle top-peopleInfoBtn" type="button"
+                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <div class="top-peopleInfo-img">
+                        <!-- 如果未登陆头像为默认头像，font为登录 -->
+                        <img class="top-peopleInfo-round-icon" :src=personInfo.staffHeadPortrait>
+                    </div>
+                    <span class="top-peopleInfo-name">
+						<span>
+                            {{ personInfo.staffName }}
+                        </span>
+					</span>
+                    &ensp;
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu">
+
+                    <li><a href="/personInfo">个人资料</a></li>
+                    <li><a href="/changePassword">修改密码</a></li>
+                    <li role="separator" class="divider"></li>
+                    <li><a href="/logout">退出登录</a></li>
+
+                </ul>
+            </div>
+        </div>
+
+
+
+        <!-- 接上↑ -->
+
+
+        <!-- TOP的Sign out -->
+
+        <!-- <div class="top-signOut">
+            <a href="#">退出</a>
+        </div> -->
+
+        <!-- 接上↑ -->
+    </div>
+
+    <!--table部分-->
+    <div class="right" :class="{'right-open': rightOpen}">
+        <div class="right-top">
+
+        </div>
+        <div class="right-second">
+            <div class="right-second-top">
+                <button type="button" class="btn btn-success right-second-top-btn" data-toggle="modal"
+                        data-target="#addModal" data-whatever="@getbootstrap">添加
+                </button>
+
+                <div class="path" style="margin-left: 75%">
+                    <ul class="breadcrumb">
+                        <li><a href="../static/user">首页</a></li>
+                        <li  class="active">商品管理</li>
+                        <li class="active">商品分类</li>
+                    </ul>
+                </div>
+            </div>
+            <table class="table table-hover right-table">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>分类名称</th>
+                    <th>级别</th>
+                    <th>显示</th>
+                    <th>排序</th>
+                    <th>最后更新时间</th>
+                    <th>设置</th>
+                    <th>操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for="goodsClass in goodsClassList ">
+                    <td>{{ goodsClass.goodsClassID }}</td>
+                    <td>{{ goodsClass.goodsClassName }}</td>
+                    <td>{{ goodsClass.goodsClassLevel }}</td>
+                    <td>
+                        <input class='tgl tgl-light' :id="goodsClass.goodsClassID" type='checkbox' v-model="goodsClass.goodsClassShow" style="display: none" @click="changeGoodsClassShow(goodsClass.goodsClassID)">
+                        <label class='tgl-btn' :for="goodsClass.goodsClassID" style="margin-top: 10px;"></label>
+                    </td>
+                    <td>{{ goodsClass.goodsClassSort }}</td>
+                    <td>{{ goodsClass.goodsClassUpdateTime }}</td>
+                    <td>
+                        <button v-show="selectLevel" type="button" class="btn btn-primary" @click="lookLower(goodsClass.goodsClassName)">查看下级</button>
+                        <button v-show="!selectLevel" type="button" class="btn btn-primary" @click="lookLower(emptyNum)">返回上级</button>
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-info" data-toggle="modal" data-target="#changeModal"
+                                data-whatever="@getbootstrap" @click="getMsg(goodsClass)">修改
+                        </button>
+                        <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal"
+                                data-whatever="@getbootstrap" @click="getGoodsClassID(goodsClass)">删除
+                        </button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content deleteModal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                    aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title">提示</h4>
+                        </div>
+                        <div class="modal-footer">
+                            <h4 class="modal-title" style="float: left;margin-top: 4px;">确认删除吗？</h4>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                            <button type="button" class="btn btn-primary" @click="deleteGoodsClass(deleteGoodsClassID)"
+                                    data-dismiss="modal">确认
+                            </button>
+                        </div>
+                    </div><!-- /.modal-content -->
+                </div><!-- /.modal-dialog -->
+            </div><!-- /.modal -->
+
+
+            <!--        增加用户模态框-->
+            <div class="modal fade" id="addModal" tabindex="-1" role="dialog" aria-labelledby="addModalLabel"
+                 aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title modal-one" id="addModalLabel">添加商品分类</h5>
+                            <button type="button" class="close modal-close" data-dismiss="modal" aria-label="Close" @click="addModalClose">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <form>
+                                <div class="form-group">
+                                    <label for="recipient-addGoodsClassName" class="col-form-label">分类名称:</label><span
+                                        v-html="addGoodsClassNameMsg"></span>
+                                    <input type="text" class="form-control" id="recipient-addGoodsClassName" v-model="addGoodsClassName"
+                                          @blur="addBlur" @focus="addFocus" @input="addGoodsClassNameLimit">
+                                </div>
+                                <div class="from-group" style="margin-bottom:15px;">
+                                    <label for="recipient-addGoodsClassParent" class="col-form-label">上级分类:</label>
+                                    <select class="form-control" id="recipient-addGoodsClassParent" v-model="addGoodsClassParent" autocomplete="off" >
+                                        <option value="无">无上级分类</option>
+                                        <option v-for="level in parentLevel" :value="level">{{ level }}</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" style="display: flex;align-items: center;">
+                                    <label class="col-form-label">显示:</label>
+                                    <input class='tgl tgl-light' id='cb1' type='checkbox' v-model="addGoodsClassShow" style="display: none">
+                                    <label class='tgl-btn' for='cb1' style="margin-left: 10px;"></label>
+                                </div>
+                                <div class="form-group" id="datepicker" >
+                                    <label class="col-form-label">排序:</label>
+                                    <input type="text" class="form-control" v-model="addGoodsClassSort" @input="addGoodsClassSortLimit">
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal" @click="addModalClose">取消</button>
+                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#success"
+                                    data-dismiss="modal" @click="addGoodsClass">提交
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--        增加用户模态框-->
+
+
+            <!--        修改用户信息模态框-->
+            <div class="modal fade" id="changeModal" tabindex="-1" role="dialog" aria-labelledby="changeModalLabel"
+                 aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title modal-one" id="changeModalLabel">修改商品分类</h5>
+                            <button type="button" class="close modal-close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <form>
+                                <div class="form-group">
+                                    <label class="col-form-label">ID:</label>
+                                    <input type="text" class="form-control" readonly="true"
+                                           v-model="goodsClassData.goodsClassID" >
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-form-label">分类名称:</label><span
+                                        v-html="changeGoodsClassNameMsg"></span>
+                                    <input type="text" class="form-control" v-model="goodsClassData.goodsClassName"
+                                        @blur="changeBlur" @focus="changeFocus"  @input="changeGoodsClassNameLimit">
+                                </div>
+                                <div class="from-group" style="margin-bottom:15px;">
+                                    <label for="recipient-changeGoodsClassParent" class="col-form-label">上级分类:</label>
+                                    <select class="form-control" id="recipient-changeGoodsClassParent" v-model="goodsClassData.goodsClassParent" autocomplete="off">
+                                        <option value="无">无上级分类</option>
+                                        <option v-for="level in parentLevel" :value="level">{{ level }}</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" style="display: flex;align-items: center;">
+                                    <label class="col-form-label">显示:</label>
+                                    <input class='tgl tgl-light' id='cb2' type='checkbox' v-model="goodsClassData.goodsClassShow" style="display: none">
+                                    <label class='tgl-btn' for="cb2" style="margin-left: 10px;"></label>
+                                </div>
+                                <div class="form-group" id="changeDatepicker">
+                                    <label class="col-form-label">排序:</label>
+                                    <input type="text" class="form-control" v-model="goodsClassData.goodsClassSort" @input="changeGoodsClassSortLimit">
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal" @click="changeModalClose">取消</button>
+                            <button type="button" class="btn btn-primary" data-toggle="modal"
+                                    @click="set(goodsClassData)" data-dismiss="modal">提交
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--        修改用户信息模态框-->
+
+            <!--        分页部分-->
+            <div class="right-Page">
+                <div class="right-Page-left">
+                    <div style="width: 87%; height: 20%; float: left;">
+                        <p>当前 <span v-text="pageNum"></span> 页,总 <span v-text="pages"></span> 页,共 <span
+                                v-text="total"></span> 条记录</p>
+                    </div>
+                </div>
+                <div class="right-Page-middle">
+                    <select class="form-control right-Page-middleSelect" v-model="selectOptionVal">
+                        <option value="8">8条/页</option>
+                        <option value="10">10条/页</option>
+                        <option value="12">12条/页</option>
+                    </select>
+                    &nbsp;
+                    <ul class="pagination">
+                        <li><a href="#" @click="checkPage(firstPage)">首页</a></li>
+                        <li v-if="isFirstPage == false"><a href="#" @click="checkPage(prePage)">上一页</a></li>
+                        <li v-if="isFirstPage == true" class="disabled"><span aria-hidden="true">上一页</span></li>
+                        <li v-for="index in indexs" :class="{ 'active': pageNum == index}">
+                            <a href="#" @click="btnClick(index)">{{ index }}</a>
+                        </li>
+                        <li v-if="isLastPage == false"><a href="#" @click="checkPage(nextPage)">下一页</a></li>
+                        <li v-if="isLastPage == true" class="disabled"><span aria-hidden="true">下一页</span></li>
+                        <li><a href="#" @click="checkPage(pages)">尾页</a></li>
+                    </ul>
+
+                </div>
+                <div class="right-Page-right">
+                    跳转到：<input type="text" class="form-control right-Page-rightInput" v-model="jumpPage" @keyup.enter="checkPage(jumpPage)">&nbsp;
+                    <button class="btn btn-primary" @click="checkPage(jumpPage)">GO</button>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+
+<script type="text/javascript">
+
+    axios.defaults.headers.post['Content-Type'] = 'application/json';
+    window.onload = function() {
+        vm.checkPage(vm.firstPage)
+    };
+
+
+    var vm = new Vue({
+        el: '#app',
+        data: {
+            /**
+             * top部分
+             *
+             * */
+            unreadMessageNum: "",
+            loginStaffID: "",
+            personInfo: "",
+
+            navigationBar: false,
+            rightOpen: false,
+            /**
+             * top部分
+             *
+             * */
+
+            /**
+             * table部分↓
+             *
+             * */
+
+            goodsClassID: "",
+            goodsClassName: "",
+            goodsClassLevel: "",
+            goodsClassShow: false,
+            goodsClassSort: 0,
+            goodsClassUpdateTime: "",
+            goodsClassParent: "",
+
+            addGoodsClassName: "",
+            addGoodsClassLevel: "",
+            addGoodsClassShow: false,
+            addGoodsClassSort: 0,
+            addGoodsClassNameMsg: "",
+            addGoodsClassParent: "无",
+
+            selectGoodsClassParent: "无",
+            emptyNum: "无",
+            selectLevel: true,
+
+            changeGoodsClassNameMsg: "",
+
+            parentLevel: [],
+            goodsClassList: [],
+            //单项数据
+            goodsClassData: [],
+            //转化为json后数据
+            jsonItemData: [],
+            deleteStaffID: '',
+
+
+            pageNum: "",     //当前页
+            pages: "",       //总页数
+            total: "",       //总记录
+            nextPage: "",    //下一页
+            prePage: "",     //上一页
+            firstPage: 1,    //第一页
+            isFirstPage: false,     //是否为首页
+            isLastPage: false,      //是否为尾页
+            jumpPage: "",            //跳转页数
+            selectOptionVal: "8",    //每页的记录数
+
+            /**
+             * table部分↑
+             *
+             * */
+
+            /**
+             * left部分↓
+             *
+             * */
+
+            //ul展开状态
+            orderShow: false,
+            personShow: false,
+            goodsShow: false,
+            logShow: false,
+
+            //小三角样式状态
+            personOnActive: false,
+            personDownActive: false,
+            orderOnActive: false,
+            orderDownActive: false,
+            goodsOnActive: false,
+            goodsDownActive: false,
+            logOnActive: false,
+            logDownActive: false,
+
+
+            items:[
+                {
+                    id: "0",
+                    value: "用户管理",
+                    icon: "../img/user.png",
+                    open: false,
+                    close: false,
+                    ul:[
+                        {
+                            id: "0",
+                            value: "用户列表",
+                            url: "/userInfo"
+                        },
+                        {
+                            id: "1",
+                            value: "用户账号",
+                            url: "/user"
+                        }
+                    ]
+                },
+                {
+                    id: "1",
+                    value: "员工管理",
+                    icon: "../img/staff.png",
+                    open: false,
+                    close: false,
+                    ul:[
+                        {
+                            id: "0",
+                            value: "员工列表",
+                            url: "/staffInfo"
+                        },
+                        {
+                            id: "1",
+                            value: "员工账号",
+                            url: "/staff"
+                        }
+                    ]
+                },
+                {
+                    id: "2",
+                    value: "商品管理",
+                    icon: "../img/goods.png",
+                    open: false,
+                    close: false,
+                    ul:[
+                        {
+                            id: "0",
+                            value: "商品列表",
+                            url: "/goodsInfo"
+                        },
+                        {
+                            id: "1",
+                            value: "商品分类",
+                            url: "/goodsClass"
+                        },
+                        {
+                            id: "2",
+                            value: "商品评价",
+                            url: "/evaluate"
+                        }
+                    ]
+                },
+                {
+                    id: "3",
+                    value: "订单管理",
+                    icon: "../img/order.png",
+                    open: false,
+                    close: false,
+                    ul:[
+                        {
+                            id: "0",
+                            value: "订单列表",
+                            url: "/order"
+                        },
+                    ]
+                },
+                {
+                    id: "4",
+                    value: "操作日志",
+                    icon: "../img/log.png",
+                    open: false,
+                    close: false,
+                    ul:[
+                        {
+                            id: "0",
+                            value: "操作日志",
+                            url: "/operation"
+                        },
+                    ]
+                },
+                {
+                    id: "5",
+                    value: "通知管理",
+                    icon: "../img/notify.png",
+                    open: false,
+                    close: false,
+                    ul:[
+                        {
+                            id: "0",
+                            value: "发送通知",
+                            url: "/notifyMessage"
+                        }
+                    ]
+                }
+            ],
+
+            /**
+             * left部分↑
+             *
+             * */
+
+        },
+        methods: {
+            /**
+             * 展示页面点击更改显示状态*/
+            changeGoodsClassShow(goodsClassID) {
+                axios.post("/goodsClass/changeGoodsClassShow", {
+                    goodsClassID: goodsClassID,
+                }).then(function () {
+                    vm.getParentLevel();
+                })
+            },
+            getParentLevel() {
+                axios.post("/goodsClass/getParentLevel", {
+                }).then(function (data) {
+                    vm.parentLevel = data.data;
+                })
+            },
+            lookLower(parentName) {
+                vm.selectGoodsClassParent = parentName;
+                vm.checkPage(vm.pageNum);
+                vm.selectLevel = !vm.selectLevel;
+            },
+            getPersonInfo() {
+                axios.post('/staffInfo/getPersonInfo', {
+                }).then(function (data) {
+                    vm.personInfo = data.data.detail;
+                    vm.loginStaffID = vm.personInfo.staffID
+                    setTimeout(() => {
+                        vm.getUnreadMessageNum();
+                        vm.checkPage(vm.pageNum);
+                    }, 500)
+                })
+            },
+            getUnreadMessageNum() {
+                axios.post('/notify/getUnreadMessageNum', {
+                    staffID: vm.loginStaffID,
+                }).then(function (data) {
+                    console.info(data.data)
+                    vm.unreadMessageNum = data.data;
+                })
+            },
+
+
+            /**
+             * 导航栏只展开一个二级↓
+             */
+            selectTest(item) {
+                for (let i=0 ; i<vm.items.length; i++) {
+                    if (vm.items[i].id !== item.id && vm.items[i].open === true) {
+                        vm.items[i].open = false;
+                        vm.items[i].close = true;
+                    }
+                }
+                if (item.open === false) {
+                    item.open = true;
+                    item.close = false;
+                } else if(item.open === true) {
+                    item.open = false;
+                    item.close = true;
+                }
+            },
+            /**
+             * 导航栏只展开一个二级↑
+             */
+
+            /**
+             * top部分
+             */
+            menu() {
+                vm.navigationBar = !vm.navigationBar;
+                vm.rightOpen = !vm.rightOpen;
+            },
+
+            /**
+             * top部分
+             */
+
+
+            /**
+             * left部分
+             *
+             * */
+            personActive() {
+                vm.personShow = !vm.personShow;
+                if (vm.personOnActive === false) {
+                    vm.personOnActive = true;
+                    vm.personDownActive = !vm.personOnActive;
+                } else if (vm.personOnActive === true) {
+                    vm.personOnActive = false;
+                    vm.personDownActive = vm.personOnActive;
+                }
+            },
+            orderActive() {
+                vm.orderShow = !vm.orderShow;
+                if (vm.orderOnActive === false) {
+                    vm.orderOnActive = true;
+                    vm.orderDownActive = !vm.orderOnActive;
+                } else if (vm.orderOnActive === true) {
+                    vm.orderOnActive = false;
+                    vm.orderDownActive = !vm.orderOnActive;
+                }
+            },
+            goodsActive() {
+                vm.goodsShow = !vm.goodsShow;
+                if (vm.goodsOnActive === false) {
+                    vm.goodsOnActive = true;
+                    vm.goodsDownActive = !vm.goodsOnActive;
+                } else if (vm.goodsOnActive === true) {
+                    vm.goodsOnActive = false;
+                    vm.goodsDownActive = !vm.goodsOnActive;
+                }
+            },
+            logActive() {
+                vm.logShow = !vm.logShow;
+                if (vm.logOnActive === false) {
+                    vm.logOnActive = true;
+                    vm.logDownActive = !vm.logOnActive;
+                } else if (vm.logOnActive === true) {
+                    vm.logOnActive = false;
+                    vm.logDownActive = !vm.logOnActive;
+                }
+            },
+            /**
+             * left部分
+             *
+             * */
+
+
+            /**
+             * 模态框关闭和取消按钮清空原本的输入*/
+            addModalClose() {
+                /**
+                 *校验需要清空
+                 *
+                 * */
+                vm.addGoodsClassName = "";
+                vm.addGoodsClassLevel = "";
+                vm.addGoodsClassParent = "无";
+                vm.addGoodsClassShow = false;
+                vm.addGoodsClassSort = 0;
+                vm.addGoodsClassNameMsg = "";
+            },
+
+            changeModalClose() {
+                vm.changeGoodsClassNameMsg = "";
+
+            },
+            btnClick(data) {
+                if (data !== vm.pageNum) {
+                    vm.pageNum = data;
+                    vm.checkPage(vm.pageNum);
+                }
+            },
+            checkPage(wantPageNum) {
+                axios.post('/goodsClass/getAllGoodsClass', {
+                    pageNum: wantPageNum,
+                    pageSize: vm.selectOptionVal,
+                    selectGoodsClassParent: vm.selectGoodsClassParent,
+                }).then(function (dat) {
+                    console.info(dat.data);
+                    vm.goodsClassList = dat.data.list;
+                    vm.pageNum = dat.data.pageNum;
+                    vm.pages = dat.data.pages;
+                    vm.total = dat.data.total;
+                    vm.nextPage = dat.data.nextPage;
+                    vm.prePage = dat.data.prePage;
+                    vm.isFirstPage = dat.data.isFirstPage;
+                    vm.isLastPage = dat.data.isLastPage;
+                    vm.jumpPage = "";
+                    vm.checksIdArrayLen = 0;
+                    vm.getParentLevel();
+                })
+            },
+            getGoodsClassID(goodsClass) {
+                vm.deleteGoodsClassID = goodsClass.goodsClassID;
+            },
+            deleteGoodsClass(goodsClassID) {
+                axios.post('/goodsClass/deleteGoodsClass', {
+                    goodsClassID: goodsClassID,
+                }).then(function (dat) {
+                    // 操作成功弹出框
+                    toastr.options = {
+                        timeOut: 1000,
+                        positionClass: "toast-top-center",
+                    };
+                    toastr.success('删除数据成功');
+                    vm.checkPage(vm.pageNum);
+                    vm.getParentLevel();
+                })
+            },
+            addGoodsClass() {
+                if (vm.addGoodsClassParent === "无") {
+                    vm.addGoodsClassLevel = "一级";
+                }else if (vm.addGoodsClassParent !== "无") {
+                    vm.addGoodsClassLevel = "二级";
+                }
+                if (vm.addGoodsClassName.length > 0 && vm.addGoodsClassNameMsg === "") {
+                    axios.post('/goodsClass/addGoodsClass', {
+                        goodsClassName: vm.addGoodsClassName,
+                        goodsClassLevel: vm.addGoodsClassLevel,
+                        goodsClassParent: vm.addGoodsClassParent,
+                        goodsClassShow: vm.addGoodsClassShow,
+                        goodsClassSort: vm.addGoodsClassSort,
+                    }).then(function (dat) {
+                        console.info(dat.data)
+                        vm.getParentLevel();
+                        vm.checkPage(vm.pageNum);
+                        // 操作成功弹出框
+                        toastr.options = {
+                            timeOut: 1000,
+                            positionClass: "toast-top-center",
+                        };
+                        toastr.success('添加商品分类成功')
+                    });
+                } else if (this.addGoodsClassName === "") {
+                    // 操作成功弹出框
+                    toastr.options = {
+                        timeOut: 1000,
+                        positionClass: "toast-top-center",
+                    };
+                    toastr.error("商品名称不能为空")
+                } else if (this.addGoodsClassNameMsg !== "") {
+                    // 操作成功弹出框
+                    toastr.options = {
+                        timeOut: 1000,
+                        positionClass: "toast-top-center",
+                    };
+                    toastr.error("商品名称存在问题")
+                }
+                vm.addModalClose();
+            },
+
+            //点击修改按钮，深拷贝
+            getMsg(goodsClass) {
+                var newArray = JSON.parse(JSON.stringify(goodsClass));
+                vm.goodsClassData = newArray;
+            },
+
+            //点击确定，修改成功渲染
+            set(goodsClassData) {
+                if (goodsClassData.goodsClassParent === "无") {
+                    goodsClassData.goodsClassLevel = "一级";
+                }else if (goodsClassData.goodsClassParent !== "无") {
+                    goodsClassData.goodsClassLevel = "二级";
+                }
+                if (goodsClassData.goodsClassName.length > 0 && goodsClassData.goodsClassName !== goodsClassData.goodsClassParent) {
+                    axios.post('/goodsClass/updateGoodsClass', {
+                        goodsClassID: goodsClassData.goodsClassID,
+                        goodsClassName: goodsClassData.goodsClassName,
+                        goodsClassLevel: goodsClassData.goodsClassLevel,
+                        goodsClassParent: goodsClassData.goodsClassParent,
+                        goodsClassShow: goodsClassData.goodsClassShow,
+                        goodsClassSort: goodsClassData.goodsClassSort,
+                    }).then(function (dat) {
+                        vm.checkPage(vm.pageNum);
+                        vm.getParentLevel();
+                        // 操作成功弹出框
+                        toastr.options = {
+                            timeOut: 1000,
+                            positionClass: "toast-top-center",
+                        };
+                        toastr.success('修改成功')
+                    })
+                } else if (goodsClassData.goodsClassName === "") {
+                    // 操作成功弹出框
+                    toastr.options = {
+                        timeOut: 1000,
+                        positionClass: "toast-top-center",
+                    };
+                    toastr.error("分类名称不能为空")
+                } else if (goodsClassData.goodsClassName === goodsClassData.goodsClassParent) {
+                    toastr.options = {
+                        timeOut: 1000,
+                        positionClass: "toast-top-center",
+                    };
+                    toastr.error("分类上级不能选本身")
+                }
+                vm.changeModalClose();
+            },
+            addGoodsClassNameLimit() {
+                this.addGoodsClassName = this.addGoodsClassName.replace(/[^\a-\z\A-\Z0-9\u4E00-\u9FA5]/g, '')
+            },
+            addGoodsClassSortLimit() {
+                this.addGoodsClassSort = this.addGoodsClassSort.replace(/[^\d]/g,'')
+            },
+            changeGoodsClassNameLimit() {
+                this.goodsClassData.goodsClassName = this.goodsClassData.goodsClassName.replace(/[^\a-\z\A-\Z0-9\u4E00-\u9FA5]/g, '')
+            },
+            changeGoodsClassSortLimit() {
+                this.goodsClassData.goodsClassSort = this.goodsClassData.goodsClassSort.replace(/[^\d]/g,'')
+            },
+            addBlur() {
+                if (this.addGoodsClassName.length > 0) {
+                    axios.post("/goodsClass/selectExistName", {
+                        goodsClassName: this.addGoodsClassName,
+                    }).then(function (data) {
+                        if (data.data.success === false) {
+                            vm.addGoodsClassNameMsg = '<span style="color:red;float:right;">分类名称已存在</span>'
+                        }
+                    })
+                }else if (this.addGoodsClassName === "") {
+                    vm.addGoodsClassNameMsg = '<span style="color:red;float:right;">分类名称不能为空</span>'
+                }
+            },
+            addFocus() {
+                vm.addGoodsClassNameMsg = "";
+            },
+            changeBlur() {
+                if (this.goodsClassData.goodsClassName.length > 0) {
+                    axios.post("/goodsClass/selectExistName", {
+                        goodsClsasName: this.goodsClassData.goodsClassName,
+                    }).then(function (data) {
+                        if (data.data.success === false) {
+                            vm.changeGoodsClassNameMsg = '<span style="color:red;float:right;">分类名称已存在</span>'
+                        }
+                    })
+                }else if (this.goodsClassData.goodsClassName === "") {
+                    vm.changeGoodsClassNameMsg = '<span style="color:red;float:right;">分类名称不能为空</span>'
+                }
+            },
+            changeFocus() {
+                vm.changeGoodsClassNameMsg = "";
+            }
+        },
+        mounted() {
+            this.getPersonInfo();
+            this.getParentLevel();
+        },
+
+        watch: {
+            pageNum: function (oldValue, newValue) {
+                console.log(arguments);
+            },
+        },
+        computed: {
+            indexs: function () {
+                // 定义开始的数字
+                var left = 1;
+                // 定义结束的数字
+                var right = this.pages;
+
+                // 存储返回值
+                var ar = [];
+
+                // 前提条件：每次都显示condition条页码
+                // 最好是个单数
+                var condition = 5;
+
+                // 向上取整->就能获取到中间的数字
+                var middle = Math.ceil(condition / 2);
+
+                // 要分清情况
+                //1、在最左边或者在middle的前面
+                //2、在中间
+                //3、最右边的情况
+
+                // 当总页数超过condition时，需要判断分页情况
+                if (this.pages >= condition) {
+                    // 中间的时候
+                    // 左右都加上（middle-1)
+                    if (this.pageNum > middle && this.pageNum < this.pages - (middle - 1)) {
+                        left = this.pageNum - (middle - 1);
+                        right = this.pageNum + (middle - 1);
+                    } else {
+                        //最左边或者在condition的中间
+                        if (this.pageNum <= middle) {
+                            left = 1;
+                            right = condition;
+                            // 最右边的情况
+                            // 结束是总条数，开始是condition减去1
+                        } else {
+                            right = this.pages;
+                            left = this.pages - (condition - 1);
+                        }
+                    }
+                }
+                while (left <= right) {
+                    ar.push(left);
+                    left++;
+                }
+                return ar
+
+            }
+        }
+    })
+
+
+</script>
+</body>
+</html>

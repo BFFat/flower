@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>test</title>
+    <meta charset="utf-8">
+
+    <link rel="stylesheet" href="../css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="../css/toastr.min.css">
+    <link rel="stylesheet" type="text/css" href="../css/houtai.css">
+    <link rel="stylesheet" href="../css/bootstrap-datepicker3.min.css">
+    <script type="text/javascript" src="../js/jquery-3.4.1.min.js"></script>
+    <script type="text/javascript" src="../js/bootstrap.js"></script>
+    <!-- <script type="text/javascript" src="../js/user.js"></script> -->
+    <script type="text/javascript" src="../js/vue.js"></script>
+    <script src="../js/bootstrap-datepicker.min.js"></script>
+    <script src="../js/bootstrap-datepicker.zh-CN.min.js" charset="UTF-8"></script>
+    <script src="../js/axios.min.js"></script>
+    <script src="../js/toastr.min.js"></script>
+    <link rel="shortcut icon" href="../img/pang.ico" type="image/x-icon" />
+    <!--制作的图标，使用href关联，仅仅需要更改href的内容  -->
+
+</head>
+<body>
+
+<div v-cloak class="all" id="app">
+    <canvas ref="headCanvas" style="display:none"></canvas>
+    <!--详细页面-->
+    <div v-show="!navigationBar" class="leftUl">
+        <div class="top-left-img">
+            <a href="./user">
+                <img src="../img/ff.png" >
+            </a>
+        </div>
+        <ul class="nav nav-pills nav-stacked leftUl-color">
+            <li role="presentation" v-for="item in items" @click="selectTest(item)">
+                <a href="#">
+                    <img :src="item.icon">
+                    &nbsp;
+                    {{item.value}}
+                    <img src="../img/sanjiao.png" class="Static"
+                         :class="{'infoImgChange': item.open, 'infoImgReturn': item.close}">
+                </a>
+                <transition name="unitfybox">
+                    <ul class="nav nav-pills nav-stacked leftUl-color box" v-if="item.open" >
+                        <li role="presentation" v-for="twoItem in item.ul" >
+                            <a :href="twoItem.url" >
+                                {{twoItem.value}}
+                            </a>
+                        </li>
+                    </ul>
+                </transition>
+            </li>
+        </ul>
+    </div>
+
+
+    <!--缩小Ul-->
+    <div v-show="navigationBar" class="leftUl-shrink">
+        <div class="top-left-newImg">
+            <a href="./user">
+                <img src="../img/S.png" >
+            </a>
+        </div>
+        <ul class="nav nav-pills nav-stacked leftUl-color">
+            <li role="presentation" v-for="item in items" @click="selectTest(item)">
+                <a href="#" @click="menu">
+                    <img :src="item.icon">
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!--右上角部分-->
+    <div class="top-right" :class="{'top-right-open': rightOpen}">
+
+        <!-- TOP的menu按钮 -->
+        <div class="top-menu">
+            <button class="btn top-menuBtn " type="button" @click="menu">
+                <img src="../img/menu.png">
+            </button>
+        </div>
+        <!-- 接上↑ -->
+
+        <!-- 查找输入框和查找按钮 -->
+        <!--        <div class="selectBox">-->
+        <!--            <div class="selectBox-parent">-->
+        <!--                <div id="child">-->
+        <!--                    <input class="selectBox-input" type="text" name="select" placeholder="Search...">-->
+        <!--                    <button class="selectBtn">-->
+        <!--                        <img src="../img/select.png" class="selectBox-img">-->
+        <!--                    </button>-->
+        <!--                </div>-->
+        <!--            </div>-->
+        <!--        </div>-->
+        <!-- 接上↑ -->
+
+        <div class="noticeMsg">
+            <a href="/messageCenter">
+                <img src="../img/message.png">
+                <span class="badge">
+                    {{ unreadMessageNum }}
+                </span>
+            </a>
+        </div>
+
+        <!-- TOP的个人信息 -->
+        <div class="top-peopleInfo">
+            <!-- Large button group -->
+            <div class="btn-group">
+                <button class="btn btn-default btn-lg dropdown-toggle top-peopleInfoBtn" type="button"
+                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <div class="top-peopleInfo-img">
+                        <!-- 如果未登陆头像为默认头像，font为登录 -->
+                        <img class="top-peopleInfo-round-icon" :src=personInfo.staffHeadPortrait>
+                    </div>
+                    <span class="top-peopleInfo-name">
+						<span>
+                            {{ personInfo.staffName }}
+                        </span>
+					</span>
+                    &ensp;
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu">
+
+                    <li><a href="/personInfo">个人资料</a></li>
+                    <li><a href="/changePassword">修改密码</a></li>
+                    <li role="separator" class="divider"></li>
+                    <li><a href="/logout">退出登录</a></li>
+
+                </ul>
+            </div>
+        </div>
+
+
+        <!-- 接上↑ -->
+
+
+        <!-- TOP的Sign out -->
+
+        <!-- <div class="top-signOut">
+            <a href="#">退出</a>
+        </div> -->
+
+        <!-- 接上↑ -->
+    </div>
+
+    <!--table部分-->
+    <div class="right" :class="{'right-open': rightOpen}">
+        <div class="right-top">
+        </div>
+
+        <div class="right-second" >
+            <div class="right-second-top">
+                <h4 style="margin-left:4%">所有通知</h4>
+                <a href="#" style="height: 16px; font-size: 16px; margin-bottom: 4px; text-decoration:none; margin-left: 74%;" @click="markAllRead">
+                    全部标为已读
+                </a>
+                <a href="#" style="height: 16px; font-size: 16px; margin-bottom: 4px; text-decoration:none; color: gray; margin-left: 1%;" @click="deleteAllStaffMessage">
+                        <span>
+                            <img src="/img/delete.png">
+                            全部删除
+                        </span>
+                </a>
+            </div>
+
+            <div style="float: left; position: relative; width: 100%; height: 20%; margin-left: 4%; margin-top: 2%;" v-for="staffMessage in staffMessageList">
+                <div style="width: 2%; height: 16px;">
+                    <img src="/img/redPoint.png" v-show="staffMessage.staffMessageStatus == 0">
+                </div>
+                <div style="display: flex; align-items: center; width: 98%;">
+                    <img :src="staffMessage.staffHeadPortrait" class="img-circle" style="width: 48px; height: 48px; float: left; position: relative;">
+                    <div style="width: 100%; height: 100%; float: left; position: relative; margin-left: 2%;" >
+                        <div style="height: 20%; font-size: large; font-weight: bold">
+                            {{ staffMessage.staffName }}
+                        </div>
+                    </div>
+                </div>
+                <div style="float: left; position: relative; width: 100%;  margin-left: 5%;">
+                    {{ staffMessage.staffMessageContent }}
+                </div>
+                <div style="float: left; position: relative; width: 100%; margin-left: 5%; margin-top: 1%; color: gray; display: flex; align-items: center;" >
+                    {{ staffMessage.staffMessageTime }}
+                    <a href="#" style="height: 16px; font-size: 16px; margin-bottom: 4px; text-decoration:none; margin-left: 60%;" @click="markRead(staffMessage.staffMessageID)">
+                        标为已读
+                    </a>
+                    <a href="#" style="height: 16px; font-size: 16px; margin-bottom: 4px; text-decoration:none; color: gray; margin-left: 1%;" @click="deleteStaffMessage(staffMessage.staffMessageID)">
+                        <span>
+                            <img src="/img/delete.png">
+                            删除
+                        </span>
+                    </a>
+
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    axios.defaults.headers.post['Content-Type'] = 'application/json';
+    // window.onload = function () {
+    //     vm.getAllStaffMessage();
+    // };
+    var vm = new Vue({
+        el: '#app',
+        data: {
+            /**
+             * top部分
+             *
+             * */
+            navigationBar: false,
+            rightOpen: false,
+
+            personInfo: "",
+            unreadMessageNum: "",
+            /**
+             * top部分
+             *
+             * */
+
+            /**
+             * table部分↓
+             *
+             * */
+            messageID: "",
+            messageContent: "",
+            messageTime: "",
+            notifyContent: "",
+            staffMessageID: "",
+            staffMessageList: [],
+            staffName: "",
+            staffHeadPortrait: "",
+            staffMessageContent: "",
+            staffMessageStatus: "",
+            staffMessageTime: "",
+            messageList: [],
+            deleteMessageID: '',
+
+            staffID: "",
+            senderID: "",
+            pageNum: "",     //当前页
+            pages: "",       //总页数
+            total: "",       //总记录
+            nextPage: "",    //下一页
+            prePage: "",     //上一页
+            firstPage: 1,    //第一页
+            isFirstPage: false,     //是否为首页
+            isLastPage: false,      //是否为尾页
+            jumpPage: "",            //跳转页数
+            selectOptionVal: "8",    //每页的记录数
+
+            /**
+             * table部分↑
+             *
+             * */
+
+            /**
+             * left部分↓
+             *
+             * */
+
+            //ul展开状态
+            orderShow: false,
+            personShow: false,
+            goodsShow: false,
+            logShow: false,
+
+            //小三角样式状态
+            personOnActive: false,
+            personDownActive: false,
+            orderOnActive: false,
+            orderDownActive: false,
+            goodsOnActive: false,
+            goodsDownActive: false,
+            logOnActive: false,
+            logDownActive: false,
+
+
+            items:[
+                {
+                    id: "0",
+                    value: "用户管理",
+                    icon: "../img/user.png",
+                    open: false,
+                    close: false,
+                    ul:[
+                        {
+                            id: "0",
+                            value: "用户列表",
+                            url: "/userInfo"
+                        },
+                        {
+                            id: "1",
+                            value: "用户账号",
+                            url: "/user"
+                        }
+                    ]
+                },
+                {
+                    id: "1",
+                    value: "员工管理",
+                    icon: "../img/staff.png",
+                    open: false,
+                    close: false,
+                    ul:[
+                        {
+                            id: "0",
+                            value: "员工列表",
+                            url: "/staffInfo"
+                        },
+                        {
+                            id: "1",
+                            value: "员工账号",
+                            url: "/staff"
+                        }
+                    ]
+                },
+                {
+                    id: "2",
+                    value: "商品管理",
+                    icon: "../img/goods.png",
+                    open: false,
+                    close: false,
+                    ul:[
+                        {
+                            id: "0",
+                            value: "商品列表",
+                            url: "/goodsInfo"
+                        },
+                        {
+                            id: "1",
+                            value: "商品分类",
+                            url: "/goodsClass"
+                        },
+                        {
+                            id: "2",
+                            value: "商品评价",
+                            url: "/evaluate"
+                        }
+                    ]
+                },
+                {
+                    id: "3",
+                    value: "订单管理",
+                    icon: "../img/order.png",
+                    open: false,
+                    close: false,
+                    ul:[
+                        {
+                            id: "0",
+                            value: "订单列表",
+                            url: "/order"
+                        },
+                    ]
+                },
+                {
+                    id: "4",
+                    value: "操作日志",
+                    icon: "../img/log.png",
+                    open: false,
+                    close: false,
+                    ul:[
+                        {
+                            id: "0",
+                            value: "操作日志",
+                            url: "/operation"
+                        },
+                    ]
+                },
+                {
+                    id: "5",
+                    value: "通知管理",
+                    icon: "../img/notify.png",
+                    open: false,
+                    close: false,
+                    ul:[
+                        {
+                            id: "0",
+                            value: "发送通知",
+                            url: "/notifyMessage"
+                        }
+                    ]
+                }
+            ],
+            nowLiNum: "",
+
+            /**
+             * left部分↑
+             *
+             * */
+
+        },
+        methods: {
+            markAllRead() {
+                axios.post('/notify/markAllRead', {
+                    staffID: vm.staffID,
+                }).then(function (data) {
+                    vm.getAllStaffMessage();
+                })
+            },
+            deleteAllStaffMessage() {
+                axios.post('/notify/deleteAllStaffMessage', {
+                    staffID: vm.staffID,
+                }).then(function (data) {
+                    vm.getAllStaffMessage();
+                })
+            },
+            markRead(staffMessageID) {
+                axios.post('/notify/markRead', {
+                    staffMessageID: staffMessageID,
+                }).then(function (data) {
+                    console.info(data.data)
+                    vm.getAllStaffMessage();
+                })
+            },
+            reset() {
+                vm.notifyContent = "";
+            },
+
+            deleteStaffMessage(staffMessageID) {
+                axios.post('/notify/deleteStaffMessage', {
+                    staffMessageID: staffMessageID,
+                }).then(function (dat) {
+                    // 操作成功弹出框
+                    toastr.options = {
+                        timeOut: 1000,
+                        positionClass: "toast-top-center",
+                    };
+                    toastr.success('删除通知消息成功');
+                    vm.getAllStaffMessage();
+                })
+            },
+
+            getAllStaffMessage() {
+                axios.post("/notify/getAllStaffMessage", {
+                    staffID: vm.staffID,
+                }).then(function (data) {
+                    console.info(data.data)
+                    vm.staffMessageList = data.data;
+                    vm.getUnreadMessageNum();
+                })
+            },
+            getPersonInfo() {
+                axios.post('/staffInfo/getPersonInfo', {
+                }).then(function (data) {
+                    vm.personInfo = data.data.detail;
+                    vm.staffID = vm.personInfo.staffID
+                    setTimeout(() => {
+                        vm.getUnreadMessageNum();
+                        vm.getAllStaffMessage();
+                    }, 500)
+                })
+
+            },
+            getUnreadMessageNum() {
+                axios.post('/notify/getUnreadMessageNum', {
+                    staffID: vm.staffID,
+                }).then(function (data) {
+                    console.info(data.data)
+                    vm.unreadMessageNum = data.data;
+                })
+            },
+
+            /**
+             * 导航栏只展开一个二级↓
+             */
+            selectTest(item) {
+                for (let i=0 ; i<vm.items.length; i++) {
+                    if (vm.items[i].id != item.id && vm.items[i].open == true) {
+                        vm.items[i].open = false;
+                        vm.items[i].close = true;
+                    }
+                }
+                if (item.open == false) {
+                    item.open = true;
+                    item.close = false;
+                } else if(item.open == true) {
+                    item.open = false;
+                    item.close = true;
+                }
+            },
+            /**
+             * 导航栏只展开一个二级↑
+             */
+
+            /**
+             * top部分
+             */
+            menu() {
+                vm.navigationBar = !vm.navigationBar;
+                vm.rightOpen = !vm.rightOpen;
+            },
+
+            /**
+             * top部分
+             */
+
+
+            /**
+             * left部分
+             *
+             * */
+            personActive() {
+                vm.personShow = !vm.personShow;
+                if (vm.personOnActive == false) {
+                    vm.personOnActive = true;
+                    vm.personDownActive = !vm.personOnActive;
+                } else if (vm.personOnActive == true) {
+                    vm.personOnActive = false;
+                    vm.personDownActive = vm.personOnActive;
+                }
+            },
+            orderActive() {
+                vm.orderShow = !vm.orderShow;
+                if (vm.orderOnActive == false) {
+                    vm.orderOnActive = true;
+                    vm.orderDownActive = !vm.orderOnActive;
+                } else if (vm.orderOnActive == true) {
+                    vm.orderOnActive = false;
+                    vm.orderDownActive = !vm.orderOnActive;
+                }
+            },
+            goodsActive() {
+                vm.goodsShow = !vm.goodsShow;
+                if (vm.goodsOnActive == false) {
+                    vm.goodsOnActive = true;
+                    vm.goodsDownActive = !vm.goodsOnActive;
+                } else if (vm.goodsOnActive == true) {
+                    vm.goodsOnActive = false;
+                    vm.goodsDownActive = !vm.goodsOnActive;
+                }
+            },
+            logActive() {
+                vm.logShow = !vm.logShow;
+                if (vm.logOnActive == false) {
+                    vm.logOnActive = true;
+                    vm.logDownActive = !vm.logOnActive;
+                } else if (vm.logOnActive == true) {
+                    vm.logOnActive = false;
+                    vm.logDownActive = !vm.logOnActive;
+                }
+            },
+            /**
+             * left部分
+             *
+             * */
+        },
+        mounted() {
+            this.getPersonInfo();
+        },
+
+    })
+</script>
+</body>
+</html>

@@ -1,0 +1,824 @@
+    /*我屏幕的大小*/
+    /*width: 1920px;
+    height: 969px;*/
+    /*我屏幕的大小*/
+    /*display: flex;*/
+    /*!*水平居中*!*/
+    /*justify-content: center;*/
+    /*!*垂直居中*!*/
+    /*align-items: center;*/
+
+
+    /* 一个<li>高度为42 */
+    .all {
+        height: 100%;
+        background-color: white;
+        position: relative
+    }
+    html, body {
+        height: 100%;
+        font-family: 'STHeiti';
+    }
+
+    button{
+        outline: none;
+        border: none;
+        background: none;
+    }
+
+    th {
+        text-align: center;
+
+    }
+
+    li {
+        list-style-type:none;
+    }
+    /*修改源码*/
+    .table>tbody>tr>td {
+        vertical-align: middle;
+    }
+
+    .table>thead>tr>th {
+        vertical-align: middle;
+    }
+    .top-peopleInfo>.btn-group>.btn:hover, .top-peopleInfo>.btn-group>.btn:focus, .top-peopleInfo>.btn-group>.btn:active {
+        background: white;
+    }
+    .open>.dropdown-toggle.btn-default {
+        background-color: white;
+    }
+
+    .top-menuBtn:focus, .top-menuBtn:active, .top-menuBtn:visited{
+        outline: none;
+        border: none;
+        background: none;
+    }
+
+    .top-right {
+        width: 87%;
+        height: 8%;
+        float: left;
+        background-color: white;
+        position: relative;
+        display: flex;
+    }
+    .top-right-open {
+        width:95%;
+        height: 8%;
+        float: left;
+        background-color: white;
+        position: relative;
+    }
+    .noticeMsg {
+        width: auto;
+        height: 100%;
+        margin-left: 80%;
+        float: left;
+        position: relative;
+        display: flex;
+        /*水平居中*/
+        justify-content: center;
+        /*垂直居中*/
+        align-items: center;
+    }
+    .noticeMsg > a {
+        text-decoration:none;
+    }
+
+
+    .top-left {
+        width: 13%;
+        height: 8%;
+        float: left;
+        position: relative;
+        /*background-color: pink;*/
+        background-color: #3d454e;
+        display: flex;
+        /*水平居中*/
+        justify-content: center;
+        /*垂直居中*/
+        align-items: center;
+    }
+
+    .top-left-newImg {
+        text-align: center;
+    }
+    .top-left-img {
+        text-align: center;
+    }
+    .top-left-img>a>img {
+        width: 140.2px;
+        height: 57.2px;
+    }
+    .top-left-newImg>a>img {
+        width: 32px;
+        height: 57.2px;
+    }
+
+    .leftUl {
+        width: 13%;
+        height: 100%;
+        float: left;
+        background-color: #3d454e;
+        position: relative;
+        /*background-color: white;*/
+    }
+
+    .leftUl-shrink {
+        width: 3.1%;
+        height: 100%;
+        float: left;
+        background-color: #3d454e;
+        position: relative;
+
+    }
+
+    /*filter: drop-shadow(0 0 0 black);*/
+    .nav-pills > li > a:hover, .nav-pills > li > a:active, .nav-pills > li > a:focus {
+        color: white;
+        background-color: #3d454e;
+
+    }
+
+    .nav-pills > li > a {
+        color: #808e9c;
+        transition: all 1s;
+        -webkit-transition: all 1s;
+    }
+
+    .leftUl-color {
+        /*background-color:#5B5B5B;*/
+        font-size: 18px;
+        /*color: white;*/
+    }
+
+    .top-right-span {
+        width: 5%;
+        height: 100%;
+        float: left;
+        margin: 0 auto;
+        position: relative;
+        font-size: 36px;
+    }
+
+    .top-right-span-button {
+        float: left;
+        width: 20%;
+        height: auto;
+        background: none;
+        border: 0;
+        position: relative;
+    }
+
+
+    /*查找功能↓*/
+    /*查找最外部*/
+    .selectBox {
+        width: 13%;
+        height: 100%;
+        margin-left: 60%;
+        float: left;
+        background-color: white;
+        position: relative;
+        display: flex;
+        /*水平居中*/
+        justify-content: center;
+        /*垂直居中*/
+        align-items: center;
+    }
+
+    /*input+button的圆角背景*/
+    .selectBox-parent {
+        width: 95%;
+        height: 50%;
+        border-radius: 10px;
+        background-color: #F0F0F0;
+        position: relative;
+        display: flex;
+        /*水平居中*/
+        justify-content: center;
+        /*垂直居中*/
+        align-items: center;
+    }
+
+    .selectBox-input {
+        width: 70%;
+        border: none;
+        background: none;
+        outline: none;
+        margin-left: 4%;
+        float: left;
+    }
+
+    .selectBtn {
+        background: none;
+        border: 0;
+        width: 20%;
+        float: left;
+    }
+
+    .selectBox-img {
+        width: 32px;
+        height: 32px;
+    }
+
+    /*查找功能↑*/
+
+
+    /*菜单按钮↓*/
+    .top-menu {
+        width: 4%;
+        height: 100%;
+        float: left;
+        position: relative;
+        background-color: white;
+        display: flex;
+        /*水平居中*/
+        justify-content: center;
+        /*垂直居中*/
+        align-items: center;
+    }
+
+    .top-menuBtn {
+        background: none;
+        border: none;
+        outline: none;
+    }
+
+    /*菜单按钮↑*/
+
+
+    /*个人信息↓*/
+    .top-peopleInfo {
+        width: auto;
+        height: 100%;
+        background: white;
+        float: left;
+        position: relative;
+        display: flex;
+        /*水平居中*/
+        justify-content: center;
+        /*垂直居中*/
+        align-items: center;
+
+    }
+
+    /*圆头像*/
+    .top-peopleInfo-round-icon {
+        width: 32px;
+        height: 32px;
+        display: flex;
+        border-radius: 50%;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+    }
+
+    .top-peopleInfo-img {
+        float: left;
+        position: relative;
+    }
+
+    .top-peopleInfo-name {
+        margin-left: 2%;
+        font-size: 20px;
+    }
+
+    .top-peopleInfo-span {
+        width: 0;
+        height: 0;
+        border-top: 7px solid black;
+        border-left: 7px solid transparent;
+        border-right: 7px solid transparent;
+    }
+
+    .top-peopleInfo-btn {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        /*水平居中*/
+        justify-content: center;
+        /*垂直居中*/
+        align-items: center;
+    }
+
+    .top-peopleInfoBtn {
+        border: none;
+        background: none;
+    }
+
+    /*个人信息↑*/
+
+
+    /*左边导航栏↓*/
+
+
+
+    /*三角图片↓*/
+    .Static {
+        float: right;
+        transform: rotate(-90deg);
+        margin-top: 8px;
+    }
+
+
+
+    .infoImgChange {
+        animation: ImgChange 0.5s;
+        animation-fill-mode: forwards;
+        /* Safari 和 Chrome */
+        -webkit-animation: ImgChange 0.5s;
+        -webkit-animation-fill-mode: forwards;
+    }
+    @keyframes ImgChange {
+        from {
+            transform: rotate(-90deg);
+        }
+        to {
+            transform: rotate(0deg);
+        }
+    }
+
+    @-webkit-keyframes ImgChange /* Safari 和 Chrome */
+    {
+        from {
+            transform: rotate(-90deg);
+        }
+        to {
+            transform: rotate(0deg);
+        }
+    }
+
+    .infoImgReturn {
+        animation: ImgReturn 1s;
+        animation-fill-mode: forwards;
+        /* Safari 和 Chrome */
+        -webkit-animation: ImgReturn 1s;
+        -webkit-animation-fill-mode: forwards;
+    }
+
+    @keyframes ImgReturn {
+        from {
+            transform: rotate(0deg);
+        }
+        to {
+            transform: rotate(-90deg);
+        }
+    }
+
+    @-webkit-keyframes ImgReturn /* Safari 和 Chrome */
+    {
+        from {
+            transform: rotate(0deg);
+        }
+        to {
+            transform: rotate(-90deg);
+        }
+    }
+
+    /*三角图片↑*/
+    /*transition部分↓*/
+
+
+    /*不设置height，则会自动适应*/
+    .box {
+        /*内容会被修剪，并且其余内容是不可见的。*/
+        overflow: hidden;
+    }
+
+    /*显示和隐藏时的过渡效果*/
+    .unitfybox-enter-active, .unitfybox-leave-active {
+        transition: all 0.8s ease;
+    }
+
+    /*隐藏后和显示前的样式*/
+    .unitfybox-leave-to, .unitfybox-enter {
+        max-height: 0px;
+    }
+
+
+    /*显示后和隐藏前的样式*/
+    .unitfybox-leave, .unitfybox-enter-to {
+        max-height: 327px;
+    }
+
+    /*transition部分↑*/
+
+    .box>li>a {
+        margin-left: 22%;
+    }
+
+    /*左边导航栏↑*/
+
+
+    /*vue页面加载样式闪现*/
+    [v-cloak] {
+        display: none;
+    }
+
+
+    /*右边部分↓*/
+    .right {
+        width: 87%;
+        height: 92%;
+        float: left;
+        position: relative;
+        overflow:auto;
+    }
+    .right-open {
+        width: 95%;
+        height: 92%;
+        float: left;
+        position: relative;
+    }
+
+    /*路径导航↓*/
+    .right-top {
+        width: 100%;
+        height: 8%;
+        float: left;
+        background: linear-gradient(#F0F0F0, #FFFFFF, white) !important;
+        position: relative;
+    }
+
+    .right-top-ol {
+        font-size: 24px;
+        background: none;
+    }
+
+    .breadcrumb {
+        padding: 0;
+        margin: 0;
+        list-style: none;
+        background-color: white;
+        border-radius:4px;
+        font-size: 18px;
+    }
+
+    .path {
+        width: 15%;
+        height: 100%;
+        float: left;
+        margin-left: 58%;
+        position: relative;
+        display: flex;
+        /*水平居中*/
+        justify-content: center;
+        /*垂直居中*/
+        align-items: center;
+    }
+
+    /*路径导航↑*/
+
+
+    /*表格部分↓*/
+    .right-second {
+        width: 100%;
+        height: 70%;
+        margin-top: -2%;
+        float: left;
+        position: relative;
+    }
+
+    .right-second-top {
+        width: 100%;
+        height: 8%;
+        float: left;
+        position: relative;
+        display: flex;
+
+        /*垂直居中*/
+        align-items: center;
+    }
+
+    .right-second-top-btn {
+        float: left;
+        margin-left: 1%;
+        position: relative;
+    }
+
+    .right-second-top-select {
+        width: 12%;
+        height: 80%;
+        float: left;
+        margin-left: 2%;
+        position: relative;
+    }
+
+    .right-table {
+        /*width: 80%;*/
+        width:100%;
+        float: left;
+        /*margin-left: 2%;*/
+        position: relative;
+        text-align: center;
+    }
+
+    .right-second-topImg {
+        width: 20px;
+        height: 20px;
+    }
+
+    /*表格部分↑*/
+
+    /*分页部分↓*/
+    .right-Page {
+        /*width: 80%;*/
+        width: 100%;
+        height: 15%;
+        float: left;
+        position: relative;
+
+    }
+
+    .right-Page-left {
+        width: 20%;
+        height: 100%;
+        float: left;
+        position: relative;
+        display: flex;
+        /*水平居中*/
+        justify-content: center;
+        /*垂直居中*/
+        align-items: center;
+    }
+
+    .right-Page-middle {
+        width: 60%;
+        height: 100%;
+        float: left;
+        padding-left: 10%;
+        position: relative;
+
+        display: flex;
+        /*水平居中*/
+        /*justify-content: center;*/
+        /*垂直居中*/
+        align-items: center;
+        /*background-color: #1b6d85;*/
+    }
+
+    .right-Page-right {
+        width: 20%;
+        height: 100%;
+        float: left;
+        position: relative;
+        display: flex;
+
+        /*垂直居中*/
+        align-items: center;
+        /*background-color: #737373;*/
+    }
+
+    .right-Page-rightInput {
+        width: 20%;
+    }
+
+    .right-Page-middleSelect {
+        width: 15%;
+    }
+
+    /*分页部分↑*/
+
+
+    /*模态框↓*/
+    .modal-one {
+        width: 96%;
+        font-size: 20px;
+        text-align: center;
+        float: left;
+    }
+
+    .modal-close {
+        float: right;
+        display: flex;
+        align-items: center;
+    }
+
+    /*模态框↑*/
+    /*右边部分↑*/
+    .toast-changeToCenter {
+        position: relative;
+        top: 50%; /*偏移*/
+        transform: translateY(-50%);
+    }
+
+    .deleteModal-content {
+        width: 50%;
+        margin: 0 auto;
+        position: relative;
+    }
+
+
+
+
+
+    input[type=checkbox] {
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        -ms-appearance: none;
+        -o-appearance: none;
+        appearance: none;
+        position: relative;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        height: 20px;
+        width: 20px;
+        vertical-align: -0.8rem;
+        transition:all .15s ease-out 0s;
+        color: #fff;
+        cursor: pointer;
+        display: inline-block;
+        margin: .4rem;
+        outline: none;
+        border-radius: 10%;
+    }
+
+    /* Checkbox */
+    input[type=checkbox]:before,input[type=checkbox]:after {
+        position: absolute;
+        content: "";
+        background: #fff;
+        transition: all .1s ease-in-out;
+    }
+    input[type=checkbox]:before {
+        left: 2px;
+        top: 6px;
+        width: 0;
+        height: 2px;
+        transform: rotate(45deg);
+        -webkit-transform: rotate(45deg);
+        -moz-transform: rotate(45deg);
+        -ms-transform: rotate(45deg);
+        -o-transform: rotate(45deg);
+    }
+    input[type=checkbox]:after {
+        right: 9px;
+        bottom: 3px;
+        width: 2px;
+        height: 0;
+        transform: rotate(40deg);
+        -webkit-transform: rotate(40deg);
+        -moz-transform: rotate(40deg);
+        -ms-transform: rotate(40deg);
+        -o-transform: rotate(40deg);
+        transition-delay: .1s;
+    }
+    input[type=checkbox]:checked:before {
+        left: 1px;
+        top: 10px;
+        width: 6px;
+        height: 2px;
+    }
+    input[type=checkbox]:checked:after {
+        right: 5px;
+        bottom: 1px;
+        width: 2px;
+        height: 14px;
+    }
+    input[type=checkbox]:indeterminate:before,input[type=checkbox]:indeterminate:after {
+        width: 7px;
+        height: 2px;
+        transform: rotate(0);
+        -webkit-transform: rotate(0);
+        -moz-transform: rotate(0);
+        -ms-transform: rotate(0);
+        -o-transform: rotate(0);
+    }
+    input[type=checkbox]:indeterminate:before {
+        left: 1px;
+        top: 7px;
+    }
+    input[type=checkbox]:indeterminate:after {
+        right: 1px;
+        bottom: 7px;
+    }
+
+
+
+    /* Colors */
+    input[type=checkbox] {
+        border: 2px solid #4caf50;
+    }
+
+    input[type=checkbox]:checked,input[type=checkbox]:indeterminate{
+        background: #4caf50;
+    }
+
+    /* Complement colors */
+    input[type=checkbox].blue {
+        border: 2px solid #2196f3;
+    }
+
+    input[type=checkbox].blue:checked,input[type=checkbox].blue:indeterminate{
+        background: #2196f3;
+    }
+
+    /* 单选框插件样式↓ */
+
+    .tgl {
+        display: none;
+    }
+    .tgl, .tgl:after, .tgl:before, .tgl *, .tgl *:after, .tgl *:before, .tgl + .tgl-btn {
+        -webkit-box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        box-sizing: border-box;
+    }
+    .tgl::-moz-selection, .tgl:after::-moz-selection, .tgl:before::-moz-selection, .tgl *::-moz-selection, .tgl *:after::-moz-selection, .tgl *:before::-moz-selection, .tgl + .tgl-btn::-moz-selection {
+        background: none;
+    }
+    .tgl::selection, .tgl:after::selection, .tgl:before::selection, .tgl *::selection, .tgl *:after::selection, .tgl *:before::selection, .tgl + .tgl-btn::selection {
+        background: none;
+    }
+    .tgl + .tgl-btn {
+        outline: 0;
+        /*display: block;*/
+        width: 4em;
+        height: 2em;
+        position: relative;
+        cursor: pointer;
+    }
+    .tgl + .tgl-btn:after, .tgl + .tgl-btn:before {
+        position: relative;
+        display: block;
+        content: "";
+        width: 50%;
+        height: 100%;
+    }
+    .tgl + .tgl-btn:after {
+        left: 0;
+    }
+    .tgl + .tgl-btn:before {
+        display: none;
+    }
+    .tgl:checked + .tgl-btn:after {
+        left: 50%;
+    }
+
+    .tgl-light + .tgl-btn {
+        background: #f0f0f0;
+        border-radius: 2em;
+        padding: 2px;
+        -webkit-transition: all .4s ease;
+        transition: all .4s ease;
+    }
+    .tgl-light + .tgl-btn:after {
+        border-radius: 50%;
+        background: #fff;
+        -webkit-transition: all .2s ease;
+        transition: all .2s ease;
+    }
+    .tgl-light:checked + .tgl-btn {
+        background: #9FD6AE;
+    }
+
+    /* 单选框插件样式↑ */
+    #changeLi>ul>li:hover{
+        background-color: #ebeef5;
+    }
+
+
+    .triangle-line {
+        position: absolute;
+        z-index: 999;
+        height: 0px;
+        width: 0px;
+        border-left: 7px solid transparent;
+        border-right: 7px solid transparent;
+        border-bottom: 10px solid rgba(80,80,80,0.1);
+    }
+    .triangle-line::after {
+        content: '';
+        position: absolute;
+        top: 3px;
+        right: -5px;
+        z-index: 999;
+        height: 0px;
+        width: 0px;
+        border-left: 5px solid transparent;
+        border-right: 5px solid transparent;
+        border-bottom: 8px solid rgba(255,255,255,1);
+    }
+
+    .delivery-list {
+        width: 100%;
+        height: 64px;
+        margin-top: 15px;
+    }
+
+    .delivery-list>img {
+        width: 64px;
+        height: 64px;
+        float: left;
+    }
+
+    .delivery-p {
+        float: left;
+        top: 50%;
+        position: relative;
+        transform: translateY(-32px);
+        margin-top: 8px;
+        margin-right: 25px;
+    }

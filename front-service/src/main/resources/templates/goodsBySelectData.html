@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>搜索</title>
+    <link rel="stylesheet" href="../css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="../css/toastr.min.css">
+    <link rel="stylesheet" type="text/css" href="../css/front.css">
+    <link rel="stylesheet" href="../css/bootstrap-datepicker3.min.css">
+    <script type="text/javascript" src="../js/jquery-3.4.1.min.js"></script>
+    <script type="text/javascript" src="../js/bootstrap.js"></script>
+    <!-- <script type="text/javascript" src="../js/houtai.js"></script> -->
+    <script type="text/javascript" src="../js/vue.js"></script>
+    <script src="../js/bootstrap-datepicker.min.js"></script>
+    <script src="../js/bootstrap-datepicker.zh-CN.min.js" charset="UTF-8"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="../js/toastr.min.js"></script>
+    <script src="../js/moment.js"></script>
+    <link rel="shortcut icon" href="../img/pang.ico" type="image/x-icon" />
+    <!--制作的图标，使用href关联，仅仅需要更改href的内容  -->
+</head>
+<body>
+<div class="all" id="app">
+    <!--顶部-->
+    <div class="top-head">
+        <div class="top-head-collect">
+            <a href="javascript:" @click="collectWeb">
+                ❤收藏Rosette(Ctrl + D)
+            </a>
+        </div>
+        <div class="top-head-right">
+            <a v-show="!LoginStatus" href="/front_Login">你好，请登录</a>
+            <a v-show="LoginStatus" href="javascript:">你好，{{ userName }}</a>
+            <a href="/front_Register">注册</a>
+            <a href="/my_order">我的订单</a>
+            <a href="/shopping">购物车</a>
+            <a href="/updatePassword">修改密码</a>
+            <a href="/myPersonInfo/selectPersonInfo">我的信息</a>
+        </div>
+    </div>
+    <!--分割线-->
+    <HR style="width:100%;color:#987cb9; size:1px;position: relative;float: left">
+    <!--导航栏-->
+    <div class="top-navigation">
+        <div class="top-navigation-icon">
+            <a href="/front_Home">
+                <img src="/img/flowerlove1.png">
+            </a>
+        </div>
+        <div class="top-navigation-gif">
+            <span><img src="/img/0.gif"></span>
+        </div>
+        <div class="top-navigation-nav">
+            <a href="javascript:void(0)" @click="selectAllClassSub('鲜花')">鲜花</a>
+            <a href="javascript:void(0)" @click="selectAllClassSub('永生花')">永生花</a>
+            <a href="javascript:void(0)" @click="selectAllClassSub('礼品')">礼品</a>
+        </div>
+        <div class="top-navigation-select">
+            <!--v-model="fuzzySelectData" @keyup.enter="fuzzySelect(firstPage)"-->
+            <input class="selectBox-input" type="text" name="select" placeholder="更多优惠商品等你来选购" maxlength="40" @input="selectInputLimit" v-model="keywordData">
+            <button class="selectBtn">
+                <img src="../img/select.png" class="selectBtn-icon" @click="keywordSearch">
+            </button>
+        </div>
+    </div>
+
+    <div class="all-result">
+        <p>全部结果&nbsp;> "{{ selectData }}"</p>
+    </div>
+    <!--分割线-->
+    <HR style="margin-top: -3px;">
+    <div class="sortBtn">
+        <div class="btn-group" role="group">
+            <button type="button" class="btn navBtn" :class="{'navBtnStatus':comprehensive}" @click="comprehensiveSort">综合↓</button>
+            <button type="button" class="btn navBtn" :class="{'navBtnStatus':sales}" @click="salesSort">售量↓</button>
+            <button type="button" class="btn navBtn" :class="{'navBtnStatus':priceDown}" @click="priceDownSort">价格↓</button>
+            <button type="button" class="btn navBtn" :class="{'navBtnStatus':priceUp}" @click="priceUpSort">价格↑</button>
+        </div>
+    </div>
+
+    <div class="goods-Info">
+        <div class="goods-InfoChild">
+            <div class="thumbnail" v-for="goods in goodsList" @click="selectDetailInfo(goods.goodsID)">
+                <img :src="goods.goodsImageList">
+                <div class="caption">
+                    <div class="hotName">
+                        <p>{{ goods.goodsName }}</p>
+                    </div>
+                    <p><b>￥{{ goods.goodsPrice }}</b></p>
+                    <p>已售{{ goods.goodsSales }}件</p>
+                </div>
+            </div>
+        </div>
+
+        <!--        分页部分-->
+        <div class="right-Page">
+            <div class="right-Page-left">
+                <div style="width: 87%; height: 20%; float: left;">
+                    <p>当前 <span v-text="pageNum"></span> 页,总 <span v-text="pages"></span> 页,共 <span
+                            v-text="total"></span> 条记录</p>
+                </div>
+            </div>
+            <div class="right-Page-middle">
+                <ul class="pagination">
+                    <li><a href="#" @click="selectDataList(firstPage)">首页</a></li>
+                    <li v-if="prePage !== 0"><a href="#" @click="selectDataList(prePage)">上一页</a></li>
+                    <li v-if="prePage === 0" class="disabled"><span aria-hidden="true">上一页</span></li>
+                    <li v-for="index in indexs" :class="{ 'active': pageNum === index}">
+                        <a href="#" @click="btnClick(index)">{{ index }}</a>
+                    </li>
+                    <li v-if="pageNum !== pages"><a href="#" @click="selectDataList(nextPage)">下一页</a></li>
+                    <li v-if="pageNum === pages" class="disabled"><span aria-hidden="true">下一页</span></li>
+                    <li><a href="#" @click="selectDataList(pages)">尾页</a></li>
+
+                </ul>
+
+
+            </div>
+            <div class="right-Page-right">
+                跳转到：<input type="text" class="form-control right-Page-rightInput" v-model="jumpPage">&nbsp;
+                <button class="btn btn-primary" @click="selectDataList(jumpPage)">GO</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    /* 请求拦截 */
+    axios.interceptors.request.use(
+        config => {
+            if (localStorage.getItem("token") != null) {
+                config.headers["token"] = localStorage.getItem("token");
+            }
+
+            return config;
+        },
+        err => Promise.reject(err)
+    );
+    axios.defaults.headers.post['Content-Type'] = 'application/json';
+    window.onload = function () {
+        if (localStorage.getItem("token") != null) {
+            vm.getUserIDByToken();
+
+        }
+        vm.getSelectData();
+    };
+
+    var vm = new Vue({
+        el: "#app",
+        data: {
+            userName: "",
+            comprehensive: true,
+            sales: false,
+            priceDown: false,
+            priceUp: false,
+            LoginStatus: false,
+            selectDataListData: "",
+            allClassList: [],
+            goodsImageList: [],
+            pageNum: "",     //当前页
+            pages: "",       //总页数
+            total: "",       //总记录
+            nextPage: "",    //下一页
+            prePage: "",     //上一页
+            firstPage: 1,    //第一页
+            isFirstPage: false,     //是否为首页
+            isLastPage: false,      //是否为尾页
+            jumpPage: "",            //跳转页数
+            selectOptionVal: "8",    //每页的记录数
+            selectData: "",
+            pageList: [],
+            totalCount: "",
+            pageNo: "",
+            totalPages: "",
+            goodsList: [],
+            keywordData: "",
+        },
+        methods: {
+            getUserIDByToken() {
+                axios.post('/getUserIDByToken', {
+                }).then(function (data) {
+                    vm.userID = data.data;
+                    console.info(vm.userID);
+                    if (vm.userID !== "") {
+                        vm.LoginStatus = true;
+                        vm.getUserInfo();
+                    }
+                })
+            },
+            getUserInfo() {
+                axios.post('/front/getUserInfo', {
+                    userID: vm.userID
+                }).then(function (data) {
+                    vm.userName = data.data.userName;
+                    console.info("userName:" + vm.userName)
+                })
+            },
+            keywordSearch() {
+                window.open("/goodsClassify?selectData=" + vm.keywordData);
+            },
+            selectAllClassSub(selectData) {
+                console.info(selectData)
+                window.open("/goodsClassify?selectAllClassData=" + selectData)
+            },
+            comprehensiveSort() {
+                vm.comprehensive = true;
+                vm.sales = false;
+                vm.priceUp = false;
+                vm.priceDown = false;
+                vm.selectDataList(vm.firstPage);
+            },
+            salesSort() {
+                vm.comprehensive = false;
+                vm.sales = true;
+                vm.priceUp = false;
+                vm.priceDown = false;
+                vm.selectDataList(vm.firstPage);
+            },
+            priceUpSort() {
+                vm.comprehensive = false;
+                vm.sales = false;
+                vm.priceUp = true;
+                vm.priceDown = false;
+                vm.selectDataList(vm.firstPage);
+            },
+            priceDownSort() {
+                vm.comprehensive = false;
+                vm.sales = false;
+                vm.priceUp = false;
+                vm.priceDown = true;
+                vm.selectDataList(vm.firstPage);
+            },
+            selectDetailInfo(selectGoodsID) {
+                window.open('/goodsDetailedInfo?selectGoodsInfo=' + selectGoodsID)
+            },
+            collectWeb() {
+                alert("快捷键Ctrl + D收藏Rosette")
+            },
+            getSelectData(){
+                var url = location.search;
+                if (url.indexOf("?") !== -1) {
+                    var str = url.substring(1);
+                    vm.selectData = decodeURIComponent(str.split("=")[1]);
+                    if (vm.selectData === "" || vm.selectData === undefined) {
+                        window.location.href = "/front_Home"
+                    }
+                    vm.selectDataList(vm.firstPage)
+                }
+
+            },
+            selectDataList(wantPage) {
+                if (vm.comprehensive === true) {
+                    axios.post('/front/selectGoodsDetailedDescGoodsSort', {
+                        selectData: vm.selectData,
+                        from: wantPage,
+                    }).then(function (data) {
+                        vm.goodsList = data.data.pageList;
+                        console.info(data.data)
+                        console.info(vm.goodsList[0].goodsImageList.split(",")[0])
+                        if (vm.goodsList.length > 0) {
+                            for (let i = 0; i < vm.goodsList.length; i++) {
+                                vm.goodsList[i].goodsImageList = vm.goodsList[i].goodsImageList.split(",")[0];
+                            }
+                        } else {
+                            toastr.options = {
+                                timeOut: 1000,
+                                positionClass: "toast-top-center",
+                            };
+                            toastr.error("暂无搜索到相关商品信息");
+                            toastr.options = {
+                                timeOut: 3000,
+                                positionClass: "toast-top-center",
+                            };
+                            toastr.info("三秒后跳转到登陆页面")
+                            vm.goGrdoupRecor()
+                        }
+
+                        vm.pageNum = data.data.pageNo;
+                        vm.total = data.data.totalCount;
+                        vm.pages = data.data.totalPages;
+                        vm.nextPage = vm.pageNum + 1;
+                        vm.prePage = vm.pageNum - 1;
+                    })
+                } else if (vm.sales === true) {
+                    axios.post('/front/selectGoodsDetailedDescGoodsSales', {
+                        selectData: vm.selectData,
+                        from: wantPage,
+                    }).then(function (data) {
+                        vm.goodsList = data.data.pageList;
+                        console.info(data.data)
+                        console.info(vm.goodsList[0].goodsImageList.split(",")[0])
+                        if (vm.goodsList.length > 0) {
+                            for (let i = 0; i < vm.goodsList.length; i++) {
+                                vm.goodsList[i].goodsImageList = vm.goodsList[i].goodsImageList.split(",")[0];
+                            }
+                        } else {
+                            toastr.options = {
+                                timeOut: 1000,
+                                positionClass: "toast-top-center",
+                            };
+                            toastr.error("暂无搜索到相关商品信息");
+                            toastr.options = {
+                                timeOut: 3000,
+                                positionClass: "toast-top-center",
+                            };
+                            toastr.info("三秒后跳转到登陆页面")
+                            vm.goGrdoupRecor()
+                        }
+
+                        vm.pageNum = data.data.pageNo;
+                        vm.total = data.data.totalCount;
+                        vm.pages = data.data.totalPages;
+                        vm.nextPage = vm.pageNum + 1;
+                        vm.prePage = vm.pageNum - 1;
+                    })
+                } else if (vm.priceUp === true) {
+                    axios.post('/front/selectGoodsDetailedAscGoodsPrice', {
+                        selectData: vm.selectData,
+                        from: wantPage,
+                    }).then(function (data) {
+                        vm.goodsList = data.data.pageList;
+                        console.info(data.data)
+                        console.info(vm.goodsList[0].goodsImageList.split(",")[0])
+                        if (vm.goodsList.length > 0) {
+                            for (let i = 0; i < vm.goodsList.length; i++) {
+                                vm.goodsList[i].goodsImageList = vm.goodsList[i].goodsImageList.split(",")[0];
+                            }
+                        } else {
+                            toastr.options = {
+                                timeOut: 1000,
+                                positionClass: "toast-top-center",
+                            };
+                            toastr.error("暂无搜索到相关商品信息");
+                            toastr.options = {
+                                timeOut: 3000,
+                                positionClass: "toast-top-center",
+                            };
+                            toastr.info("三秒后跳转到登陆页面")
+                            vm.goGrdoupRecor()
+                        }
+
+                        vm.pageNum = data.data.pageNo;
+                        vm.total = data.data.totalCount;
+                        vm.pages = data.data.totalPages;
+                        vm.nextPage = vm.pageNum + 1;
+                        vm.prePage = vm.pageNum - 1;
+                    })
+                } else if (vm.priceDown === true) {
+                    axios.post('/front/selectGoodsDetailedDescGoodsPrice', {
+                        selectData: vm.selectData,
+                        from: wantPage,
+                    }).then(function (data) {
+                        vm.goodsList = data.data.pageList;
+                        console.info(data.data)
+                        console.info(vm.goodsList[0].goodsImageList.split(",")[0])
+                        if (vm.goodsList.length > 0) {
+                            for (let i = 0; i < vm.goodsList.length; i++) {
+                                vm.goodsList[i].goodsImageList = vm.goodsList[i].goodsImageList.split(",")[0];
+                            }
+                        } else {
+                            toastr.options = {
+                                timeOut: 1000,
+                                positionClass: "toast-top-center",
+                            };
+                            toastr.error("暂无搜索到相关商品信息");
+                            toastr.options = {
+                                timeOut: 3000,
+                                positionClass: "toast-top-center",
+                            };
+                            toastr.info("三秒后跳转到登陆页面")
+                            vm.goGrdoupRecor()
+                        }
+
+                        vm.pageNum = data.data.pageNo;
+                        vm.total = data.data.totalCount;
+                        vm.pages = data.data.totalPages;
+                        vm.nextPage = vm.pageNum + 1;
+                        vm.prePage = vm.pageNum - 1;
+                    })
+                }
+
+
+            },
+            /**
+             * 倒计时注销
+             */
+            goGrdoupRecor(){
+                const TIME_COUNT = 3;
+                if(!this.timer){
+                    this.count = TIME_COUNT;
+                    this.show = false;
+                    this.timer = setInterval(()=>{
+                        if(this.count > 0 && this.count <= TIME_COUNT){
+                            this.count--;
+                        }else{
+                            this.show = true;
+                            clearInterval(this.timer);
+                            this.timer = null;
+                            //跳转的页面写在此处
+                            window.location.href = "/logout";
+                        }
+                    },1000)
+                }
+            },
+
+            /*分页按钮*/
+            btnClick(data) {
+                if (data != vm.pageNum) {
+                    vm.pageNum = data;
+                    vm.selectDataList(vm.pageNum);
+                }
+            },
+            selectInputLimit() {
+                vm.selectKeywords = vm.selectKeywords.replace(/\s+/g,'')
+            }
+
+        },
+        computed: {
+            indexs: function () {
+                // 定义开始的数字
+                var left = 1;
+                // 定义结束的数字
+                var right = this.pages;
+
+                // 存储返回值
+                var ar = [];
+
+                // 前提条件：每次都显示condition条页码
+                // 最好是个单数
+                var condition = 5;
+
+                // 向上取整->就能获取到中间的数字
+                var middle = Math.ceil(condition / 2);
+
+                // 要分清情况
+                //1、在最左边或者在middle的前面
+                //2、在中间
+                //3、最右边的情况
+
+                // 当总页数超过condition时，需要判断分页情况
+                if (this.pages >= condition) {
+                    // 中间的时候
+                    // 左右都加上（middle-1)
+                    if (this.pageNum > middle && this.pageNum < this.pages - (middle - 1)) {
+                        left = this.pageNum - (middle - 1);
+                        right = this.pageNum + (middle - 1);
+                    } else {
+                        //最左边或者在condition的中间
+                        if (this.pageNum <= middle) {
+                            left = 1;
+                            right = condition;
+                            // 最右边的情况
+                            // 结束是总条数，开始是condition减去1
+                        } else {
+                            right = this.pages;
+                            left = this.pages - (condition - 1);
+                        }
+                    }
+                }
+                while (left <= right) {
+                    ar.push(left);
+                    left++;
+                }
+                return ar
+
+            }
+        },
+    })
+</script>
+</body>
+</html>

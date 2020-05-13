@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>购物车</title>
+    <link rel="stylesheet" href="../css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="../css/toastr.min.css">
+    <link rel="stylesheet" type="text/css" href="../css/front.css">
+    <link rel="stylesheet" href="../css/bootstrap-datepicker3.min.css">
+    <script type="text/javascript" src="../js/jquery-3.4.1.min.js"></script>
+    <script type="text/javascript" src="../js/bootstrap.js"></script>
+    <!-- <script type="text/javascript" src="../js/houtai.js"></script> -->
+    <script type="text/javascript" src="../js/vue.js"></script>
+    <script src="../js/bootstrap-datepicker.min.js"></script>
+    <script src="../js/bootstrap-datepicker.zh-CN.min.js" charset="UTF-8"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="../js/toastr.min.js"></script>
+    <script src="../js/moment.js"></script>
+    <link rel="shortcut icon" href="../img/pang.ico" type="image/x-icon" />
+    <!--制作的图标，使用href关联，仅仅需要更改href的内容  -->
+</head>
+<body>
+<div class="all" id="app" v-cloak>
+    <!--顶部-->
+    <div class="top-head">
+        <div class="top-head-collect">
+            <a href="javascript:" @click="collectWeb">
+                ❤收藏Rosette(Ctrl + D)
+            </a>
+        </div>
+        <div class="top-head-right">
+            <a v-show="!LoginStatus" href="/front_Login">你好，请登录</a>
+            <a v-show="LoginStatus" href="javascript:">你好，{{ userName }}</a>
+            <a href="/front_Register">注册</a>
+            <a href="/my_order">我的订单</a>
+            <a href="/shopping">购物车</a>
+            <a href="/updatePassword">修改密码</a>
+            <a href="/myPersonInfo/selectPersonInfo">我的信息</a>
+        </div>
+    </div>
+    <!--分割线-->
+    <HR style="width:100%;color:#987cb9; size:1px;position: relative;float: left">
+    <!--导航栏-->
+    <div class="top-navigation">
+        <div class="top-navigation-icon">
+            <a href="/front_Home">
+                <img src="/img/flowerlove1.png">
+            </a>
+        </div>
+        <div class="top-navigation-gif">
+            <span><img src="/img/0.gif"></span>
+        </div>
+        <div class="top-navigation-nav">
+            <a href="javascript:void(0)" @click="selectAllClassSub('鲜花')">鲜花</a>
+            <a href="javascript:void(0)" @click="selectAllClassSub('永生花')">永生花</a>
+            <a href="javascript:void(0)" @click="selectAllClassSub('礼品')">礼品</a>
+        </div>
+        <div class="top-navigation-select">
+            <!--v-model="fuzzySelectData" @keyup.enter="fuzzySelect(firstPage)"-->
+            <input class="selectBox-input" type="text" name="select" placeholder="更多优惠商品等你来选购" maxlength="40" @input="selectInputLimit" v-model="keywordData">
+            <button class="selectBtn">
+                <img src="../img/select.png" class="selectBtn-icon" @click="keywordSearch">
+            </button>
+        </div>
+
+    </div>
+
+    <div class="all-result">
+        <p>全部商品&nbsp; {{ shoppingCartListLen }}</p>
+    </div>
+    <!--分割线-->
+    <HR style="margin-top: -3px;">
+
+    <div v-if="!LoginStatus" class="none-Login">
+        <div>
+            <img src="/img/sorry.png">
+            <p>暂无购物信息，</p>
+            <a href="/front_Login">请先登录</a>
+        </div>
+    </div>
+
+    <div v-if="LoginStatus && emptyShow" class="none-Login">
+        <div>
+            <img src="/img/sorry.png">
+            <p>暂无购物信息，</p>
+            <a href="/front_Home">前往购买</a>
+        </div>
+    </div>
+
+    <div v-if="LoginStatus && !emptyShow" class="table-modal">
+        <table class="table change-table">
+            <thead>
+            <tr>
+                <th>
+                    <input class="blue" type="checkbox" v-model="checkActive" @click="checkAll">
+                </th>
+                <th>商品</th>
+                <th>单价</th>
+                <th>数量</th>
+                <th>小计</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="(shoppingCart,index) in shoppingCartList">
+                <td>
+                    <input type="checkbox" v-model="checks[shoppingCart.shoppingCartID]" @click="checkOne(shoppingCart.shoppingCartID)">
+                </td>
+                <td style="width: 45%;">
+                    <img :src="thumbnail[shoppingCart.shoppingCartID]" style="width: 108px;height: 108px;float:left;">
+                    <p class="test">{{ shoppingCart.goodsName }}</p>
+                </td>
+                <td style="width: 10%">{{ shoppingCart.goodsPrice }}</td>
+                <td style="width: 15%">
+                    <div class="add-goodsNumBtn">
+                        <div class="reduceBtn" @click="reduceGoodsSum(shoppingCart.shoppingCartID, index)">
+                            <a href="javascript:void(0);">-</a>
+                        </div>
+                        <input type="text" style="float: left;" oninput = "value=value.replace(/[^\d]/g,'')" v-model="shoppingCart.goodsSum" @blur="changeGoodsSum(shoppingCart.shoppingCartID, index)"/>
+                        <div class="reduceBtn" @click="addGoodsSum(shoppingCart.shoppingCartID, index)">
+                            <a href="javascript:void(0);">+</a>
+                        </div>
+                    </div>
+                </td>
+                <td style="width: 10%">{{ shoppingCart.goodsPrice * shoppingCart.goodsSum }}</td>
+                <td>
+                    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal"
+                            data-whatever="@getbootstrap" @click="getShoppingCartID(shoppingCart.shoppingCartID)">删除
+                    </button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <!-- Modal -->
+    <div class="modal fade" style="width: 300px; top: 50%;left:50%;position: absolute;transform: translate(-50%, -50%)" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalCenterTitle">Modal title</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    确认删除吗？
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" @click="deleteShoppingCart(deleteShoppingCartID)" data-dismiss="modal">确认</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--分割线-->
+    <HR>
+
+    <!--结算-->
+    <div v-if="LoginStatus" class="cart-bottom">
+        <input class="blue" type="checkbox" v-model="checkActive" @click="checkAll">
+        <a href="javascript:void(0);" @click="getShoppingCartID(shoppingCart.shoppingCartID)">删除选中的商品</a>
+        <button class="btn btn-danger" @click="settlement">结算</button>
+        <p>总价：￥{{ shoppingCartPriceSum }}</p>
+    </div>
+</div>
+<script type="text/javascript">
+    /* 请求拦截 */
+    axios.interceptors.request.use(
+        config => {
+            if (localStorage.getItem("token") != null) {
+                config.headers["token"] = localStorage.getItem("token");
+            }
+
+            return config;
+        },
+        err => Promise.reject(err)
+    );
+    axios.defaults.headers.post['Content-Type'] = 'application/json';
+    window.onload = function () {
+        if (localStorage.getItem("token") != null) {
+            console.info(localStorage.getItem("token"));
+            vm.getUserIDByToken();
+        }
+    }
+
+    var vm = new Vue({
+        el: "#app",
+        data: {
+            LoginStatus: false,
+            userID: "",
+            userName: "",
+            selectAllClassData: "",
+            allClassList: [],
+            goodsImageList: [],
+            shoppingCartList: [],
+            shoppingCartID: "",
+            goodsName: "",
+            goodsPrice: "",
+            goodsSum: "0",
+            shoppingCartListLen: 0,
+            checkActive: false,
+            checksIdArray: [],
+            checks: [],
+            checksIdArrayLen: 0,
+            thumbnail: [],
+            subtotal: [],
+            deleteShoppingCartID: "",
+            shoppingCartPriceSum: 0,
+            goodsInventory: 0,
+            emptyShow: false,
+            keywordData: "",
+        },
+        methods: {
+            getUserIDByToken() {
+                axios.post('/getUserIDByToken', {
+                }).then(function (data) {
+                    vm.userID = data.data;
+                    if (vm.userID !== "") {
+                        vm.LoginStatus = true;
+                        vm.getUserInfo();
+                        console.info(vm.userID);
+                        vm.getUserShoppingCart();
+                    }
+
+                })
+            },
+            getUserInfo() {
+                axios.post('/front/getUserInfo', {
+                    userID: vm.userID
+                }).then(function (data) {
+                    vm.userName = data.data.userName;
+                    console.info("userName:" + vm.userName)
+                })
+            },
+            keywordSearch() {
+                window.open("/goodsBySelectData?selectData=" + vm.keywordData);
+            },
+            settlement() {
+                // console.info(vm.checksIdArray);
+                window.location.href = "/add_order?checksIdArray=" + vm.checksIdArray;
+            },
+            changeGoodsSum(shoppingCartID, index) {
+                if (vm.shoppingCartList[index].goodsSum < vm.shoppingCartList[index].goodsInventory) {
+                    vm.subtotal[shoppingCartID] = vm.shoppingCartList[index].goodsSum * vm.shoppingCartList[index].goodsPrice;
+                    axios.post('/shoppingCart/changeGoodsSum', {
+                        shoppingCartID: shoppingCartID,
+                        goodsSum: vm.shoppingCartList[index].goodsSum,
+                    }).then(function (data) {
+                        console.info(data.data)
+                    })
+                    vm.shoppingCartPriceSum = 0;
+                    for (var i = 0; i < vm.checksIdArrayLen; i++) {
+                        vm.shoppingCartPriceSum += vm.subtotal[vm.checksIdArray[i]];
+                    }
+                } else {
+                    toastr.options = {
+                        timeOut: 1000,
+                        positionClass: "toast-top-center",
+                    };
+                    toastr.error('库存不足，仅剩' + vm.shoppingCartList[index].goodsInventory + '件');
+                }
+            },
+            addGoodsSum(shoppingCartID, index) {
+                if (vm.shoppingCartList[index].goodsSum < vm.shoppingCartList[index].goodsInventory) {
+                    vm.shoppingCartList[index].goodsSum++;
+                    vm.subtotal[shoppingCartID] = vm.shoppingCartList[index].goodsSum * vm.shoppingCartList[index].goodsPrice;
+                    axios.post('/shoppingCart/changeGoodsSum', {
+                        shoppingCartID: shoppingCartID,
+                        goodsSum: vm.shoppingCartList[index].goodsSum,
+                    }).then(function (data) {
+                        console.info(data.data)
+                    })
+                    vm.shoppingCartPriceSum = 0;
+                    for (var i = 0; i < vm.checksIdArrayLen; i++) {
+                        vm.shoppingCartPriceSum += vm.subtotal[vm.checksIdArray[i]];
+                    }
+                } else {
+                    toastr.options = {
+                        timeOut: 1000,
+                        positionClass: "toast-top-center",
+                    };
+                    toastr.error('库存不足，仅剩' + vm.shoppingCartList[index].goodsInventory + '件');
+                }
+            },
+            reduceGoodsSum(shoppingCartID, index) {
+                if (vm.shoppingCartList[index].goodsSum > 1) {
+                    vm.shoppingCartList[index].goodsSum--;
+                    vm.subtotal[shoppingCartID] = vm.shoppingCartList[index].goodsSum * vm.shoppingCartList[index].goodsPrice;
+                    axios.post('/shoppingCart/changeGoodsSum', {
+                        shoppingCartID: shoppingCartID,
+                        goodsSum: vm.shoppingCartList[index].goodsSum,
+                    }).then(function (data) {
+                        console.info(data.data)
+                    })
+                } else {
+                    toastr.options = {
+                        timeOut: 1000,
+                        positionClass: "toast-top-center",
+                    };
+                    toastr.error('数量不能小于1');
+                }
+                vm.shoppingCartPriceSum = 0;
+                for (var i = 0; i < vm.checksIdArrayLen; i++) {
+                    vm.shoppingCartPriceSum += vm.subtotal[vm.checksIdArray[i]];
+                }
+            },
+            deleteShoppingCart(deleteShoppingCartID) {
+                axios.post('/shoppingCart/deleteShoppingCart', {
+                    shoppingCartID: deleteShoppingCartID,
+                }).then(function (dat) {
+                    // 操作成功弹出框
+                    toastr.options = {
+                        timeOut: 1000,
+                        positionClass: "toast-top-center",
+                    };
+                    toastr.success('删除数据成功');
+                    vm.getUserShoppingCart();
+                })
+            },
+            getShoppingCartID(shoppingCartID) {
+                vm.deleteShoppingCartID = shoppingCartID;
+            },
+            checkAll(){
+                if(this.checkActive){
+                    this.checkActive = false;
+                    vm.shoppingCartList.forEach( ele => {
+                        vm.checks[ele.shoppingCartID] = false;
+                        vm.checksIdArray.pop(ele.shoppingCartID);
+                    });
+                } else{
+                    this.checkActive = true;
+                    vm.shoppingCartList.forEach( ele => {
+                        vm.checks[ele.shoppingCartID] = true;
+                        vm.checksIdArray.push(ele.shoppingCartID);
+                    });
+                }
+                vm.checksIdArrayLen = vm.checksIdArray.length;
+            },
+            checkOne(shoppingCartID) {
+                if (!vm.checks[shoppingCartID]) { //入栈
+                    vm.checks[shoppingCartID] = true;
+                    vm.checksIdArray.push(shoppingCartID);
+                }else {
+                    vm.checks[shoppingCartID] = false;
+                    vm.checksIdArray.pop(shoppingCartID);
+                }
+                vm.checksIdArrayLen = vm.checksIdArray.length;
+            },
+            getUserShoppingCart() {
+                axios.post('/shoppingCart/getUserShoppingCart', {
+                    userID: vm.userID,
+                }).then(function (data) {
+                    console.info(data.data)
+                    vm.shoppingCartList = data.data;
+                    if (vm.shoppingCartList.length === 0) {
+                        vm.emptyShow = true;
+                    } else {
+                        vm.emptyShow = false;
+                        vm.shoppingCartPriceSum = 0;
+                        vm.shoppingCartListLen = vm.shoppingCartList.length;
+                        for (var i = 0; i < vm.shoppingCartList.length; i++) {
+                            vm.shoppingCartList[i].goodsImageList = vm.shoppingCartList[i].goodsImageList.split(",")[0];
+                        }
+                        vm.shoppingCartList.forEach( ele => {
+                            vm.checks[ele.shoppingCartID] = false;
+                            vm.thumbnail[ele.shoppingCartID] = ele.goodsImageList.split(',')[0];
+                            vm.subtotal[ele.shoppingCartID] = ele.goodsPrice * ele.goodsSum;
+                        });
+                    }
+                })
+            },
+
+            collectWeb() {
+                alert("快捷键Ctrl + D收藏Rosette")
+            },
+            /*分页按钮*/
+            btnClick(data) {
+                if (data != vm.pageNum) {
+                    vm.pageNum = data;
+                    vm.selectAllClass(vm.pageNum);
+                }
+            },
+            selectInputLimit() {
+                vm.selectKeywords = vm.selectKeywords.replace(/\s+/g,'')
+            },
+
+        },
+        watch: {
+            checksIdArray(val) {
+                vm.shoppingCartPriceSum = 0;
+                for (var i = 0; i < vm.checksIdArrayLen; i++) {
+                    vm.shoppingCartPriceSum += vm.subtotal[vm.checksIdArray[i]];
+                }
+            },
+
+            checksIdArrayLen(nowStuts) {
+                if (vm.checksIdArrayLen === vm.shoppingCartList.length) {
+                    vm.checkActive = true;
+                } else {
+                    vm.checkActive =false;
+                }
+            },
+            goodsSumList(value) {
+                console.info(vm.goodsSumList)
+            }
+        }
+
+    })
+</script>
+</body>
+</html>

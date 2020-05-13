@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.pang.front.Mapper.OrderMapper">
+    <select id="getGoodsList" parameterType="int[]" resultType="com.pang.front.Model.OrderGoods">
+        select g.goodsID, g.goodsName, g.goodsPrice, g.goodsInventory, g.goodsImageList, s.goodsSum from goods g, shoppingCart s where s.goodsID IN (
+            select goodsID from shoppingCart where shoppingCartID IN
+            <foreach collection="array" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        ) and g.goodsID = s.goodsID
+    </select>
+
+    <insert id="submitOrder" parameterType="com.pang.front.Model.Order">
+        insert into `order`(orderID, consigneeName, consigneePhone, consigneeAddress, subscriberName, subscriberPhone, deliveryDate, greetingMessage, orderStatus, orderPriceSum)
+        values (#{orderID}, #{consigneeName}, #{consigneePhone}, #{consigneeAddress}, #{subscriberName}, #{subscriberPhone}, #{deliveryDate}, #{greetingMessage}, #{orderStatus}, #{orderPriceSum})
+    </insert>
+
+    <insert id="insertUOTable">
+        insert into user_order(userID, orderID)
+        values (#{userID}, #{orderID})
+    </insert>
+
+    <insert id="insertOGTable">
+        insert into order_goods(orderID, goodsID, goodsSum) values
+        <foreach collection="idSumList" item="item" index="index" separator="," close=";">
+        (#{orderID}, #{item.goodsID}, #{item.goodsSum})
+        </foreach>
+    </insert>
+
+    <select id="getAllOrder" parameterType="java.lang.Integer" resultType="com.pang.front.Model.Order">
+        select o.orderID, o.consigneeName, o.consigneePhone, o.orderPriceSum, o.deliveryDate, o.orderStatus, g.goodsImageList
+        from `order` o, goods g, order_goods og, user_order uo
+        where uo.userID = #{userID}
+        AND uo.orderID = o.orderID
+        AND uo.orderID = og.orderID
+        AND og.goodsID = g.goodsID
+        AND o.orderStatus != '已删除'
+        GROUP BY o.orderID
+    </select>
+
+    <select id="selectGoodsList" resultType="com.pang.front.Model.OrderGoods">
+        select g.goodsID, g.goodsName, g.goodsPrice, g.goodsImageList, og.goodsSum from goods g, order_goods og
+        where og.goodsID = g.goodsID and og.orderID = #{orderID}
+    </select>
+
+    <update id="reduceGoodsSum" parameterType="java.util.List">
+        <foreach collection="list" item="item" separator=";" open="" close="">
+            update goods set
+            goodsInventory = goodsInventory - #{item.goodsSum}
+            where goodsID = #{item.goodsID}
+        </foreach>
+    </update>
+
+    <select id="getOrderList" parameterType="java.lang.Long" resultType="com.pang.front.Model.OrderGoods">
+        select goodsID, goodsSum from order_goods
+        where orderID = #{orderID}
+    </select>
+
+    <update id="rollbackInventory" parameterType="java.util.List">
+        <foreach collection="list" item="item" separator=";" open="" close="">
+            update goods
+            <trim prefix="SET" suffixOverrides=",">
+                goodsInventory = goodsInventory + #{item.goodsSum}
+            </trim>
+            where goodsID = #{item.goodsID}
+        </foreach>
+    </update>
+
+    <update id="cancelOrderID" parameterType="java.lang.Long">
+        update `order` set orderStatus = '已取消' where orderID = #{orderID}
+    </update>
+
+    <delete id="deleteShoppingCart">
+        delete from shoppingCart where userID = #{userID} and goodsID IN
+        <foreach collection="idSumList" item="item" open="(" separator="," close=")">
+            #{item.goodsID}
+        </foreach>
+    </delete>
+
+    <select id="selectAllOrder" resultType="com.pang.front.Model.Order">
+        select o.orderID, u.userID, o.orderPriceSum, o.orderStatus, o.orderUpdateTime
+        from `order` o, user_order u
+        where o.orderID = u.orderID
+    </select>
+
+    <delete id="batchDelete" parameterType="Long[]">
+        DELETE FROM `order` WHERE orderID IN
+        <foreach collection="array" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+    <select id="fuzzySelectOrder" parameterType="java.lang.String" resultType="com.pang.front.Model.Order">
+        select o.orderID, u.userID, o.orderPriceSum, o.orderStatus, o.orderUpdateTime
+        from `order` o, user_order u
+        where o.orderID = u.orderID
+        and
+        (o.orderID like CONCAT('%',#{fuzzyData},'%')
+        or u.userID like CONCAT('%',#{fuzzyData},'%')
+        or o.orderStatus like CONCAT('%',#{fuzzyData},'%')
+        or o.orderUpdateTime like CONCAT('%',#{fuzzyData},'%'))
+    </select>
+
+    <select id="selectOrderDetailed" parameterType="java.lang.Long" resultType="com.pang.front.Model.Order">
+        select consigneeName, consigneePhone, consigneeAddress, subscriberName, subscriberName, subscriberPhone, deliveryDate, greetingMessage
+        from `order`
+        where orderID = #{orderID}
+    </select>
+
+    <select id="getGoodsListByOrderID" parameterType="java.lang.Long" resultType="com.pang.front.Model.OrderGoods">
+        select g.goodsName, g.goodsPrice, o.goodsSum, g.goodsImageList
+        from goods g, order_goods o
+        where g.goodsID = o.goodsID
+        and o.orderID = #{orderID}
+    </select>
+</mapper>

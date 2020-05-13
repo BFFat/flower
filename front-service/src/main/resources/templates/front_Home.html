@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>前台</title>
+    <link rel="stylesheet" href="../css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="../css/toastr.min.css">
+    <link rel="stylesheet" type="text/css" href="../css/front.css">
+    <link rel="stylesheet" href="../css/bootstrap-datepicker3.min.css">
+    <script type="text/javascript" src="../js/jquery-3.4.1.min.js"></script>
+    <script type="text/javascript" src="../js/bootstrap.js"></script>
+    <!-- <script type="text/javascript" src="../js/houtai.js"></script> -->
+    <script type="text/javascript" src="../js/vue.js"></script>
+    <script src="../js/bootstrap-datepicker.min.js"></script>
+    <script src="../js/bootstrap-datepicker.zh-CN.min.js" charset="UTF-8"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="../js/toastr.min.js"></script>
+    <script src="../js/moment.js"></script>
+    <link rel="shortcut icon" href="../img/pang.ico" type="image/x-icon" />
+    <!--制作的图标，使用href关联，仅仅需要更改href的内容  -->
+</head>
+<body>
+    <div class="all" id="app">
+        <!--顶部-->
+        <div class="top-head">
+            <div class="top-head-collect">
+                <a href="javascript:" @click="collectWeb">
+                    ❤收藏Rosette(Ctrl + D)
+                </a>
+            </div>
+            <div class="top-head-right">
+                <a v-show="!LoginStatus" href="/front_Login">你好，请登录</a>
+                <a v-show="LoginStatus" href="javascript:">你好，{{ userName }}</a>
+                <a href="/front_Register">注册</a>
+                <a href="/my_order">我的订单</a>
+                <a href="/shopping">购物车</a>
+                <a href="/updatePassword">修改密码</a>
+                <a href="/myPersonInfo/selectPersonInfo">我的信息</a>
+            </div>
+        </div>
+        <!--分割线-->
+        <HR style="width:100%;color:#987cb9; size:1px;position: relative;float: left">
+        <!--导航栏-->
+        <div class="top-navigation">
+            <div class="top-navigation-icon">
+                <a href="/front_Home">
+                    <img src="/img/flowerlove1.png">
+                </a>
+            </div>
+            <div class="top-navigation-gif">
+                <span><img src="/img/0.gif"></span>
+            </div>
+            <div class="top-navigation-nav">
+                <a href="javascript:void(0);" @click="selectAllClass('鲜花')">鲜花</a>
+                <a href="javascript:void(0);" @click="selectAllClass('永生花')">永生花</a>
+                <a href="javascript:void(0);" @click="selectAllClass('礼品')">礼品</a>
+            </div>
+            <div class="top-navigation-select">
+                <!--v-model="fuzzySelectData" @keyup.enter="fuzzySelect(firstPage)"-->
+                <input class="selectBox-input" type="text" name="select" placeholder="更多优惠商品等你来选购" maxlength="40" @input="selectInputLimit" v-model="keywordData">
+                <button class="selectBtn">
+                    <img src="../img/select.png" class="selectBtn-icon" @click="keywordSearch">
+                </button>
+            </div>
+        </div>
+
+        <!--轮播图-->
+        <div id="carouselBanner" class="carousel slide banner-shadow" data-ride="carousel" >
+            <ol class="carousel-indicators">
+                <li data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>
+                <li data-target="#carouselExampleIndicators" data-slide-to="1"></li>
+                <li data-target="#carouselExampleIndicators" data-slide-to="2"></li>
+            </ol>
+            <div class="carousel-inner">
+                <div class="carousel-item active">
+                    <a @click="selectAllClass('鲜花')">
+                        <img src="/img/banner1.png" class="d-block w-100">
+                    </a>
+                </div>
+                <div class="carousel-item">
+                    <a @click="selectAllClass('永生花')">
+                        <img src="/img/banner2.png" class="d-block w-100">
+                    </a>
+                </div>
+                <div class="carousel-item">
+                    <a @click="selectAllClass('礼品')">
+                        <img src="/img/banner3.png" class="d-block w-100">
+                    </a>
+                </div>
+            </div>
+            <a class="carousel-control-prev" href="#carouselBanner" role="button" data-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="sr-only">Previous</span>
+            </a>
+            <a class="carousel-control-next" href="#carouselBanner" role="button" data-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="sr-only">Next</span>
+            </a>
+        </div>
+
+        <!--热门鲜花-->
+        <div class="hot-Head">
+            :::::: 热门鲜花 ::::::
+        </div>
+
+        <div class="show-goods">
+            <div id="carouselGoods1" class="carousel slide" data-ride="carousel" >
+                <div class="carousel-inner">
+                    <div class="carousel-item active">
+                        <div class="thumbnail" v-for="HotFlowerFirst in HotFlowerFirstList" @click="selectDetailInfo(HotFlowerFirst.goodsID)">
+                            <img :src="HotFlowerFirst.goodsImageList">
+                            <div class="caption">
+                                <div class="hotName">
+                                    <p>{{ HotFlowerFirst.goodsName }}</p>
+                                </div>
+                                <p><b>￥{{ HotFlowerFirst.goodsPrice }}</b></p>
+                                <p>已售{{ HotFlowerFirst.goodsSales }}件</p>
+<!--                                <p><a href="#" class="btn btn-primary" role="button">加入购物车</a> <a href="#" class="btn btn-success" role="button">立即购买</a></p>-->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="carousel-item ">
+                        <div class="thumbnail" v-for="HotFlowerSecond in HotFlowerSecondList" @click="selectDetailInfo(HotFlowerSecond.goodsID)">
+                            <img :src="HotFlowerSecond.goodsImageList">
+                            <div class="caption">
+                                <div class="hotName">
+                                    <p>{{ HotFlowerSecond.goodsName }}</p>
+                                </div>
+                                <p><b>￥{{ HotFlowerSecond.goodsPrice }}</b></p>
+                                <p>已售{{ HotFlowerSecond.goodsSales }}件</p>
+<!--                                <p><a href="#" class="btn btn-primary" role="button">加入购物车</a> <a href="#" class="btn btn-success" role="button">立即购买</a></p>-->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <a class="carousel-control-prev" href="#carouselGoods1" role="button" data-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="sr-only">Previous</span>
+                </a>
+                <a class="carousel-control-next" href="#carouselGoods1" role="button" data-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="sr-only">Next</span>
+                </a>
+            </div>
+        </div>
+
+        <!--热门永生花-->
+        <div class="hot-Head">
+            :::::: 热门永生花 ::::::
+        </div>
+
+        <div class="show-goods">
+            <div id="carouselGoods2" class="carousel slide" data-ride="carousel" >
+                <div class="carousel-inner">
+                    <div class="carousel-item active" >
+                        <div class="thumbnail" v-for="HotEternalFlowerFirst in HotEternalFlowerFirstList" @click="selectDetailInfo(HotEternalFlowerFirst.goodsID)">
+                            <img :src="HotEternalFlowerFirst.goodsImageList">
+                            <div class="caption">
+                                <div class="hotName">
+                                    <p>{{ HotEternalFlowerFirst.goodsName }}</p>
+                                </div>
+                                <p><b>￥{{ HotEternalFlowerFirst.goodsPrice }}</b></p>
+                                <p>已售{{ HotEternalFlowerFirst.goodsSales }}件</p>
+<!--                                <p><a href="#" class="btn btn-primary" role="button">加入购物车</a> <a href="#" class="btn btn-success" role="button">立即购买</a></p>-->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="carousel-item">
+                        <div class="thumbnail" v-for="HotEternalFlowerSecond in HotEternalFlowerSecondList" @click="selectDetailInfo(HotEternalFlowerSecond.goodsID)">
+                            <img :src="HotEternalFlowerSecond.goodsImageList">
+                            <div class="caption">
+                                <div class="hotName">
+                                    <p>{{ HotEternalFlowerSecond.goodsName }}</p>
+                                </div>
+                                <p><b>￥{{ HotEternalFlowerSecond.goodsPrice }}</b></p>
+                                <p>已售{{ HotEternalFlowerSecond.goodsSales }}件</p>
+<!--                                <p><a href="#" class="btn btn-primary" role="button">加入购物车</a> <a href="#" class="btn btn-success" role="button">立即购买</a></p>-->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <a class="carousel-control-prev" href="#carouselGoods2" role="button" data-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="sr-only">Previous</span>
+                </a>
+                <a class="carousel-control-next" href="#carouselGoods2" role="button" data-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="sr-only">Next</span>
+                </a>
+            </div>
+        </div>
+
+        <!--热门鲜花-->
+        <div class="hot-Head">
+            :::::: 热门礼品 ::::::
+        </div>
+
+        <div class="show-goods">
+            <div id="carouselGoods3" class="carousel slide" data-ride="carousel" >
+                <div class="carousel-inner">
+                    <div class="carousel-item active" >
+                        <div class="thumbnail" v-for="HotPresentFirst in HotPresentFirstList" @click="selectDetailInfo(HotPresentFirst.goodsID)">
+                            <img :src="HotPresentFirst.goodsImageList">
+                            <div class="caption">
+                                <div class="hotName">
+                                    <p>{{ HotPresentFirst.goodsName }}</p>
+                                </div>
+                                <p><b>￥{{ HotPresentFirst.goodsPrice }}</b></p>
+                                <p>已售{{ HotPresentFirst.goodsSales }}件</p>
+<!--                                <p><a href="#" class="btn btn-primary" role="button">加入购物车</a> <a href="#" class="btn btn-success" role="button">立即购买</a></p>-->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="carousel-item">
+                        <div class="thumbnail" v-for="HotPresentSecond in HotPresentSecondList" @click="selectDetailInfo(HotPresentSecond.goodsID)">
+                            <img :src="HotPresentSecond.goodsImageList">
+                            <div class="caption">
+                                <div class="hotName">
+                                    <p>{{ HotPresentSecond.goodsName }}</p>
+                                </div>
+                                <p><b>￥{{ HotPresentSecond.goodsPrice }}</b></p>
+                                <p>已售{{ HotPresentSecond.goodsSales }}件</p>
+<!--                                <p><a href="#" class="btn btn-primary" role="button">加入购物车</a> <a href="#" class="btn btn-success" role="button">立即购买</a></p>-->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <a class="carousel-control-prev" href="#carouselGoods3" role="button" data-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="sr-only">Previous</span>
+                </a>
+                <a class="carousel-control-next" href="#carouselGoods3" role="button" data-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="sr-only">Next</span>
+                </a>
+            </div>
+        </div>
+
+
+
+        <div class="bottom-box" style="height: 35%;">
+            <!--分割线-->
+            <HR style="width:100%;color:#987cb9; size:1px">
+            <div class="bottom-info-person">
+                <h2><strong>本站仅用于个人学习！所有商品均为虚拟商品，不会有真实交易产生！</strong></h2>
+            </div>
+            <!--分割线-->
+            <HR style="width:100%;color:#987cb9; size:1px;position: relative;float: left">
+            <!--底部-->
+            <div class="bottom-info" style="height: 70%;">
+                <div class="bottom-info-nav">
+                    <ul>
+                        <li><b>购物指南</b></li>
+                        <li>
+                            <a href="javascript:" title="敬请期待">购物流程</a>
+                        </li>
+                        <li>
+                            <a href="javascript:" title="敬请期待">上门自提</a>
+                        </li>
+                        <li>
+                            <a href="javascript:" title="敬请期待">货到付款</a>
+                        </li>
+                        <li>
+                            <a href="javascript:" title="敬请期待">售后政策</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="bottom-info-nav">
+                    <ul>
+                        <li><b>配送方式</b></li>
+                        <li>
+                            <a href="javascript:" title="敬请期待">会员介绍</a>
+                        </li>
+                        <li>
+                            <a href="javascript:" title="敬请期待">配送服务</a>
+                        </li>
+                        <li>
+                            <a href="javascript:" title="敬请期待">在线支付</a>
+                        </li>
+                        <li>
+                            <a href="javascript:" title="敬请期待">价格保护</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="bottom-info-nav">
+                    <ul>
+                        <li><b>支付方式</b></li>
+                        <li>
+                            <a href="javascript:" title="敬请期待">生活旅行</a>
+                        </li>
+                        <li>
+                            <a href="javascript:" title="敬请期待">配送标准</a>
+                        </li>
+                        <li>
+                            <a href="javascript:" title="敬请期待">分期付款</a>
+                        </li>
+                        <li>
+                            <a href="javascript:" title="敬请期待">退款说明</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="bottom-info-nav">
+                    <ul>
+                        <li><b>售后服务</b></li>
+                        <li>
+                            <a href="javascript:" title="敬请期待">常见问题</a>
+                        </li>
+                        <li>
+                            <a href="javascript:" title="敬请期待">海外配送</a>
+                        </li>
+                        <li>
+                            <a href="javascript:" title="敬请期待">公司转账</a>
+                        </li>
+                        <li>
+                            <a href="javascript:" title="敬请期待">取消订单</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+<script type="text/javascript">
+    /* 请求拦截 */
+    axios.interceptors.request.use(
+        config => {
+            if (localStorage.getItem("token") != null) {
+                config.headers["token"] = localStorage.getItem("token");
+            }
+            return config;
+        },
+        err => Promise.reject(err)
+    );
+    window.onload = function() {
+        if (localStorage.getItem("token") != null) {
+            console.info(localStorage.getItem("token"));
+            vm.getUserIDByToken();
+
+        }
+    }
+    var vm = new Vue({
+        el: "#app",
+        data: {
+            userName: "",
+            LoginStatus: false,
+            HotFlowerFirstList: [],
+            HotFlowerSecondList: [],
+            goodsImageList: [],
+            HotEternalFlowerFirstList: [],
+            HotEternalFlowerSecondList: [],
+            HotPresentFirstList: [],
+            HotPresentSecondList: [],
+            selectAllClassData: "",
+            keywordData: "",
+        },
+        methods: {
+            getUserIDByToken() {
+                axios.post('/getUserIDByToken', {
+                }).then(function (data) {
+                    vm.userID = data.data;
+                    if (vm.userID !== "") {
+                        vm.LoginStatus = true;
+                        vm.getUserInfo();
+                    }
+                    console.info(vm.userID);
+                })
+            },
+            getUserInfo() {
+                axios.post('/front/getUserInfo', {
+                    userID: vm.userID
+                }).then(function (data) {
+                    vm.userName = data.data.userName;
+                    console.info("userName:" + vm.userName)
+                })
+            },
+            keywordSearch() {
+                window.open("/goodsBySelectData?selectData=" + vm.keywordData);
+            },
+            selectDetailInfo(selectGoodsID) {
+                window.open('/goodsDetailedInfo?selectGoodsInfo=' + selectGoodsID)
+            },
+            collectWeb() {
+                alert("快捷键Ctrl + D收藏Rosette")
+            },
+            getHotFlower() {
+                axios.post("/front/getHotFlower", {
+                }).then(function (data) {
+                    for (var i = 0; i < data.data.length; i++) {
+                        if (i < data.data.length / 2) {
+                            data.data[i].goodsImageList = data.data[i].goodsImageList.split(",")[0];
+                            vm.HotFlowerFirstList.push(data.data[i]);
+                        }else {
+                            data.data[i].goodsImageList = data.data[i].goodsImageList.split(",")[0];
+                            vm.HotFlowerSecondList.push(data.data[i]);
+                        }
+                    }
+                })
+            },
+            getHotEternalFlower() {
+                axios.post('/front/getHotEternalFlower', {
+                }).then(function (data) {
+                    for (var i = 0; i < data.data.length; i++) {
+                        if (i < data.data.length / 2) {
+                            data.data[i].goodsImageList = data.data[i].goodsImageList.split(",")[0];
+                            vm.HotEternalFlowerFirstList.push(data.data[i]);
+                        }else {
+                            data.data[i].goodsImageList = data.data[i].goodsImageList.split(",")[0];
+                            vm.HotEternalFlowerSecondList.push(data.data[i]);
+                        }
+                    }
+                })
+            },
+            getHotPresent() {
+                axios.post('/front/getHotPresent', {
+                }).then(function (data) {
+                    for (var i = 0; i < data.data.length; i++) {
+                        if (i < data.data.length / 2) {
+                            data.data[i].goodsImageList = data.data[i].goodsImageList.split(",")[0];
+                            vm.HotPresentFirstList.push(data.data[i]);
+                        }else {
+                            data.data[i].goodsImageList = data.data[i].goodsImageList.split(",")[0];
+                            vm.HotPresentSecondList.push(data.data[i]);
+                        }
+                    }
+                })
+            },
+            selectAllClass(selectAllClassData) {
+                window.location.href = "/goodsClassify?selectAllClassData=" + selectAllClassData;
+            },
+            selectInputLimit() {
+                vm.selectKeywords = vm.selectKeywords.replace(/\s+/g,'')
+            }
+
+        },
+        mounted() {
+            this.getHotFlower();
+            this.getHotEternalFlower();
+            this.getHotPresent();
+        }
+    })
+</script>
+</body>
+</html>

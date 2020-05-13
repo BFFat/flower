@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.pang.back.Mapper.UserMapper">
+<!--    <select id="fuzzySelectUser" resultType="com.pang.back.Model.User">-->
+<!--        SELECT * FROM user WHERE userID LIKE CONCAT('%',#{fuzzyData},'%') OR userName LIKE CONCAT('%',#{fuzzyData},'%') -->
+<!--    </select>-->
+
+    <delete id="batchDelete" parameterType="int[]">
+        DELETE FROM user WHERE userID IN
+        <foreach collection="array" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+    <insert id="addUser" parameterType="com.pang.back.Model.User" useGeneratedKeys="true" keyProperty="userID" keyColumn="userID">
+        insert into user(userPhone, userPassword, userStatus)
+        values (#{userPhone}, #{userPassword}, #{userStatus})
+    </insert>
+</mapper>

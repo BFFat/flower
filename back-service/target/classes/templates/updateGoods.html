@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>test</title>
+    <meta charset="utf-8">
+<!--    <meta http-equiv="Access-Control-Allow-Origin" content="*" />-->
+    <link rel="stylesheet" href="../css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="../css/toastr.min.css">
+    <link rel="stylesheet" type="text/css" href="../css/houtai.css">
+    <link rel="stylesheet" href="../css/bootstrap-datepicker3.min.css">
+    <script type="text/javascript" src="../js/jquery-3.4.1.min.js"></script>
+    <script type="text/javascript" src="../js/bootstrap.js"></script>
+    <!-- <script type="text/javascript" src="../js/user.js"></script> -->
+    <script type="text/javascript" src="../js/vue.js"></script>
+    <script src="../js/bootstrap-datepicker.min.js"></script>
+    <script src="../js/bootstrap-datepicker.zh-CN.min.js" charset="UTF-8"></script>
+    <script src="../js/axios.min.js"></script>
+    <script src="../js/toastr.min.js"></script>
+    <link rel="shortcut icon" href="../img/pang.ico" type="image/x-icon" />
+    <!--制作的图标，使用href关联，仅仅需要更改href的内容  -->
+
+</head>
+<body>
+
+<div v-cloak class="all" id="app">
+    <!--详细页面-->
+    <div v-show="!navigationBar" class="leftUl">
+        <div class="top-left-img">
+            <a href="user">
+                <img src="../img/ff.png" >
+            </a>
+        </div>
+        <ul class="nav nav-pills nav-stacked leftUl-color">
+            <li role="presentation" v-for="item in items" @click="selectTest(item)">
+                <a href="#">
+                    <img :src="item.icon">
+                    &nbsp;
+                    {{item.value}}
+                    <img src="../img/sanjiao.png" class="Static"
+                         :class="{'infoImgChange': item.open, 'infoImgReturn': item.close}">
+                </a>
+                <transition name="unitfybox">
+                    <ul class="nav nav-pills nav-stacked leftUl-color box" v-if="item.open" >
+                        <li role="presentation" v-for="twoItem in item.ul" >
+                            <a :href="twoItem.url" >
+                                {{twoItem.value}}
+                            </a>
+                        </li>
+                    </ul>
+                </transition>
+            </li>
+        </ul>
+    </div>
+
+
+    <!--缩小Ul-->
+    <div v-show="navigationBar" class="leftUl-shrink">
+        <div class="top-left-newImg">
+            <a href="user">
+                <img src="../img/S.png" >
+            </a>
+        </div>
+        <ul class="nav nav-pills nav-stacked leftUl-color">
+            <li role="presentation" v-for="item in items" @click="selectTest(item)">
+                <a href="#" @click="menu">
+                    <img :src="item.icon">
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!--右上角部分-->
+    <div class="top-right" :class="{'top-right-open': rightOpen}">
+
+        <!-- TOP的menu按钮 -->
+        <div class="top-menu">
+            <button class="btn top-menuBtn " type="button" @click="menu">
+                <img src="../img/menu.png">
+            </button>
+        </div>
+        <div class="path" style="margin-left: 0;width:300px;">
+            <ul class="breadcrumb">
+                <li><a href="user">首页</a></li>
+                <li class="active">用户管理</li>
+                <li class="active">用户列表</li>
+            </ul>
+        </div>
+        <!-- 接上↑ -->
+
+        <div class="noticeMsg" style="margin-left: 60%;">
+            <a href="/messageCenter">
+                <img src="../img/message.png">
+                <span class="badge">
+                    {{ unreadMessageNum }}
+                </span>
+            </a>
+        </div>
+
+        <!-- TOP的个人信息 -->
+        <div class="top-peopleInfo">
+            <!-- Large button group -->
+            <div class="btn-group">
+                <button class="btn btn-default btn-lg dropdown-toggle top-peopleInfoBtn" type="button"
+                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <div class="top-peopleInfo-img">
+                        <!-- 如果未登陆头像为默认头像，font为登录 -->
+                        <img class="top-peopleInfo-round-icon" :src=personInfo.staffHeadPortrait>
+                    </div>
+                    <span class="top-peopleInfo-name">
+						<span>
+                            {{ personInfo.staffName }}
+                        </span>
+					</span>
+                    &ensp;
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu">
+
+                    <li><a href="/personInfo">个人资料</a></li>
+                    <li><a href="/changePassword">修改密码</a></li>
+                    <li role="separator" class="divider"></li>
+                    <li><a href="/logout">退出登录</a></li>
+
+                </ul>
+            </div>
+        </div>
+
+
+
+        <!-- 接上↑ -->
+
+
+        <!-- TOP的Sign out -->
+
+        <!-- <div class="top-signOut">
+            <a href="#">退出</a>
+        </div> -->
+
+        <!-- 接上↑ -->
+    </div>
+
+    <!--table部分-->
+    <div class="right" :class="{'right-open': rightOpen}">
+        <div class="right-top">
+        </div>
+        <div class="right-second">
+            <div style="height: auto; width: 50%; margin-left:20%; border:1px #ebeef5 solid; padding-left: 5%; padding-top: 2%;">
+                <form class="form-inline" style="margin-bottom: 2%;">
+                    <div class="form-group has-feedback">
+                        <label for="inputWarning1" style="font-size: 15px;"><span style="color:red;">* </span>商品分类：</label>
+                        <input type="text" class="form-control" id="inputWarning1" @click="selectGoods = !selectGoods" v-model="goodsData.goodsClassName">
+                        <span class="glyphicon glyphicon-chevron-down form-control-feedback" aria-hidden="true"></span>
+                    </div>
+                </form>
+                <form class="form-inline" style="margin-bottom: 2%;">
+                    <div class="form-group has-feedback">
+                        <label for="inputWarning2" style="font-size: 15px;"><span style="color:red;">* </span>商品名称：</label>
+                        <input type="text" class="form-control" id="inputWarning2" v-model="goodsData.goodsName" style="width: 450px;"
+                               @blur="goodsNameBlur" @focus="goodsNameFocus">
+                        <span v-html="goodsNameMsg"></span>
+                    </div>
+                </form>
+                <form class="form-inline" style="margin-bottom: 2%;">
+                    <div class="form-group has-feedback">
+                        <label for="inputWarning3" style="font-size: 15px;"><span style="color:red;">* </span>副标题&emsp;：</label>
+                        <input type="text" class="form-control" id="inputWarning3" v-model="goodsData.goodsSubTitle" style="width: 450px;"
+                               @blur="goodsSubTitleBlur" @focus="goodsSubTitleFocus">
+                        <span v-html="goodsSubTitleMsg"></span>
+                    </div>
+                </form>
+                <form class="form-inline" style="margin-bottom: 2%;">
+                    <div class="form-group has-feedback">
+                        <label for="inputWarning33" style="font-size: 15px;"><span style="color:red;">* </span>商品货号：</label>
+                        <input type="text" class="form-control" id="inputWarning33" v-model="goodsData.goodsNumber" style="width: 450px;"
+                               @blur="goodsNumberBlur" @focus="goodsNumberFocus" @input="goodsNumberLimit">
+                        <span v-html="goodsNumberMsg"></span>
+                    </div>
+                </form>
+                <form class="form-inline" style="margin-bottom: 2%;">
+                    <div class="form-group has-feedback" style="display: flex;align-items: center;">
+                        <label for="inputWarning4" style="font-size: 15px;">&ensp; 商品热门：</label>
+                        <input class='tgl tgl-light' id="inputWarning4" type='checkbox' v-model="goodsData.goodsHot" style="display: none">
+                        <label class='tgl-btn' for="inputWarning4" style="margin-left: 5px;"></label>
+                    </div>
+                </form>
+                <form class="form-inline" style="margin-bottom: 2%;">
+                    <div class="form-group has-feedback" style="display: flex;align-items: center;">
+                        <label for="inputWarning5" style="font-size: 15px;">&ensp; 商品上架：</label>
+                        <input class='tgl tgl-light' id="inputWarning5" type='checkbox' v-model="goodsData.goodsShelves" style="display: none">
+                        <label class='tgl-btn' for="inputWarning5" style="margin-left: 5px;"></label>
+                    </div>
+                </form>
+                <form class="form-inline" style="margin-bottom: 2%;">
+                    <div class="form-group has-feedback">
+                        <label for="inputWarning6" style="font-size: 15px;">&ensp; 市场价&emsp;：</label>
+                        <input type="text" class="form-control" id="inputWarning6" v-model="goodsData.goodsMarketPrice" style="width: 450px;"
+                               @blur="goodsMarketPriceBlur" @focus="goodsMarketPriceFocus" @input="goodsMarketPriceLimit">
+                        <span v-html="goodsMarketPriceMsg"></span>
+                    </div>
+                </form>
+                <form class="form-inline" style="margin-bottom: 2%;">
+                    <div class="form-group has-feedback">
+                        <label for="inputWarning7" style="font-size: 15px;">&ensp; 售价&emsp;&emsp;：</label>
+                        <input type="text" class="form-control" id="inputWarning7" v-model="goodsData.goodsPrice" style="width: 450px;"
+                               @blur="goodsPriceBlur" @focus="goodsPriceFocus" @input="goodsPriceLimit">
+                        <span v-html="goodsPriceMsg"></span>
+                    </div>
+                </form>
+                <form class="form-inline" style="margin-bottom: 2%;">
+                    <div class="form-group has-feedback">
+                        <label for="inputWarning77" style="font-size: 15px;">&ensp; 售量&emsp;&emsp;：</label>
+                        <input type="text" class="form-control" id="inputWarning77" v-model="goodsData.goodsSales" style="width: 450px;"
+                               @blur="goodsSalesBlur" @focus="goodsSalesFocus" @input="goodsSalesLimit">
+                        <span v-html="goodsSalesMsg"></span>
+                    </div>
+                </form>
+                <form class="form-inline" style="margin-bottom: 2%;">
+                    <div class="form-group has-feedback">
+                        <label for="inputWarning8" style="font-size: 15px;">&ensp; 库存&emsp;&emsp;：</label>
+                        <input type="text" class="form-control" id="inputWarning8" v-model="goodsData.goodsInventory" style="width: 450px;"
+                               @blur="goodsInventoryBlur" @focus="goodsInventoryFocus" @input="goodsInventoryLimit">
+                        <span v-html="goodsInventoryMsg"></span>
+                    </div>
+                </form>
+                <form class="form-inline" style="margin-bottom: 2%;">
+                    <div class="form-group has-feedback">
+                        <label for="inputWarning9" style="font-size: 15px;">&ensp; 排序&emsp;&emsp;：</label>
+                        <input type="text" class="form-control" id="inputWarning9" v-model="goodsData.goodsSort" style="width: 450px;"
+                               @blur="goodsSortBlur" @focus="goodsSortFocus" @input="goodsSortLimit">
+                        <span v-html="goodsSortMsg"></span>
+                    </div>
+                </form>
+                <form class="form-inline" style="margin-bottom: 2%;">
+                    <div class="form-group has-feedback">
+                        <label for="inputWarning10" style="font-size: 15px;">&ensp; 赠送积分：</label>
+                        <input type="text" class="form-control" id="inputWarning10" v-model="goodsData.goodsPresentExp" style="width: 450px;"
+                               @blur="goodsPresentExpBlur" @focus="goodsPresentExpFocus" @input="goodsPresentExpLimit">
+                        <span v-html="goodsPresentExpMsg"></span>
+                    </div>
+                </form>
+                <form class="form-inline" style="margin-bottom: 2%;">
+                    <div class="form-group has-feedback">
+                        <label style="font-size: 15px;float: left">&ensp; 商品相册：</label>
+                        <label style="font-size: 15px;float: left">上传图片（ {{ imageListLength }} /4）</label>
+                        <div style="width:100%; height:auto; padding-top:-10px; float: left; margin-left: 89px;">
+                            <div style="width:100px; height:100px; position:relative; margin-left:5px; margin-top:10px; float: left; z-index:1" v-for="(img, index) in goodsData.goodsImageList">
+                                <img :src=img style="width: 100px; height: 100px; border-radius: 10px;">
+                                <a href="#" @click="deleteImg(index)">
+                                    <img src="/img/close.png" style="width: 36px; height: 36px; position: absolute; top: -5px; right: -5px; z-index: 100;">
+                                </a>
+                            </div>
+                            <div style="width: 100px; height: 100px; margin-left:5px; margin-top:10px; float:left; position: relative; border-width: 1px; border-color: #9d9d9d; border-style: dashed; display: flex; justify-content: center; align-items: center; border-radius:10px;" @click="inputBtn">
+                                <img src="/img/add.png">
+                            </div>
+                            <input style="display: none" type="file" accept="image/*" name="file" ref="getImageInput" @change="getImageInput" multiple>
+                        </div>
+                    </div>
+                </form>
+                <form class="form-inline" style="margin-bottom: 2%;">
+                    <div class="form-group has-feedback">
+                        <label style="font-size: 15px;float: left">&ensp; 详情图片：</label>
+                        <label style="font-size: 15px;float: left">上传图片（ {{ detailedImageListLength }} /6）</label>
+                        <div style="width:80%; height:auto; padding-top:-10px; float: left; margin-left:89px;">
+                            <div style="width:100px; height:100px; position:relative; margin-left:5px; margin-top:10px; float: left; z-index:1" v-for="(detailedImg, index) in goodsData.goodsDetailedImageList">
+                                <img :src=detailedImg style="width: 100px; height: 100px; border-radius: 10px;">
+                                <a href="#" @click="deleteDetailedImg(index)">
+                                    <img src="/img/close.png" style="width: 36px; height: 36px; position: absolute; top: -5px; right: -5px; z-index: 100;">
+                                </a>
+                            </div>
+                            <div style="width: 100px; height: 100px; margin-left:5px; margin-top:10px; float:left; position: relative; border-width: 1px; border-color: #9d9d9d; border-style: dashed; display: flex; justify-content: center; align-items: center; border-radius:10px;" @click="inputDetailedBtn">
+
+                                <img src="/img/add.png">
+                            </div>
+                            <input style="display: none" type="file" accept="image/*" name="file" ref="getDetailedImageInput" @change="getDetailedImageInput" multiple>
+                        </div>
+                    </div>
+                </form>
+                <canvas ref="headCanvas" style="display: none"></canvas>
+                <div style="width: 100%; height: 35px">
+                    <button class="btn btn-success col-lg-2" style="margin-left: 20%;" @click="updateGoods">确认修改</button>
+                    <button class="btn btn btn-info col-lg-2" style="margin-left: 5%;" @click="reset">重新填写</button>
+                </div>
+                <div v-show="selectGoods" style="height: 110px;top: 75px;left:507px;z-index:999;position: absolute;background-color: white">
+                    <span class="triangle-line" style="margin-left:20px;"></span>
+                    <div id="changeLi" style="float: left;margin-top:10px;position: relative;width: 300px;height: 100px;border: 1px #ebeef5 solid;">
+                        <ul style="width: 50%;height:100%;float:left;overflow: auto;padding-left: 0px;padding-top: 5px;" aria-labelledby="dropdownMenu1">
+                            <li v-for="parent in parentLevel" style="height: 30px;display: flex;align-items: center;" >
+                                <a href="#" style="color:black;float: left;margin-left:10%;position: relative; width: 70%;text-decoration:none" data-stopPropagation="true" @click="getLower(parent)">{{ parent }}</a>
+                                <span class="glyphicon glyphicon-chevron-right" style="float: left;"></span>
+                            </li>
+                        </ul>
+                        <ul v-show="lowerUl" style="width: 50%;height:100%;padding-left:0;padding-top: 5px;float: left;position:relative;overflow: auto;border-left: 1px #ebeef5 solid" >
+                            <li v-for="lower in lowerList" style="height: 30px;display: flex;align-items: center;">
+                                <a href="#" style="width:100%;color:black;text-decoration:none;margin-left:10%;" @click="inputLower(lower)">{{ lower }}</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+<script type="text/javascript">
+    axios.defaults.headers.post['Content-Type'] = 'application/json';
+    //下拉框查询组件点击查询栏时不关闭下拉框
+    $("body").on('click','[data-stopPropagation]',function (e) {
+        e.stopPropagation();
+    });
+    window.onload = function () {
+        vm.getGoodsID();
+    };
+    var vm = new Vue({
+        el: '#app',
+        data: {
+            /**
+             * top部分
+             *
+             * */
+            unreadMessageNum: "",
+            loginStaffID: "",
+            personInfo: "",
+
+            navigationBar: false,
+            rightOpen: false,
+
+            /**
+             * top部分
+             *
+             * */
+
+            /**
+             * table部分↓
+             *
+             * */
+            lowerUl: false,
+            selectGoods: false,
+            parentLevel: [],
+            goodsClassName: "",
+            goodsID: "",
+            goodsName: "",
+            goodsSubTitle: "",
+            goodsNumber: "",
+            goodsHot: false,
+            goodsShelves: false,
+            goodsMarketPrice: 0,
+            goodsPrice: 0,
+            goodsSales: 0,
+            goodsInventory: 0,
+            goodsSort: 0,
+            goodsPresentExp: 0,
+            imageListLength: 0,
+            detailedImageListLength: 0,
+            imageList: [],
+            submitImageList: [],
+            detailedImageList: [],
+            submitDetailedImageList: [],
+            goodsClassNameMsg: "",
+            goodsNameMsg: "",
+            goodsSubTitleMsg: "",
+            goodsNumberMsg: "",
+
+            goodsMarketPriceMsg: "",
+            goodsPriceMsg: "",
+            goodsSalesMsg: "",
+            goodsInventoryMsg: "",
+            goodsSortMsg: "",
+            goodsPresentExpMsg: "",
+
+            tempNumber: "",
+            tempArr: [],
+            tempArr1: [],
+            goodsImageList: [],
+            goodsDetailedImageList: [],
+
+            deletePath: [],
+
+            staffID: "",
+            staffName: "",
+            staffSex: "",
+            staffBirthday: "",
+            staffPhone: "",
+            staffHeadPortrait: "",
+            staffAddress: "",
+            staffInfoUpdateTime: "",
+
+
+            fuzzySelectData: "",
+            addStaffNameMsg: "",
+            addStaffIDMsg: "",
+            addStaffPhoneMsg: "",
+            changeStaffNameMsg: "",
+            changeStaffPhoneMsg: "",
+            staffList: [],
+            //单项数据
+            goodsData: [],
+            //转化为json后数据
+            jsonItemData: [],
+            deleteStaffID: '',
+
+
+            pageNum: "",     //当前页
+            pages: "",       //总页数
+            total: "",       //总记录
+            nextPage: "",    //下一页
+            prePage: "",     //上一页
+            firstPage: 1,    //第一页
+            isFirstPage: false,     //是否为首页
+            isLastPage: false,      //是否为尾页
+            jumpPage: "",            //跳转页数
+            selectOptionVal: "8",    //每页的记录数
+
+            /**
+             * table部分↑
+             *
+             * */
+
+            /**
+             * left部分↓
+             *
+             * */
+
+            //ul展开状态
+            orderShow: false,
+            personShow: false,
+            goodsShow: false,
+            logShow: false,
+
+            //小三角样式状态
+            personOnActive: false,
+            personDownActive: false,
+            orderOnActive: false,
+            orderDownActive: false,
+            goodsOnActive: false,
+            goodsDownActive: false,
+            logOnActive: false,
+            logDownActive: false,
+
+
+            items:[
+                {
+                    id: "0",
+                    value: "用户管理",
+                    icon: "../img/user.png",
+                    open: false,
+                    close: false,
+                    ul:[
+                        {
+                            id: "0",
+                            value: "用户列表",
+                            url: "/userInfo"
+                        },
+                        {
+                            id: "1",
+                            value: "用户账号",
+                            url: "/user"
+                        }
+                    ]
+                },
+                {
+                    id: "1",
+                    value: "员工管理",
+                    icon: "../img/staff.png",
+                    open: false,
+                    close: false,
+                    ul:[
+                        {
+                            id: "0",
+                            value: "员工列表",
+                            url: "/staffInfo"
+                        },
+                        {
+                            id: "1",
+                            value: "员工账号",
+                            url: "/staff"
+                        }
+                    ]
+                },
+                {
+                    id: "2",
+                    value: "商品管理",
+                    icon: "../img/goods.png",
+                    open: false,
+                    close: false,
+                    ul:[
+                        {
+                            id: "0",
+                            value: "商品列表",
+                            url: "/goodsInfo"
+                        },
+                        {
+                            id: "1",
+                            value: "商品分类",
+                            url: "/goodsClass"
+                        },
+                        {
+                            id: "2",
+                            value: "商品评价",
+                            url: "/evaluate"
+                        }
+                    ]
+                },
+                {
+                    id: "3",
+                    value: "订单管理",
+                    icon: "../img/order.png",
+                    open: false,
+                    close: false,
+                    ul:[
+                        {
+                            id: "0",
+                            value: "订单列表",
+                            url: "/order"
+                        },
+                    ]
+                },
+                {
+                    id: "4",
+                    value: "操作日志",
+                    icon: "../img/log.png",
+                    open: false,
+                    close: false,
+                    ul:[
+                        {
+                            id: "0",
+                            value: "操作日志",
+                            url: "/operation"
+                        },
+                    ]
+                },
+                {
+                    id: "5",
+                    value: "通知管理",
+                    icon: "../img/notify.png",
+                    open: false,
+                    close: false,
+                    ul:[
+                        {
+                            id: "0",
+                            value: "发送通知",
+                            url: "/notifyMessage"
+                        }
+                    ]
+                }
+            ],
+            goodsClassParent: "",
+            lowerList: [],
+            /**
+             * left部分↑
+             *
+             * */
+
+        },
+        methods: {
+            getGoodsID() {
+                var url = location.search;
+                if (url.indexOf("?") !== -1) {
+                    var str = url.substring(1);
+                    vm.goodsID = str.split("=")[1];
+                    vm.selectGoodsByID(vm.goodsID)
+                }
+            },
+            onloadImg(tempArr, i, len) {
+                var tempName = tempArr[i].split("/");
+                tempName = tempName[tempName.length - 1];
+                var fileName = tempName.substring(tempName.indexOf("_")+1);
+                //一定要设置为let
+                let image = new Image();
+                image.setAttribute('crossOrigin', 'anonymous');
+                image.src = tempArr[i];
+                image.onload = () => {
+                    var canvas = vm.$refs.headCanvas;
+                    var context = canvas.getContext('2d');
+                    canvas.width = image.width;
+                    canvas.height = image.height;
+                    context.drawImage(image, 0, 0, image.width, image.height);
+                    var dataurl = canvas.toDataURL("image/png");
+                    vm.goodsData.goodsImageList.push(dataurl);
+                    vm.imageListLength = vm.goodsData.goodsImageList.length
+                    var arr = dataurl.split(','),
+                        mime = arr[0].match(/:(.*?);/)[1],
+                        bstr = atob(arr[1]),
+                        n = bstr.length,
+                        u8arr = new Uint8Array(n);
+                    while (n--) {
+                        u8arr[n] = bstr.charCodeAt(n);
+                    }
+                    var file = new File([u8arr], fileName, {type: mime});
+                    file.lastModifiedDate = new Date();
+                    vm.submitImageList.push(file);
+                    i = i + 1;
+                    if (i < len) {
+                        vm.onloadImg(tempArr, i, len)
+                    }
+                }
+            },
+            onloadDetailedImg(tempArr, i, len) {
+                var tempName = tempArr[i].split("/");
+                tempName = tempName[tempName.length - 1];
+                var fileName = tempName.substring(tempName.indexOf("_")+1);
+                //一定要设置为let
+                let image = new Image();
+                image.setAttribute('crossOrigin', 'anonymous');
+                image.src = tempArr[i];
+                image.onload = () => {
+                    var canvas = vm.$refs.headCanvas;
+                    var context = canvas.getContext('2d');
+                    canvas.width = image.width;
+                    canvas.height = image.height;
+                    context.drawImage(image, 0, 0, image.width, image.height);
+                    var dataurl = canvas.toDataURL("image/png");
+                    vm.goodsData.goodsDetailedImageList.push(dataurl);
+                    vm.detailedImageListLength = vm.goodsData.goodsDetailedImageList.length
+                    var arr = dataurl.split(','),
+                        mime = arr[0].match(/:(.*?);/)[1],
+                        bstr = atob(arr[1]),
+                        n = bstr.length,
+                        u8arr = new Uint8Array(n);
+                    while (n--) {
+                        u8arr[n] = bstr.charCodeAt(n);
+                    }
+                    var detailedFile = new File([u8arr], fileName, {type: mime});
+                    detailedFile.lastModifiedDate = new Date();
+                    vm.submitDetailedImageList.push(detailedFile);
+                    i = i + 1;
+                    if (i < len) {
+                        vm.onloadDetailedImg(tempArr, i, len)
+                    }
+                }
+            },
+            selectGoodsByID(goodsID) {
+                  axios.post('/goods/selectGoodsByID', {
+                      goodsID: goodsID,
+                  }).then(function (data) {
+                      vm.goodsData = data.data;
+                      vm.tempNumber = vm.goodsData.goodsNumber;
+                      vm.tempArr = vm.goodsData.goodsImageList.split(",");
+                      vm.goodsData.goodsImageList = [];
+                      vm.onloadImg(vm.tempArr, 0, vm.tempArr.length)
+                      vm.tempArr1 = vm.goodsData.goodsDetailedImageList.split(",");
+                      vm.goodsData.goodsDetailedImageList = [];
+                      vm.onloadDetailedImg(vm.tempArr1, 0, vm.tempArr1.length)
+                  })
+            },
+            updateGoods() {
+                var formData = new window.FormData();
+                if (vm.goodsData.goodsClassName.length > 0 && vm.goodsData.goodsName.length > 0 && vm.goodsData.goodsSubTitle.length > 0 && vm.goodsData.goodsNumber.length > 0 && vm.goodsNumberMsg === "") {
+                    formData.append("goodsID", vm.goodsID);
+                    formData.append("goodsClassName", vm.goodsData.goodsClassName);
+                    formData.append("goodsName", vm.goodsData.goodsName);
+                    formData.append("goodsSubTitle", vm.goodsData.goodsSubTitle);
+                    formData.append("goodsNumber", vm.goodsData.goodsNumber);
+                    formData.append("goodsHot", vm.goodsData.goodsHot);
+                    formData.append("goodsShelves", vm.goodsData.goodsShelves);
+                    formData.append("goodsMarketPrice", vm.goodsData.goodsMarketPrice);
+                    formData.append("goodsPrice", vm.goodsData.goodsPrice);
+                    formData.append("goodsSales", vm.goodsData.goodsSales);
+                    formData.append("goodsInventory", vm.goodsData.goodsInventory);
+                    formData.append("goodsSort", vm.goodsData.goodsSort);
+                    formData.append("goodsPresentExp", vm.goodsData.goodsPresentExp);
+                    if (vm.submitImageList != null) {
+                        for (let i = 0; i < vm.submitImageList.length; i++) {
+                            formData.append("imageList", vm.submitImageList[i])
+                        }
+                        console.info(vm.submitImageList)
+                    } else {
+                        formData.append("imageList", vm.submitImageList);
+                    }
+                    if (vm.submitDetailedImageList != null) {
+                        for (let i = 0; i < vm.submitDetailedImageList.length; i++) {
+                            formData.append("detailedImageList", vm.submitDetailedImageList[i])
+                        }
+                    } else {
+                        formData.append("detailedImageList", vm.submitDetailedImageList);
+                    }
+                    axios.post("/goods/updateGoods", formData, {
+                    }).then(function (data) {
+                        if (data.data.success === true) {
+                            toastr.options = {
+                                timeOut: 1000,
+                                positionClass: "toast-top-center",
+                            };
+                            toastr.success("修改商品成功")
+                            window.location.href = "/goodsInfo";
+                        }
+                    })
+                    // axios.post('goods/deleteImage', {
+                    //     deletePath: vm.deletePath,
+                    // }).then(function (data) {
+                    //
+                    // })
+                }else if (vm.goodsData.goodsClassName === "") {
+                    toastr.options = {
+                        timeOut: 1000,
+                        positionClass: "toast-top-center",
+                    };
+                    toastr.error("商品分类不能为空")
+                }else if (vm.goodsData.goodsName === "") {
+                    toastr.options = {
+                        timeOut: 1000,
+                        positionClass: "toast-top-center",
+                    };
+                    toastr.error("商品名称不能为空")
+                }else if (vm.goodsData.goodsSubTitle === "") {
+                    toastr.options = {
+                        timeOut: 1000,
+                        positionClass: "toast-top-center",
+                    };
+                    toastr.error("副标题不能为空")
+                }else if (vm.goodsData.goodsNumber === "") {
+                    toastr.options = {
+                        timeOut: 1000,
+                        positionClass: "toast-top-center",
+                    };
+                    toastr.error("商品货号不能为空")
+                }else if (vm.goodsNumberMsg != "") {
+                    toastr.options = {
+                        timeOut: 1000,
+                        positionClass: "toast-top-center",
+                    };
+                    toastr.error("商品货号输入有误")
+                }
+            },
+            reset() {
+                vm.goodsData.selectGoods = false;
+                vm.goodsData.goodsClassName = "";
+                vm.goodsData.goodsName = "";
+                vm.goodsData.goodsSubTitle = "";
+                vm.goodsData.goodsNumber = "";
+                vm.goodsData.goodsHot = false;
+                vm.goodsData.goodsShelves = false;
+                vm.goodsData.goodsMarketPrice = 0;
+                vm.goodsData.goodsPrice = 0;
+                vm.goodsData.goodsInventory = 0;
+                vm.goodsData.goodsSort = 0;
+                vm.goodsData.goodsPresentExp = 0;
+                vm.goodsData.goodsImageList = [];
+                vm.submitImageList = [];
+                vm.goodsData.goodsDetailedImageList = [];
+                vm.submitDetailedImageList = [];
+                vm.imageListLength = 0;
+                vm.detailedImageListLength = 0;
+                vm.selectGoods = false;
+                //vm.deletePath.push(vm.tempArr);
+                //vm.deletePath.push(vm.tempArr1);
+            },
+            inputLower(lowerName) {
+                vm.goodsData.goodsClassName = lowerName;
+                vm.selectGoods = false;
+            },
+            getLower(goodsClassParent) {
+                axios.post("/goodsClass/getLower", {
+                    goodsClassParent: goodsClassParent,
+                }).then(function (data) {
+                    vm.lowerList = data.data;
+                    vm.lowerUl = true;
+                })
+            },
+            getParentLevel() {
+                axios.post("/goodsClass/getParentLevel", {
+                }).then(function (data) {
+                    vm.parentLevel = data.data;
+                    console.info(vm.parentLevel)
+                })
+            },
+            inputBtn() {
+                this.$refs.getImageInput.click();
+            },
+            inputDetailedBtn() {
+                this.$refs.getDetailedImageInput.click();
+            },
+            getImageInput() {
+                if (vm.$refs.getImageInput.value !== "") {
+                    var inputFile = vm.$refs.getImageInput.files;
+                    if (inputFile.length + vm.imageListLength <= 4) {
+                        vm.submitImageList.push(inputFile[0]);
+                        vm.imageListLength += 1;
+                        var reader = new FileReader();
+                        reader.readAsDataURL(inputFile[0]);
+                        reader.onload = function (event) {
+                            // vm.imageList = event.target.result; 两种写法相同
+                            vm.goodsData.goodsImageList.push(reader.result);
+                        };
+                        vm.$refs.getImageInput.value = "";
+                    } else if (inputFile.length + vm.imageListLength > 4) {
+                        toastr.options = {
+                            timeOut: 1000,
+                            positionClass: "toast-top-center",
+                        };
+                        toastr.error('商品相册最多四张图片');
+                    }
+                }
+            },
+            getDetailedImageInput() {
+                if (vm.$refs.getDetailedImageInput.value !== "") {
+                    var inputFile = vm.$refs.getDetailedImageInput.files;
+                    if (inputFile.length + vm.detailedImageListLength <= 6) {
+                        vm.submitDetailedImageList.push(inputFile[0]);
+                        vm.detailedImageListLength += 1;
+                        var reader = new FileReader();
+                        reader.readAsDataURL(inputFile[0]);
+                        reader.onload = function (event) {
+                            // vm.imageList = event.target.result; 两种写法相同
+                            vm.goodsData.goodsDetailedImageList.push(reader.result);
+                        };
+                        vm.$refs.getDetailedImageInput.value = "";
+                    } else if (inputFile.length + vm.detailedImageListLength > 6) {
+                        toastr.options = {
+                            timeOut: 1000,
+                            positionClass: "toast-top-center",
+                        };
+                        toastr.error('商品详情最多六张图片');
+                    }
+                }
+            },
+
+            deleteImg(index) {
+                vm.goodsData.goodsImageList.splice(index, 1);
+                vm.submitImageList.splice(index, 1);
+                vm.imageListLength -= 1;
+                // if (vm.tempArr[index] != undefined) {
+                //     vm.deletePath.push(vm.tempArr[index]);
+                //     vm.tempArr.splice(index, 1);
+                // }
+            },
+            deleteDetailedImg(index) {
+                vm.goodsData.goodsDetailedImageList.splice(index, 1);
+                vm.submitDetailedImageList.splice(index, 1);
+                vm.detailedImageListLength -= 1
+                // if (vm.tempArr1[index] != undefined) {
+                //     vm.deletePath.push(vm.tempArr1[index]);
+                //     vm.tempArr1.splice(index, 1);
+                // }
+            },
+            getPersonInfo() {
+                axios.post('/staffInfo/getPersonInfo', {
+                }).then(function (data) {
+                    vm.personInfo = data.data.detail;
+                    vm.loginStaffID = vm.personInfo.staffID
+                    setTimeout(() => {
+                        vm.getUnreadMessageNum();
+                    }, 500)
+                })
+            },
+            getUnreadMessageNum() {
+                axios.post('/notify/getUnreadMessageNum', {
+                    staffID: vm.loginStaffID,
+                }).then(function (data) {
+                    console.info(data.data)
+                    vm.unreadMessageNum = data.data;
+                })
+            },
+
+            /**
+             * 导航栏只展开一个二级↓
+             */
+            selectTest(item) {
+                for (let i=0 ; i<vm.items.length; i++) {
+                    if (vm.items[i].id !== item.id && vm.items[i].open === true) {
+                        vm.items[i].open = false;
+                        vm.items[i].close = true;
+                    }
+                }
+                if (item.open === false) {
+                    item.open = true;
+                    item.close = false;
+                } else if(item.open === true) {
+                    item.open = false;
+                    item.close = true;
+                }
+            },
+            /**
+             * 导航栏只展开一个二级↑
+             */
+
+            /**
+             * top部分
+             */
+            menu() {
+                vm.navigationBar = !vm.navigationBar;
+                vm.rightOpen = !vm.rightOpen;
+            },
+
+            /**
+             * top部分
+             */
+
+
+            /**
+             * left部分
+             *
+             * */
+            personActive() {
+                vm.personShow = !vm.personShow;
+                if (vm.personOnActive === false) {
+                    vm.personOnActive = true;
+                    vm.personDownActive = !vm.personOnActive;
+                } else if (vm.personOnActive === true) {
+                    vm.personOnActive = false;
+                    vm.personDownActive = vm.personOnActive;
+                }
+            },
+            orderActive() {
+                vm.orderShow = !vm.orderShow;
+                if (vm.orderOnActive === false) {
+                    vm.orderOnActive = true;
+                    vm.orderDownActive = !vm.orderOnActive;
+                } else if (vm.orderOnActive === true) {
+                    vm.orderOnActive = false;
+                    vm.orderDownActive = !vm.orderOnActive;
+                }
+            },
+            goodsActive() {
+                vm.goodsShow = !vm.goodsShow;
+                if (vm.goodsOnActive === false) {
+                    vm.goodsOnActive = true;
+                    vm.goodsDownActive = !vm.goodsOnActive;
+                } else if (vm.goodsOnActive === true) {
+                    vm.goodsOnActive = false;
+                    vm.goodsDownActive = !vm.goodsOnActive;
+                }
+            },
+            logActive() {
+                vm.logShow = !vm.logShow;
+                if (vm.logOnActive === false) {
+                    vm.logOnActive = true;
+                    vm.logDownActive = !vm.logOnActive;
+                } else if (vm.logOnActive === true) {
+                    vm.logOnActive = false;
+                    vm.logDownActive = !vm.logOnActive;
+                }
+            },
+            /**
+             * left部分
+             *
+             * */
+            goodsNameBlur() {
+                if (vm.goodsData.goodsName === "") {
+                    vm.goodsNameMsg = '<span style="color:red;float:right;margin-top: 7px;margin-left: 7px;">商品名称不能为空</span>';
+                }
+            },
+            goodsNameFocus() {
+                vm.goodsNameMsg = "";
+            },
+            goodsSubTitleBlur() {
+                if (vm.goodsData.goodsSubTitle === "") {
+                    vm.goodsSubTitleMsg = '<span style="color:red;float:right;margin-top: 7px;margin-left: 7px;">副标题不能为空</span>';
+                }
+            },
+            goodsSubTitleFocus() {
+                vm.goodsSubTitleMsg = "";
+            },
+            goodsNumberBlur() {
+                if (vm.goodsData.goodsNumber.length > 0) {
+                    if (vm.goodsData.goodsNumber === vm.tempNumber) {
+                        console.info("货号没更改")
+                    } else if (vm.goodsData.goodsNumber !== vm.tempNumber) {
+                        axios.post('/goods/selectExistGoodsNumber', {
+                            goodsNumber: vm.goodsData.goodsNumber,
+                        }).then(function(data) {
+                            if (data.data.success === false) {
+                                vm.goodsNumberMsg = '<span style="color:red;float:right;margin-top: 7px;margin-left: 7px;">商品货号已存在，请更改</span>'
+                            }
+                        })
+                    }
+                } else if (vm.goodsData.goodsNumber === "") {
+                    vm.goodsNumberMsg = '<span style="color:red;float:right;margin-top: 7px;margin-left: 7px;">商品货号不能为空</span>'
+                }
+            },
+            goodsNumberFocus() {
+                vm.goodsNumberMsg = "";
+            },
+            goodsNumberLimit() {
+                vm.goodsData.goodsNumber = vm.goodsData.goodsNumber.replace(/[^\d]/g,'')
+            },
+            goodsSalesLimit() {
+                vm.goodsData.goodsSales = vm.goodsData.goodsSales.replace(/[^\d]/g,'')
+            },
+            goodsMarketPriceLimit() {
+                vm.goodsMarketPrice = vm.NumberCheck(vm.goodsMarketPrice);
+            },
+            goodsPriceLimit() {
+                vm.goodsPrice = vm.NumberCheck(vm.goodsPrice);
+            },
+            goodsInventoryLimit() {
+                vm.goodsInventory = vm.goodsInventory.replace(/[^\d]/g,'')
+            },
+            goodsSortLimit() {
+                vm.goodsSort = vm.goodsSort.replace(/[^\d]/g,'')
+            },
+            goodsPresentExpLimit() {
+                vm.goodsPresentExp = vm.goodsPresentExp.replace(/[^\d]/g,'')
+            },
+            goodsMarketPriceBlur() {
+                if (vm.goodsMarketPrice === "") {
+                    vm.goodsMarketPriceMsg = '<span style="color:red;float:right;margin-top: 7px;margin-left: 7px;">商品市场价不能为空</span>'
+                }
+            },
+            goodsMarketPriceFocus() {
+                vm.goodsMarketPriceMsg = "";
+            },
+            goodsPriceBlur() {
+                if (vm.goodsPrice === "") {
+                    vm.goodsPriceMsg = '<span style="color:red;float:right;margin-top: 7px;margin-left: 7px;">商品售价不能为空</span>'
+                }
+            },
+            goodsPriceFocus() {
+                vm.goodsPriceMsg = "";
+            },
+            goodsSalesBlur() {
+                if (vm.goodsSales === "") {
+                    vm.goodsSalesMsg = '<span style="color:red;float:right;margin-top: 7px;margin-left: 7px;">商品售量不能为空</span>'
+                }
+            },
+            goodsSalesFocus() {
+                vm.goodsSalesMsg = "";
+            },
+            goodsInventoryBlur() {
+                if (vm.goodsInventory === "") {
+                    vm.goodsInventoryMsg = '<span style="color:red;float:right;margin-top: 7px;margin-left: 7px;">商品库存不能为空</span>'
+                }
+            },
+            goodsInventoryFocus() {
+                vm.goodsInventoryMsg = "";
+            },
+            goodsSortBlur() {
+                if (vm.goodsSort === "") {
+                    vm.goodsSortMsg = '<span style="color:red;float:right;margin-top: 7px;margin-left: 7px;">商品排序不能为空</span>'
+                }
+            },
+            goodsSortFocus() {
+                vm.goodsSortMsg = "";
+            },
+            goodsPresentExpBlur() {
+                if (vm.goodsPresentExp === "") {
+                    vm.goodsPresentExpMsg = '<span style="color:red;float:right;margin-top: 7px;margin-left: 7px;">商品积分不能为空</span>'
+                }
+            },
+            goodsPresentExpFocus() {
+                vm.goodsPresentExpMsg = "";
+            },
+            NumberCheck(num) {
+                var str = num;
+                var len1 = str.substr(0, 1);
+                var len2 = str.substr(1, 1);
+                //如果第一位是0，第二位不是点，就用数字把点替换掉
+                if (str.length > 1 && len1 === 0 && len2 !== ".") {
+                    str = str.substr(1, 1);
+                }
+                //第一位不能是.
+                if (len1 === ".") {
+                    str = "";
+                }
+                //限制只能输入一个小数点
+                if (str.indexOf(".") !== -1) {
+                    var str_ = str.substr(str.indexOf(".") + 1);
+                    if (str_.indexOf(".") !== -1) {
+                        str = str.substr(0, str.indexOf(".") + str_.indexOf(".") + 1);
+                    }
+                }
+                //正则替换，保留数字和小数点
+                str = str.replace(/[^\d^\.]+/g,'')
+                //如果需要保留小数点后两位，则用下面公式
+                str = str.replace(/\.\d\d$/,'')
+                return str;
+            }
+
+        },
+        watch: {
+            goodsClassName(val) {
+                vm.selectGoods = false;
+            }
+        },
+        mounted() {
+            this.getPersonInfo();
+            this.getParentLevel()
+        },
+
+    })
+</script>
+</body>
+</html>

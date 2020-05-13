@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>商品详情</title>
+    <link rel="stylesheet" href="../css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="../css/toastr.min.css">
+    <link rel="stylesheet" type="text/css" href="../css/front.css">
+    <link rel="stylesheet" href="../css/bootstrap-datepicker3.min.css">
+    <script type="text/javascript" src="../js/jquery-3.4.1.min.js"></script>
+    <script type="text/javascript" src="../js/bootstrap.js"></script>
+    <!-- <script type="text/javascript" src="../js/houtai.js"></script> -->
+    <script type="text/javascript" src="../js/vue.js"></script>
+    <script src="../js/bootstrap-datepicker.min.js"></script>
+    <script src="../js/bootstrap-datepicker.zh-CN.min.js" charset="UTF-8"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="../js/toastr.min.js"></script>
+    <script src="../js/moment.js"></script>
+    <link rel="shortcut icon" href="../img/pang.ico" type="image/x-icon" />
+    <!--制作的图标，使用href关联，仅仅需要更改href的内容  -->
+</head>
+<body>
+<div class="all" id="app">
+    <!--顶部-->
+    <div class="top-head">
+        <div class="top-head-collect">
+            <a href="javascript:" @click="collectWeb">
+                ❤收藏Rosette(Ctrl + D)
+            </a>
+        </div>
+        <div class="top-head-right">
+            <a v-show="!LoginStatus" href="/front_Login">你好，请登录</a>
+            <a v-show="LoginStatus" href="javascript:">你好，{{ userName }}</a>
+            <a href="/front_Register">注册</a>
+            <a href="/my_order">我的订单</a>
+            <a href="/shopping">购物车</a>
+            <a href="/updatePassword">修改密码</a>
+            <a href="/myPersonInfo/selectPersonInfo">我的信息</a>
+        </div>
+    </div>
+    <!--分割线-->
+    <HR style="width:100%;color:#987cb9; size:1px;position: relative;float: left">
+    <!--导航栏-->
+    <div class="top-navigation">
+        <div class="top-navigation-icon">
+            <a href="/front_Home">
+                <img src="/img/flowerlove1.png">
+            </a>
+        </div>
+        <div class="top-navigation-gif">
+            <span><img src="/img/0.gif"></span>
+        </div>
+        <div class="top-navigation-nav">
+            <a href="javascript:void(0)" @click="selectAllClassSub('鲜花')">鲜花</a>
+            <a href="javascript:void(0)" @click="selectAllClassSub('永生花')">永生花</a>
+            <a href="javascript:void(0)" @click="selectAllClassSub('礼品')">礼品</a>
+        </div>
+        <div class="top-navigation-select">
+            <!--v-model="fuzzySelectData" @keyup.enter="fuzzySelect(firstPage)"-->
+            <input class="selectBox-input" type="text" name="select" placeholder="更多优惠商品等你来选购" maxlength="40" @input="selectInputLimit" v-model="keywordData">
+            <button class="selectBtn">
+                <img src="../img/select.png" class="selectBtn-icon" @click="keywordSearch">
+            </button>
+        </div>
+    </div>
+
+    <div class="all-result">
+        <p>商品详情</p>
+    </div>
+    <!--分割线-->
+    <HR style="margin-top: -3px;">
+
+    <div class="show-goodsInfo">
+        <div class="goods-detailedPhoto">
+            <div class="first-photo">
+                <div class="goods-bigPhoto">
+                    <img :src="goodsBigImage">
+                </div>
+
+            </div>
+            <div class="goods-photoList">
+                <div class="goods-photoListChild" v-for="goodsImage in goodsImageList">
+                    <img :src="goodsImage" @mouseover="selectPhotoIndex(goodsImage)">
+                </div>
+            </div>
+        </div>
+        <div class="goods-detailedInfo">
+            <div class="goods-detailedName">
+                <h4>{{ goodsDetailedInfo.goodsName }}</h4>
+                <h6 style="color: palevioletred; margin-top: 20px;">{{ goodsDetailedInfo.goodsSubTitle }}</h6>
+                <p style="margin-top: 30px;">售量：{{ goodsDetailedInfo.goodsSales }}</p>
+                <p style="margin-top: 30px;">赠送积分：{{ goodsDetailedInfo.goodsPresentExp }}</p>
+                <p style="text-decoration: line-through; color: #f1a417; margin-top: 30px;">市场价：{{ goodsDetailedInfo.goodsMarketPrice }}</p>
+                <p style="margin-top: 30px;"><b>售价：{{ goodsDetailedInfo.goodsPrice }}</b></p>
+                <p style="margin-top: 40px;">
+                    <div class="add-goodsNumBtn" style="height: 30px;">
+                        <div class="reduceBtn" style="height: 30px;width: 30px;" @click="reduceGoodsSum()">
+                            <a href="javascript:void(0);">-</a>
+                        </div>
+                        <input type="text" style="float: left;width: 60px;" oninput = "value=value.replace(/[^\d]/g,'')" v-model="paySum" @blur="changeGoodsSum()"/>
+                        <div class="reduceBtn" style="height: 30px;width: 30px;" @click="addGoodsSum()">
+                            <a href="javascript:void(0);">+</a>
+                        </div>
+                    </div>
+                </p>
+                <p style="margin-top: 30px">
+                    <a href="javascript:void(0);" class="btn btn-primary" role="button" @click="addToShoppingCart">加入购物车</a>
+                </p>
+            </div>
+        </div>
+        <div class="goods-moreInfo">
+            <div class="moreInfo-title">
+                <p>&#9819;&nbsp;<b>商品精选</b>&nbsp;&#9819;</p>
+            </div>
+            <div class="moreInfo-goodsList" >
+                <div class="thumbnail" v-for="productsSelected in productsSelectedList" @click="selectDetailInfo(productsSelected.goodsID)">
+                    <img :src="productsSelected.goodsImageList">
+                    <div class="caption">
+                        <p>{{ productsSelected.goodsName }}</p>
+                        <p><b>￥{{ productsSelected.goodsPrice }}</b></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="all-result">
+        <p>商品详情</p>
+    </div>
+    <HR>
+
+<!--    <div id="content">-->
+<!--        <div style="height: 250px; background-color:Gray">-->
+<!--        </div>-->
+<!--        <div id="float" ref="float">-->
+<!--        </div>-->
+<!--        <div style="height: 9999px;  background-color:Gray">-->
+<!--        </div>-->
+<!--    </div>-->
+
+
+
+    <div style="width: 100%;height: 50px;float:left;z-index:999" id="float">
+        <nav id="scrollspy" class="navbar navbar-light bg-light">
+            <ul class="nav nav-pills" style="margin-left: 15%;">
+                <li class="nav-item">
+                    <a class="nav-link" href="#detailedImage">商品详情</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#userEvaluate">用户评论</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+    <div data-spy="scroll" data-target="#scrollspy" data-offset="0" style="width: 100%; height: 100%; float: left; margin-top: 20px;">
+        <div class="show-goodsDetailedInfo" id="detailedImage">
+            <div class="goods-detailedBigImg">
+                <div class="detailedBigImg-child" v-for="goodsDetailedImage in goodsDetailedImageList">
+                    <img :src="goodsDetailedImage">
+                </div>
+            </div>
+        </div>
+        <hr>
+        <div class="show-goodsDetailedInfo" id="userEvaluate" v-if="isShow">
+            <a href="javascript:void(0);" style="height:auto;float: right" @click="moreEvaluate">更多评论</a>
+            <div class="detailedInfo-goodsEvaluate" style="height: 250px;" v-for="evaluate in evaluateList">
+                <div class="goodsEvaluate-userHeadPortrait">
+                    <div class="top-peopleInfo-img">
+                        <!-- 如果未登陆头像为默认头像，font为登录 -->
+                        <img class="top-peopleInfo-round-icon" :src="evaluate.userHeadPortrait">
+                        <p>{{ evaluate.userName }}</p>
+                    </div>
+                </div>
+                <div class="goodsEvaluate-userEvaluateContent">
+                    <p>{{ evaluate.evaluateContent }}</p>
+                </div>
+                <div class="goodsEvaluate-userEvaluateContent" style="height: 10%;border: none">
+                    <p>{{ evaluate.evaluateUpdateTime }}</p>
+                </div>
+                <div class="goodsEvaluate-userEvaluateImageList">
+                    <img v-for="evaluateImage in evaluate.evaluateImageList" :src="evaluateImage">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    /* 请求拦截 */
+    axios.interceptors.request.use(
+        config => {
+            if (localStorage.getItem("token") != null) {
+                config.headers["token"] = localStorage.getItem("token");
+            }
+
+            return config;
+        },
+        err => Promise.reject(err)
+    );
+    axios.defaults.headers.post['Content-Type'] = 'application/json';
+    window.onload = function () {
+        if (localStorage.getItem("token") != null) {
+            vm.getUserIDByToken();
+        }
+        vm.getGoodsDetailedID();
+        vm.productsSelected();
+
+    };
+    $(function() {
+        var offsetTop = $("#float").offset().top;
+        $(window).scroll(function() {
+            //alert(offsetTop);
+            var scrollTop = document.documentElement.scrollTop;
+            if (scrollTop > offsetTop){
+                $("#float").css("position","fixed");
+            }
+            else{
+                $("#float").css("position", "static");
+            }
+        });
+    })
+
+    var vm = new Vue({
+        el: "#app",
+        data: {
+            LoginStatus: false,
+            goodsImageList: [],
+            goodsDetailedImageList: [],
+            goodsDetailedInfo: [],
+            goodsID: "",
+            goodsName: "",
+            goodsSubTitle: "",
+            goodsMarketPrice: "",
+            goodsPrice: "",
+            goodsBigImage: "",
+            productsSelectedList: [],
+            evaluateList: [],
+            paySum: 1,
+            userHeadPortrait: "",
+            userName: "test",
+            evaluateContent: "evaluateContent",
+            evaluateUpdateTime: "evaluateContent",
+            evaluateImageList: [],
+            isShow: true,
+            userID: "",
+            keywordData: "",
+        },
+        methods: {
+            keywordSearch() {
+                window.open("/goodsBySelectData?selectData=" + vm.keywordData);
+            },
+            moreEvaluate() {
+                window.open("/allEvaluate?goodsID=" + vm.goodsID)
+            },
+            addToShoppingCart() {
+                axios.post('/shoppingCart/addToShoppingCart', {
+                    userID: vm.userID,
+                    goodsID: vm.goodsID,
+                    goodsSum: vm.paySum,
+                }).then(function (data) {
+                    console.info(data.data)
+                    if (data.data.success === true) {
+                        toastr.options = {
+                            timeOut: 1000,
+                            positionClass: "toast-top-center",
+                        };
+                        toastr.success('已加入购物车，请查看');
+                    } else {
+                        window.location.href = "/front_Login"
+                    }
+                })
+            },
+            changeGoodsSum() {
+                axios.post('/front/getGoodsInventory', {
+                    goodsID: vm.goodsID,
+                }).then(function (data) {
+                    console.info(data.data)
+                    if (vm.paySum > data.data) {
+                        toastr.options = {
+                            timeOut: 1000,
+                            positionClass: "toast-top-center",
+                        };
+                        toastr.error('库存不足，仅剩' + data.data + '件')
+                    }
+                })
+            },
+            reduceGoodsSum() {
+                if (vm.paySum > 1) {
+                    vm.paySum--;
+                }  else {
+                    toastr.options = {
+                        timeOut: 1000,
+                        positionClass: "toast-top-center",
+                    };
+                    toastr.error('数量不能小于1')
+                }
+            },
+
+            addGoodsSum() {
+                axios.post('/front/getGoodsInventory', {
+                    goodsID: vm.goodsID,
+                }).then(function (data) {
+                    console.info(data.data)
+                    if (vm.paySum < data.data) {
+                        vm.paySum++;
+                    } else {
+                        toastr.options = {
+                            timeOut: 1000,
+                            positionClass: "toast-top-center",
+                        };
+                        toastr.error('库存不足，仅剩' + data.data + '件')
+                    }
+                })
+            },
+            getGoodsAllEvaluate() {
+                axios.post('/front/getGoodsDetailedEvaluate', {
+                    goodsID: vm.goodsID,
+                }).then(function (data) {
+                    vm.evaluateList = data.data;
+                    vm.evaluateList.forEach(ele => {
+                        ele.evaluateImageList = ele.evaluateImageList.split(",")
+                    })
+                    console.info(vm.evaluateList)
+
+                })
+            },
+            getUserIDByToken() {
+                axios.post('/getUserIDByToken', {
+                }).then(function (data) {
+                    vm.userID = data.data;
+                    console.info(vm.userID)
+                    if (vm.userID !== "") {
+                        vm.LoginStatus = true;
+                        vm.getUserInfo();
+                    }
+                })
+            },
+            getUserInfo() {
+                axios.post('/front/getUserInfo', {
+                    userID: vm.userID
+                }).then(function (data) {
+                    vm.userName = data.data.userName;
+                    console.info("userName:" + vm.userName)
+                })
+            },
+            selectDetailInfo(selectGoodsID) {
+                window.open('/goodsDetailedInfo?selectGoodsInfo=' + selectGoodsID)
+            },
+            selectAllClassSub(selectAllClassData) {
+                window.location.href = "/goodsClassify?selectAllClassData=" + selectAllClassData;
+            },
+            selectPhotoIndex(goodsImage) {
+                vm.goodsBigImage = goodsImage
+            },
+            collectWeb() {
+                alert("快捷键Ctrl + D收藏Rosette")
+            },
+            getGoodsDetailedID(){
+                var url = location.search;
+                if (url.indexOf("?") !== -1) {
+                    var str = url.substring(1);
+                    vm.goodsID = str.split("=")[1];
+                    vm.selectGoodsDetailedByID();
+                    vm.getGoodsAllEvaluate();
+                }
+            },
+            selectGoodsDetailedByID() {
+                axios.post('/front/selectGoodsDetailedByID', {
+                    goodsID: vm.goodsID,
+                }).then(function(data) {
+                    vm.goodsDetailedInfo = data.data;
+                    vm.goodsImageList = data.data.goodsImageList.split(",");
+                    vm.goodsDetailedImageList = data.data.goodsDetailedImageList.split(",");
+                    vm.goodsBigImage = vm.goodsImageList[0];
+                    console.info(vm.goodsDetailedInfo);
+                    console.info(vm.goodsImageList);
+                })
+            },
+            productsSelected() {
+                axios.post('/front/productsSelected', {
+                    goodsID: vm.goodsID,
+                }).then(function (data) {
+                    vm.productsSelectedList = data.data;
+                    for (var i = 0; i <vm.productsSelectedList.length; i++) {
+                        vm.productsSelectedList[i].goodsImageList = vm.productsSelectedList[i].goodsImageList.split(",")[0];
+                    }
+                })
+            },
+            selectInputLimit() {
+                vm.selectKeywords = vm.selectKeywords.replace(/\s+/g,'')
+            },
+
+
+
+        },
+
+    })
+</script>
+</body>
+</html>

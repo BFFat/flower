@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:v-on="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>用户登录</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css">
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <link rel="shortcut icon" href="../img/pang.ico" type="image/x-icon" />
+    <!--制作的图标，使用href关联，仅仅需要更改href的内容  -->
+    <style type="text/css">
+        h2 {
+            color: white;
+        }
+        body {
+            display:flex;
+            height: 920px;
+            align-items: center;
+            padding:40px 0;
+            background-image: url("/img/back.png")
+        }
+        form {
+            display: block;
+            width: 100%;
+            max-width: 330px;
+            padding:15px;
+            margin: auto;
+        }
+        .btn-block {
+            width: 300px;
+            margin: 80px auto;
+        }
+        .form-control {
+            color: white;
+            width: 300px;
+            height: 50px;
+            font-size: 20px;
+            margin:0 auto -20px;
+            background: none;
+            outline: none;
+            border-radius: 20px;
+            float:left;
+            position:relative;
+        }
+        .form-control:active, .form-control:focus {
+            border-color: white;
+            -webkit-box-shadow:none;
+            box-shadow: none;
+        }
+        input::-webkit-input-placeholder {
+            color: white;
+        }
+        input::-ms-input-placeholder {
+            color: white;
+        }
+    </style>
+</head>
+<body class="text-center" >
+<!-- 点击登录之后，提交表单，验证该用户输入的账号密码是否正确 -->
+        <form method="post" action="/login">
+            <img src="/img/P.png" width="72" height="72">
+            <h2 class="=form-signin0-heading">Please sign in</h2>
+<!--            <input class="form-control" v-model="staffID" type="text" placeholder="员工号" ><br>-->
+            <input class="form-control" name="username" type="text" placeholder="员工号" ><br>
+            <input class="form-control" style="margin-top: 30px;" name="password" type="password" placeholder="密码"><br>
+<!--            <input class="form-control" style="margin-top: 30px;" v-model="staffPassword" type="password" placeholder="密码"><br>-->
+<!--            <button class="btn btn-lg btn-primary btn-block" type="button" @click="login" >Sign in</button>-->
+<!--            <input type="submit" value="登录">-->
+            <input class="btn btn-lg btn-primary btn-block" type="submit" value="Sign in">
+        </form>
+</body>
+</html>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.pang.back.Mapper.GoodsMapper">
+    <insert id="addGoods" parameterType="com.pang.back.Model.Goods">
+        INSERT INTO goods(goodsClassName, goodsName, goodsSubTitle, goodsNumber, goodsHot, goodsShelves, goodsMarketPrice, goodsPrice, goodsSales, goodsInventory, goodsSort, goodsPresentExp, goodsImageList, goodsDetailedImageList)
+        VALUES (#{goodsClassName}, #{goodsName}, #{goodsSubTitle}, #{goodsNumber}, #{goodsHot}, #{goodsShelves}, #{goodsMarketPrice}, #{goodsPrice}, #{goodsSales}, #{goodsInventory}, #{goodsSort}, #{goodsPresentExp}, #{goodsImageList}, #{goodsDetailedImageList})
+    </insert>
+    <update id="updateGoods" parameterType="com.pang.back.Model.Goods">
+        UPDATE goods
+        <set>
+            goodsClassName = #{goodsClassName},
+            goodsName = #{goodsName},
+            goodsSubTitle = #{goodsSubTitle},
+            goodsNumber = #{goodsNumber},
+            goodsHot = #{goodsHot},
+            goodsShelves = #{goodsShelves},
+            goodsMarketPrice = #{goodsMarketPrice},
+            goodsPrice = #{goodsPrice},
+            goodsSales = #{goodsSales},
+            goodsInventory = #{goodsInventory},
+            goodsSort = #{goodsSort},
+            goodsPresentExp = #{goodsPresentExp},
+            goodsImageList = #{goodsImageList},
+            goodsDetailedImageList = #{goodsDetailedImageList}
+        </set>
+        WHERE goodsID = #{goodsID}
+    </update>
+    <delete id="batchDeleteGoods" parameterType="int[]">
+        DELETE FROM goods WHERE goodsID IN
+        <foreach collection="array" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </delete>
+    <select id="fuzzySelectGoods" parameterType="com.pang.back.Model.Goods" resultType="com.pang.back.Model.Goods">
+        SELECT * FROM goods WHERE
+        goodsID LIKE CONCAT('%',#{fuzzyData},'%')
+        OR
+        goodsClassName LIKE CONCAT('%',#{fuzzyData},'%')
+        OR
+        goodsName LIKE CONCAT('%',#{fuzzyData},'%')
+        OR
+        goodsSubTitle LIKE CONCAT('%',#{fuzzyData},'%')
+        OR
+        goodsNumber LIKE CONCAT('%',#{fuzzyData},'%')
+    </select>
+</mapper>

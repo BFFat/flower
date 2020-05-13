@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.pang.front.Mapper.EvaluateMapper">
+    <insert id="addEvaluate" parameterType="com.pang.front.Model.Evaluate">
+        insert into evaluate(goodsID, userID, orderID, evaluateContent, evaluateImageList)
+        values(#{goodsID}, #{userID}, #{orderID}, #{evaluateContent}, #{evaluateImageList})
+    </insert>
+
+    <select id="getGoodsAllEvaluate" parameterType="java.lang.Long" resultType="com.pang.front.Model.Evaluate">
+        select g.goodsID, g.goodsName, g.goodsPrice, g.goodsImageList, u.userID, u.userName, u.userHeadPortrait, e.evaluateContent, e.evaluateImageList, e.evaluateUpdateTime
+        from goods g, userInfo u, evaluate e
+        where e.orderID = #{orderID}
+        and g.goodsID = e.goodsID
+        and u.userID = e.userID
+    </select>
+
+    <insert id="changeEvaluate" parameterType="com.pang.front.Model.Evaluate">
+        update evaluate set evaluateContent = #{evaluateContent}, evaluateImageList = #{evaluateImageList} where orderID = #{orderID}
+    </insert>
+
+    <select id="getGoodsDetailedEvaluate" parameterType="java.lang.Integer" resultType="com.pang.front.Model.Evaluate">
+        select g.goodsID, g.goodsName, g.goodsPrice, g.goodsImageList, u.userID, u.userName, u.userHeadPortrait, e.evaluateID, e.evaluateContent, e.evaluateImageList, e.evaluateUpdateTime
+        from goods g, userInfo u, evaluate e
+        where e.goodsID = #{goodsID}
+        and g.goodsID = e.goodsID
+        and u.userID = e.userID
+        order by e.evaluateUpdateTime DESC
+        limit 5
+    </select>
+
+    <select id="getGoodsDetailedAllEvaluate" resultType="com.pang.front.Model.Evaluate">
+        select g.goodsID, g.goodsName, g.goodsPrice, g.goodsImageList, u.userID, u.userName, u.userHeadPortrait, e.evaluateID, e.evaluateContent, e.evaluateImageList, e.evaluateUpdateTime
+        from goods g, userInfo u, evaluate e
+        where g.goodsID = e.goodsID
+        and u.userID = e.userID
+    </select>
+</mapper>

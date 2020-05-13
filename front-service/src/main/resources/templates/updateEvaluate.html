@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>修改评价</title>
+    <link rel="stylesheet" href="../css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="../css/toastr.min.css">
+    <link rel="stylesheet" type="text/css" href="../css/front.css">
+    <link rel="stylesheet" href="../css/bootstrap-datepicker3.min.css">
+    <script type="text/javascript" src="../js/jquery-3.4.1.min.js"></script>
+    <script type="text/javascript" src="../js/bootstrap.js"></script>
+    <!-- <script type="text/javascript" src="../js/houtai.js"></script> -->
+    <script type="text/javascript" src="../js/vue.js"></script>
+    <script src="../js/bootstrap-datepicker.min.js"></script>
+    <script src="../js/bootstrap-datepicker.zh-CN.min.js" charset="UTF-8"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="../js/toastr.min.js"></script>
+    <script src="../js/moment.js"></script>
+    <link rel="shortcut icon" href="../img/pang.ico" type="image/x-icon" />
+    <!--制作的图标，使用href关联，仅仅需要更改href的内容  -->
+</head>
+<body>
+<div class="all" id="app" v-cloak>
+    <!--顶部-->
+    <div class="top-head">
+        <div class="top-head-collect">
+            <a href="javascript:" @click="collectWeb">
+                ❤收藏Rosette(Ctrl + D)
+            </a>
+        </div>
+        <div class="top-head-right">
+            <a v-show="!LoginStatus" href="/front_Login">你好，请登录</a>
+            <a v-show="LoginStatus" href="javascript:">你好，{{ userName }}</a>
+            <a href="/front_Register">注册</a>
+            <a href="/my_order">我的订单</a>
+            <a href="/shopping">购物车</a>
+            <a href="/updatePassword">修改密码</a>
+            <a href="/myPersonInfo/selectPersonInfo">我的信息</a>
+        </div>
+    </div>
+    <!--分割线-->
+    <HR style="width:100%;color:#987cb9; size:1px;position: relative;float: left">
+    <!--导航栏-->
+    <div class="top-navigation">
+        <div class="top-navigation-icon">
+            <a href="/front_Home">
+                <img src="/img/flowerlove1.png">
+            </a>
+        </div>
+        <div class="top-navigation-gif">
+            <span><img src="/img/0.gif"></span>
+        </div>
+        <div class="top-navigation-nav">
+            <a href="javascript:void(0)" @click="selectAllClassSub('鲜花')">鲜花</a>
+            <a href="javascript:void(0)" @click="selectAllClassSub('永生花')">永生花</a>
+            <a href="javascript:void(0)" @click="selectAllClassSub('礼品')">礼品</a>
+        </div>
+        <div class="top-navigation-select">
+            <!--v-model="fuzzySelectData" @keyup.enter="fuzzySelect(firstPage)"-->
+            <input class="selectBox-input" type="text" name="select" placeholder="更多优惠商品等你来选购" maxlength="40" @input="selectInputLimit" v-model="keywordData">
+            <button class="selectBtn">
+                <img src="../img/select.png" class="selectBtn-icon" @click="keywordSearch">
+            </button>
+        </div>
+    </div>
+
+    <div class="all-result">
+        <p>商品评价</p>
+    </div>
+    <!--分割线-->
+    <HR style="margin-top: -3px;">
+    <div v-show="!LoginStatus" class="none-Login">
+        <div>
+            <img src="/img/sorry.png">
+            <p>暂无订单信息，</p>
+            <a href="/front_Login">请先登录</a>
+        </div>
+    </div>
+
+    <div v-show="LoginStatus && isShow" class="goodsEvaluate-parents">
+        <div v-for="(goods, index) in goodsList" :key="index" class="goodsEvaluate-child">
+            <div class="goodsEvaluate-childLeft">
+                <div>
+                    <img :src="goods.goodsImageList">
+                </div>
+                <p>{{ goods.goodsName }}</p>
+            </div>
+            <div class="goodsEvaluate-childRight" >
+                <textarea type="text" maxlength="200" v-model="goods.evaluateContent" @input="recordWordsNum(goods.goodsID)" placeholder="感谢你的好评"></textarea>
+                <small>最多200字，您还可以输入{{ 200-wordsNum[goods.goodsID] }}字。</small>
+            </div>
+            <div class="goodsEvaluate-childBottom">
+                <div style="width:100%; height:auto; float: left; ">
+                    <div style="width:100px; height:100px; position:relative; margin-left:5px; float: left; z-index:1" v-for="(imageList, cindex) in goods.evaluateImageList" :key="cindex">
+                        <img :src="imageList" style="width: 100px; height: 100px; border-radius: 10px;">
+                        <a href="#" @click="deleteImg(index, cindex)">
+                            <img src="/img/close.png" style="width: 36px; height: 36px; position: absolute; top: -5px; right: -5px; z-index: 100;">
+                        </a>
+                    </div>
+                    <div style="width: 100px; height: 100px; margin-left:5px;float:left; position: relative; border-width: 1px; border-color: #9d9d9d; border-style: dashed; display: flex; justify-content: center; align-items: center; border-radius:10px;" @click="inputBtn(index)">
+                        <img src="/img/add.png">
+                    </div>
+                    <input style="display: none" type="file" accept="image/*" name="file" ref="getImageInput" @change="getImageInput(index)" multiple>
+                </div>
+            </div>
+        </div>
+        <div class="goodsEvaluate-button">
+            <button class="btn btn-info" @click="changeEvaluate">修改评论</button>
+        </div>
+    </div>
+
+    <canvas ref="headCanvas" style="display: none"></canvas>
+</div>
+<script type="text/javascript">
+    /* 请求拦截 */
+    axios.interceptors.request.use(
+        config => {
+            if (localStorage.getItem("token") != null) {
+                config.headers["token"] = localStorage.getItem("token");
+            }
+
+            return config;
+        },
+        err => Promise.reject(err)
+    );
+    axios.defaults.headers.post['Content-Type'] = 'application/json';
+    window.onload = function () {
+        if (localStorage.getItem("token") != null) {
+            console.info(localStorage.getItem("token"));
+            vm.getUserIDByToken();
+
+        }
+    }
+    var vm = new Vue({
+        el: "#app",
+        data: {
+            LoginStatus: false,
+            isShow: true,
+            orderStatus: true,
+            userID: "",
+            selectAllClassData: "",
+            goodsImageList: [],
+            goodsName: "",
+            goodsPrice: "",
+            goodsSum: 0,
+            deleteOrderID: "",
+            shoppingCartPriceSum: 0,
+            goodsInventory: 0,
+            ifCancel: false,
+            ifComplete: false,
+            goodsList: [],
+            wordsNum: [],
+            evaluateContent: [],
+            imageList: [],
+            submitImageList: [],
+            imageListLength: 0,
+            imageListParents: [],
+            submitListParents: [],
+            evaluateImageList: [],
+            tempArr: [],
+            keywordData: "",
+        },
+        methods: {
+            keywordSearch() {
+                window.open("/goodsBySelectData?selectData=" + vm.keywordData);
+            },
+            changeEvaluate() {
+                var formData = new window.FormData();
+                vm.goodsList.forEach(ele => {
+                    if (ele.evaluateContent === "") {
+                        ele.evaluateContent = "系统默认好评";
+                    }
+                    formData.append("goodsID", ele.goodsID);
+                    formData.append("userID", vm.userID);
+                    formData.append("orderID", vm.orderID);
+                    formData.append("evaluateContent", ele.evaluateContent);
+                    if (ele.submitListParents !== null) {
+                        for (let i = 0; i < ele.submitListParents.length; i++) {
+                            formData.append("imageList", ele.submitListParents[i]);
+                        }
+                    } else {
+                        formData.append("imageList", ele.submitListParents);
+                    }
+                    axios.post('/evaluate/changeEvaluate', formData, {
+                    }).then(function (data) {
+                        console.info(data.data)
+                        if (data.data.success === true) {
+                            window.location.href = "/my_order"
+                        }
+                    })
+                })
+
+            },
+            getUserIDByToken() {
+                axios.post('/getUserIDByToken', {
+                }).then(function (data) {
+                    vm.userID = data.data;
+                    if (vm.userID !== "") {
+                        vm.LoginStatus = true;
+                        vm.getUserInfo();
+                        var url = location.search;
+                        if (url.indexOf("?") !== -1) {
+                            var str = url.substring(1);
+                            vm.orderID = str.split("=")[1];
+                            vm.getGoodsAllEvaluate();
+                        }
+                    }
+                    console.info("ID:" + vm.userID)
+
+                })
+            },
+            getUserInfo() {
+                axios.post('/front/getUserInfo', {
+                    userID: vm.userID
+                }).then(function (data) {
+                    vm.userName = data.data.userName;
+                    console.info("userName:" + vm.userName)
+                })
+            },
+            getGoodsAllEvaluate() {
+                axios.post('/evaluate/getGoodsAllEvaluate', {
+                    orderID: vm.orderID,
+                }).then(function (data) {
+                    vm.goodsList = data.data;
+                    console.info(vm.goodsList)
+                    for (var i = 0; i < vm.goodsList.length; i++) {
+                        vm.goodsList[i].goodsImageList = vm.goodsList[i].goodsImageList.split(",")[0];
+                        vm.tempArr = vm.goodsList[i].evaluateImageList.split(",");
+                        vm.goodsList[i].evaluateImageList = [];
+                        vm.onloadImg(vm.tempArr, 0, i)
+                    }
+                    vm.goodsList.forEach( ele => {
+                        vm.wordsNum[ele.goodsID] = 0;
+                        vm.$set(ele, "submitListParents", []);
+                    })
+                })
+            },
+            recordWordsNum(goodsID) {
+                vm.wordsNum[goodsID] = vm.evaluateContent[goodsID].length;
+            },
+            deleteImg(index, cindex) {
+                vm.goodsList[index].evaluateImageList.splice(cindex, 1);
+                vm.goodsList[index].submitListParents.splice(cindex, 1);
+            },
+            inputBtn(index) {
+                console.info("触发点击了")
+                vm.$refs.getImageInput[index].click();
+            },
+            onloadImg(tempArr, i, index) {
+                var tempName = tempArr[i].split("/");
+                tempName = tempName[tempName.length - 1];
+                var fileName = tempName.substring(tempName.indexOf("_")+1);
+                //一定要设置为let
+                let image = new Image();
+                image.setAttribute('crossOrigin', 'anonymous');
+                image.src = tempArr[i];
+                image.onload = () => {
+                    var canvas = vm.$refs.headCanvas;
+                    var context = canvas.getContext('2d');
+                    canvas.width = image.width;
+                    canvas.height = image.height;
+                    context.drawImage(image, 0, 0, image.width, image.height);
+                    var dataurl = canvas.toDataURL("image/png");
+                    vm.goodsList[index].evaluateImageList[vm.goodsList[index].evaluateImageList.length] = dataurl;
+                    var arr = dataurl.split(','),
+                        mime = arr[0].match(/:(.*?);/)[1],
+                        bstr = atob(arr[1]),
+                        n = bstr.length,
+                        u8arr = new Uint8Array(n);
+                    while (n--) {
+                        u8arr[n] = bstr.charCodeAt(n);
+                    }
+                    var file = new File([u8arr], fileName, {type: mime});
+                    file.lastModifiedDate = new Date();
+                    vm.goodsList[index].submitListParents[vm.goodsList[index].submitListParents.length] = file;
+                    // 重新渲染数据
+                    vm.isShow = false;
+                    // 更新dom
+                    vm.$nextTick(()=>{
+                        vm.isShow = true
+                    })
+                    i = i + 1;
+                    if (i < tempArr.length) {
+                        vm.onloadImg(tempArr, i, index)
+                    }
+                }
+            },
+            onloadAddImg(tempArr, i, index) {
+                vm.goodsList[index].submitListParents[vm.goodsList[index].submitListParents.length] = tempArr[i];
+                var reader = new FileReader();
+                reader.readAsDataURL(tempArr[i]);
+                reader.onload = function (event) {
+                    vm.goodsList[index].evaluateImageList[vm.goodsList[index].evaluateImageList.length] = reader.result;
+                    console.info(vm.goodsList);
+                    // 重新渲染数据
+                    vm.isShow = false;
+                    // 更新dom
+                    vm.$nextTick(()=>{
+                        vm.isShow = true
+                    })
+                };
+                i = i + 1;
+                if (i < tempArr.length) {
+                    vm.onloadImg(tempArr, i, index)
+                }
+            },
+            getImageInput(index) {
+                if (vm.$refs.getImageInput[index].value !== "") {
+                    var inputFile = vm.$refs.getImageInput[index].files;
+                    console.info(inputFile.length)
+                    if (inputFile.length !== 0 && inputFile.length + vm.goodsList[index].evaluateImageList.length <= 4) { //vm.goodsList[goodsID].imageListParents.length
+                        vm.onloadAddImg(inputFile, 0, index);
+                        vm.$refs.getImageInput[index].value = "";
+                    } else if (inputFile.length + vm.goodsList[index].evaluateImageList.length > 4) {
+                        toastr.options = {
+                            timeOut: 1000,
+                            positionClass: "toast-top-center",
+                        };
+                        toastr.error('最多上传四张图片');
+                    }
+                }
+            },
+            collectWeb() {
+                alert("快捷键Ctrl + D收藏Rosette")
+            },
+            selectInputLimit() {
+                vm.selectKeywords = vm.selectKeywords.replace(/\s+/g,'')
+            },
+
+        },
+        watch: {
+            goodsList(val) {
+                console.info(val)
+            }
+        }
+
+    })
+</script>
+</body>
+</html>

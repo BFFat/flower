@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.pang.back.Mapper.StaffInfoMapper">
+    <select id="fuzzySelectStaffInfo" resultType="com.pang.back.Model.StaffInfo">
+            SELECT * FROM staffInfo WHERE
+            staffID LIKE CONCAT('%',#{fuzzyData},'%')
+            OR
+            staffName LIKE CONCAT('%',#{fuzzyData},'%')
+            OR
+            staffSex LIKE CONCAT('%',#{fuzzyData},'%')
+            OR
+            staffBirthday LIKE CONCAT('%',#{fuzzyData},'%')
+            OR
+            staffPhone LIKE CONCAT('%',#{fuzzyData},'%')
+            OR
+            staffAddress LIKE CONCAT('%',#{fuzzyData},'%')
+            OR
+            staffInfoUpdateTime LIKE CONCAT('%',#{fuzzyData},'%')
+        </select>
+    <insert id="addStaffInfo" parameterType="com.pang.back.Model.StaffInfo">
+        INSERT INTO staffInfo(staffID, staffName, staffSex, staffBirthday, staffPhone, staffHeadPortrait, staffAddress)
+        VALUES
+        (#{staffID}, #{staffName}, #{staffSex}, #{staffBirthday}, #{staffPhone}, #{staffHeadPortrait}, #{staffAddress})
+    </insert>
+
+    <update id="updateStaffInfo" parameterType="com.pang.back.Model.StaffInfo">
+        UPDATE staffInfo
+        <set>
+            staffName = #{staffName},
+            staffSex = #{staffSex},
+            staffBirthday = #{staffBirthday},
+            staffPhone = #{staffPhone},
+            staffHeadPortrait = #{staffHeadPortrait},
+            staffAddress = #{staffAddress},
+        </set>
+        WHERE staffID = #{staffID}
+    </update>
+
+    <delete id="batchDelete" parameterType="int[]">
+        DELETE FROM staffInfo WHERE staffID IN
+        <foreach collection="array" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+    <select id="getPersonInfo" resultType="map">
+        SELECT staff.staffID, staff.staffPassword,
+               staffInfo.staffName, staffInfo.staffSex, staffInfo.staffBirthday, staffInfo.staffPhone, staffInfo.staffHeadPortrait, staffInfo.staffAddress
+        FROM staff, staffInfo
+        WHERE staff.staffID = staffInfo.staffID
+        AND staff.staffID = #{staffID}
+    </select>
+
+
+</mapper>
