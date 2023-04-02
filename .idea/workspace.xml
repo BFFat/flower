@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="ALL" />
+  </component>
   <component name="ChangeListManager">
-    <list default="true" id="eca58652-d72b-4de8-b321-aad389aa6afd" name="Default Changelist" comment="" />
+    <list default="true" id="eca58652-d72b-4de8-b321-aad389aa6afd" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -20,9 +26,6 @@
     </option>
     <expand />
     <select />
-  </component>
-  <component name="FavoritesManager">
-    <favorites_list name="flower" />
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -52,19 +55,21 @@
     <other-services-enabled>true</other-services-enabled>
     <auto-save>true</auto-save>
   </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
   <component name="MavenImportPreferences">
     <option name="generalSettings">
       <MavenGeneralSettings>
         <option name="alwaysUpdateSnapshots" value="true" />
-        <option name="localRepository" value="G:\Program Files\maven" />
-        <option name="mavenHome" value="G:/Program Files/Java/apache-maven-3.5.3" />
-        <option name="userSettingsFile" value="G:\Program Files\Java\apache-maven-3.5.3\conf\settings.xml" />
+        <option name="localRepository" value="$USER_HOME$/pang/maven/apache-maven-3.9.1/repository" />
+        <option name="mavenHome" value="$USER_HOME$/pang/maven/apache-maven-3.9.1" />
+        <option name="userSettingsFile" value="$USER_HOME$/pang/maven/apache-maven-3.9.1/conf/settings.xml" />
       </MavenGeneralSettings>
     </option>
     <option name="importingSettings">
       <MavenImportingSettings>
         <option name="downloadSourcesAutomatically" value="true" />
-        <option name="importAutomatically" value="true" />
         <option name="vmOptionsForImporter" value="-Xmx2048m" />
       </MavenImportingSettings>
     </option>
@@ -72,34 +77,24 @@
   <component name="ProjectId" id="1WPjYbsWJgZzDkA19i8dVKZOqha" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
-    <option name="showExcludedFiles" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">
-    <property name="DatabaseDriversLRU" value="mysql" />
-    <property name="DefaultHtmlFileTemplate" value="HTML File" />
-    <property name="ExpandSpringBootJavaOptionsPanel" value="true" />
-    <property name="RequestMappingsPanelOrder0" value="0" />
-    <property name="RequestMappingsPanelOrder1" value="1" />
-    <property name="RequestMappingsPanelWidth0" value="75" />
-    <property name="RequestMappingsPanelWidth1" value="75" />
-    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
-    <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="aspect.path.notification.shown" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
-    <property name="node.js.detected.package.eslint" value="true" />
-    <property name="node.js.detected.package.tslint" value="true" />
-    <property name="node.js.path.for.package.eslint" value="project" />
-    <property name="node.js.path.for.package.tslint" value="project" />
-    <property name="node.js.selected.package.eslint" value="(autodetect)" />
-    <property name="node.js.selected.package.tslint" value="(autodetect)" />
-    <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
-    <property name="nodejs_npm_path_reset_for_default_project" value="true" />
-    <property name="project.structure.last.edited" value="Modules" />
-    <property name="project.structure.proportion" value="0.15" />
-    <property name="project.structure.side.proportion" value="0.2" />
-    <property name="settings.editor.selected.configurable" value="settings.github" />
-  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "last_opened_file_path": "/Users/yujunhao/Project/test/flower",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "MavenSettings",
+    "spring.configuration.checksum": "767cd91c74b1120d8b2c83d3acc7c8bb",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="E:\flower\back-service\src\main\resources\templates" />
@@ -272,6 +267,7 @@
       </list>
     </option>
   </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="SvnConfiguration">
     <configuration />
   </component>
@@ -390,138 +386,13 @@
       <workItem from="1588995291909" duration="2542000" />
       <workItem from="1589193173055" duration="1989000" />
       <workItem from="1589340264403" duration="1371000" />
+      <workItem from="1680453318403" duration="696000" />
+      <workItem from="1680478478152" duration="299000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
-    <option name="version" value="1" />
-  </component>
-  <component name="WindowStateProjectService">
-    <state x="552" y="179" key="#Inspections" timestamp="1582293309263">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state x="552" y="179" key="#Inspections/0.0.1920.1040@0.0.1920.1040" timestamp="1582293309263" />
-    <state x="552" y="179" key="#Project_Structure" timestamp="1584281670186">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state x="552" y="179" key="#Project_Structure/0.0.1920.1040@0.0.1920.1040" timestamp="1584281670186" />
-    <state x="552" y="179" key="#SQL_Dialects" timestamp="1583564431958">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state x="552" y="179" key="#SQL_Dialects/0.0.1920.1040@0.0.1920.1040" timestamp="1583564431958" />
-    <state x="522" y="351" width="1174" height="689" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1582190242335">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state x="522" y="351" width="1174" height="689" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1920.1040@0.0.1920.1040" timestamp="1582190242335" />
-    <state x="401" y="249" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1920.1080@0.0.1920.1080" timestamp="1581425955943" />
-    <state x="765" y="230" key="#com.intellij.ide.util.MemberChooser" timestamp="1585568755171">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state x="765" y="230" key="#com.intellij.ide.util.MemberChooser/0.0.1920.1040@0.0.1920.1040" timestamp="1585568755171" />
-    <state x="765" y="239" key="#com.intellij.ide.util.MemberChooser/0.0.1920.1080@0.0.1920.1080" timestamp="1581579396677" />
-    <state x="690" y="267" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog" timestamp="1586419519245">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state x="690" y="267" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog/0.0.1920.1040@0.0.1920.1040" timestamp="1586419519245" />
-    <state x="976" y="339" key="FileChooserDialogImpl" timestamp="1589341708049">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state x="976" y="339" key="FileChooserDialogImpl/0.0.1920.1040@0.0.1920.1040" timestamp="1589341708049" />
-    <state x="441" y="302" key="FileChooserDialogImpl/0.0.1920.1080@0.0.1920.1080" timestamp="1581414025752" />
-    <state width="1617" height="2" key="GridCell.Tab.0.bottom" timestamp="1588080935065">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state width="1617" height="2" key="GridCell.Tab.0.bottom/0.0.1920.1040@0.0.1920.1040" timestamp="1588080935065" />
-    <state width="1536" height="175" key="GridCell.Tab.0.bottom/0.0.1920.1080@0.0.1920.1080" timestamp="1581603744202" />
-    <state width="709" height="184" key="GridCell.Tab.0.bottom/0.0.800.560@0.0.800.560" timestamp="1583837622462" />
-    <state width="1617" height="2" key="GridCell.Tab.0.center" timestamp="1588080935065">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state width="1617" height="2" key="GridCell.Tab.0.center/0.0.1920.1040@0.0.1920.1040" timestamp="1588080935065" />
-    <state width="1536" height="175" key="GridCell.Tab.0.center/0.0.1920.1080@0.0.1920.1080" timestamp="1581603744201" />
-    <state width="709" height="184" key="GridCell.Tab.0.center/0.0.800.560@0.0.800.560" timestamp="1583837622461" />
-    <state width="1617" height="2" key="GridCell.Tab.0.left" timestamp="1588080935065">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state width="1617" height="2" key="GridCell.Tab.0.left/0.0.1920.1040@0.0.1920.1040" timestamp="1588080935065" />
-    <state width="1536" height="175" key="GridCell.Tab.0.left/0.0.1920.1080@0.0.1920.1080" timestamp="1581603744201" />
-    <state width="709" height="184" key="GridCell.Tab.0.left/0.0.800.560@0.0.800.560" timestamp="1583837622461" />
-    <state width="1617" height="2" key="GridCell.Tab.0.right" timestamp="1588080935065">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state width="1617" height="2" key="GridCell.Tab.0.right/0.0.1920.1040@0.0.1920.1040" timestamp="1588080935065" />
-    <state width="1536" height="175" key="GridCell.Tab.0.right/0.0.1920.1080@0.0.1920.1080" timestamp="1581603744201" />
-    <state width="709" height="184" key="GridCell.Tab.0.right/0.0.800.560@0.0.800.560" timestamp="1583837622461" />
-    <state width="1617" height="2" key="GridCell.Tab.1.bottom" timestamp="1588080935065">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state width="1617" height="2" key="GridCell.Tab.1.bottom/0.0.1920.1040@0.0.1920.1040" timestamp="1588080935065" />
-    <state width="1536" height="175" key="GridCell.Tab.1.bottom/0.0.1920.1080@0.0.1920.1080" timestamp="1581603744202" />
-    <state width="709" height="184" key="GridCell.Tab.1.bottom/0.0.800.560@0.0.800.560" timestamp="1583837622463" />
-    <state width="1617" height="2" key="GridCell.Tab.1.center" timestamp="1588080935065">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state width="1617" height="2" key="GridCell.Tab.1.center/0.0.1920.1040@0.0.1920.1040" timestamp="1588080935065" />
-    <state width="1536" height="175" key="GridCell.Tab.1.center/0.0.1920.1080@0.0.1920.1080" timestamp="1581603744202" />
-    <state width="709" height="184" key="GridCell.Tab.1.center/0.0.800.560@0.0.800.560" timestamp="1583837622462" />
-    <state width="1617" height="2" key="GridCell.Tab.1.left" timestamp="1588080935065">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state width="1617" height="2" key="GridCell.Tab.1.left/0.0.1920.1040@0.0.1920.1040" timestamp="1588080935065" />
-    <state width="1536" height="175" key="GridCell.Tab.1.left/0.0.1920.1080@0.0.1920.1080" timestamp="1581603744202" />
-    <state width="709" height="184" key="GridCell.Tab.1.left/0.0.800.560@0.0.800.560" timestamp="1583837622462" />
-    <state width="1617" height="2" key="GridCell.Tab.1.right" timestamp="1588080935065">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state width="1617" height="2" key="GridCell.Tab.1.right/0.0.1920.1040@0.0.1920.1040" timestamp="1588080935065" />
-    <state width="1536" height="175" key="GridCell.Tab.1.right/0.0.1920.1080@0.0.1920.1080" timestamp="1581603744202" />
-    <state width="709" height="184" key="GridCell.Tab.1.right/0.0.800.560@0.0.800.560" timestamp="1583837622462" />
-    <state x="104" y="351" key="Maven.ArtifactSearchDialog" timestamp="1584100175672">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state x="104" y="351" key="Maven.ArtifactSearchDialog/0.0.1920.1040@0.0.1920.1040" timestamp="1584100175672" />
-    <state x="344" y="365" key="Maven.ArtifactSearchDialog/0.0.1920.1080@0.0.1920.1080" timestamp="1581327442035" />
-    <state x="887" y="279" width="998" height="708" key="SettingsEditor" timestamp="1589341698649">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state x="887" y="279" width="998" height="708" key="SettingsEditor/0.0.1920.1040@0.0.1920.1040" timestamp="1589341698649" />
-    <state x="508" y="171" key="SettingsEditor/0.0.1920.1080@0.0.1920.1080" timestamp="1581408552240" />
-    <state width="731" height="446" key="SwitcherDM" timestamp="1584179481487">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state width="731" height="446" key="SwitcherDM/0.0.1920.1040@0.0.1920.1040" timestamp="1584179481487" />
-    <state x="640" y="344" key="com.intellij.ide.util.TipDialog" timestamp="1588994839195">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state x="640" y="344" key="com.intellij.ide.util.TipDialog/0.0.1920.1040@0.0.1920.1040" timestamp="1588994839195" />
-    <state x="640" y="357" key="com.intellij.ide.util.TipDialog/0.0.1920.1080@0.0.1920.1080" timestamp="1581570087060" />
-    <state x="0" y="203" key="com.intellij.openapi.editor.actions.MultiplePasteAction$ClipboardContentChooser" timestamp="1584699964520">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state x="0" y="203" key="com.intellij.openapi.editor.actions.MultiplePasteAction$ClipboardContentChooser/0.0.1920.1040@0.0.1920.1040" timestamp="1584699964520" />
-    <state x="676" y="297" width="1260" height="598" key="dock-window-1" timestamp="1580973941930">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state x="676" y="297" width="1260" height="598" key="dock-window-1/0.0.1920.1040@0.0.1920.1040" timestamp="1580973941930" />
-    <state x="334" y="215" key="new project wizard" timestamp="1585719754502">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state x="334" y="215" key="new project wizard/0.0.1920.1040@0.0.1920.1040" timestamp="1585719754502" />
-    <state x="334" y="223" key="new project wizard/0.0.1920.1080@0.0.1920.1080" timestamp="1581410081546" />
-    <state x="0" y="276" key="refactoring.ChangeSignatureDialog" timestamp="1585673250338">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state x="0" y="276" key="refactoring.ChangeSignatureDialog/0.0.1920.1040@0.0.1920.1040" timestamp="1585673250338" />
-    <state x="411" y="548" width="672" height="677" key="run.anything.popup" timestamp="1583590703937">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state x="411" y="548" width="672" height="677" key="run.anything.popup/0.0.1920.1040@0.0.1920.1040" timestamp="1583590703937" />
-    <state x="836" y="334" width="672" height="704" key="run.anything.popup/0.0.1920.1080@0.0.1920.1080" timestamp="1581409138749" />
-    <state x="983" y="289" width="672" height="678" key="search.everywhere.popup" timestamp="1584290964157">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state x="983" y="289" width="672" height="678" key="search.everywhere.popup/0.0.1920.1040@0.0.1920.1040" timestamp="1584290964157" />
-    <state x="983" y="300" width="672" height="705" key="search.everywhere.popup/0.0.1920.1080@0.0.1920.1080" timestamp="1581579085564" />
+    <option name="version" value="3" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
